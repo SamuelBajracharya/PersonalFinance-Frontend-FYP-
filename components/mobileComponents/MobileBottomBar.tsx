@@ -21,7 +21,7 @@ const MobileBottomBar = () => {
     { href: '/analytics', icon: <AiFillPieChart size={24} /> },
     {
       href: '/transactions',
-      icon: <img src="/transactionHistory.svg" alt="Transaction History" className="w-11 h-11" />,
+      icon: <img src="/transactionHistory.svg" alt="Transaction History" className="size-7" />,
     },
     { href: '/budgetgoals', icon: <FaPiggyBank size={22} /> },
     { href: '/rewards', icon: <IoTrophy size={22} /> },
@@ -41,7 +41,7 @@ const MobileBottomBar = () => {
             className="w-[50px] h-[50px] flex flex-col items-center justify-center relative"
           >
             {idx === 2 ? (
-              <div className={`rounded-full ${isActive ? 'bg-primary' : 'bg-accent'}`}>
+              <div className={`size-11 flex items-center justify-center rounded-full ${isActive ? 'bg-primary' : 'bg-accent'}`}>
                 {item.icon}
               </div>
             ) : (
