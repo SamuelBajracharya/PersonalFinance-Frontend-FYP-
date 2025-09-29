@@ -1,5 +1,7 @@
-import { useEffect } from "react";
+"use client"
+
 import { useViewport } from "@/stores/useViewport";
+import { useEffect } from "react";
 
 export const useResponsive = (mobileBreakpoint = 768) => {
     // use the zustand store
@@ -23,7 +25,6 @@ export const useResponsive = (mobileBreakpoint = 768) => {
         // reset the event listener
         return () => window.removeEventListener("resize", checkViewport);
     }, [viewport, setViewport, mobileBreakpoint]);
-
     //   sets the boolean value for later use
     const isMobile = viewport === "mobile";
     const isDesktop = !isMobile; // explicitly mutually exclusive

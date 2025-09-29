@@ -1,39 +1,28 @@
 import { ReactNode } from "react";
-import { useResponsive } from "@/hooks/useResponsive";
-import AuthLayout from "@/layouts/AuthLayout";
-import DesktopLayout from "@/layouts/DesktopLayout";
-import MobileLayout from "@/layouts/MobileLayout";
+import ResponsiveLayoutWrapper from "./ResponsiveLayoutWrapper";
+import { Poppins } from "next/font/google";
+import "../styles/globals.css"
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"], // pick the weights you need
+  variable: "--font-poppins", // CSS variable name
+});
 
 // interface for props
 interface RootLayoutProps {
   children: ReactNode;
-  type?: "auth" | "default"; 
+  type?: "auth" | "default";
 }
 
 export default function RootLayout({ children, type = "default" }: RootLayoutProps) {
-  // checks if its mobile or desktop
-  const { isMobile, isDesktop } = useResponsive();
-
-  //use auth layout if its type of auth
-  if (type === "auth") {
-    return (
-      <html lang="en">
-        <body>
-          <AuthLayout>{children}</AuthLayout>
-        </body>
-      </html>
-    );
-  }
-
-  //uses default layouts when its default
   return (
     <html lang="en">
-      <body>
-        {/* destop layout */}
-        {isDesktop && <DesktopLayout>{children}</DesktopLayout>}
-        {/* mobile layout */}
-        {isMobile && <MobileLayout>{children}</MobileLayout>}
+      <body className={`${poppins.className} bg-mainBG text-textmain`}>
+        {/* Client wrapper handles responsive layouts */}
+        <ResponsiveLayoutWrapper type={type}>{children}</ResponsiveLayoutWrapper>
       </body>
     </html>
-  );
+  )
+
 }
