@@ -1,38 +1,53 @@
 "use client";
 
-import { useResponsive } from '@/hooks/useResponsive';
-import AuthLayout from '@/layouts/AuthLayout';
-import DesktopLayout from '@/layouts/DesktopLayout';
-import MobileLayout from '@/layouts/MobileLayout';
-import React, { ReactNode } from 'react'
+import { ReactNode, useMemo } from "react";
+import { usePathname } from "next/navigation";
+import { useResponsive } from "@/hooks/useResponsive";
 
+// Layouts
+import AuthLayout from "@/layouts/AuthLayout";
+import DesktopLayout from "@/layouts/DesktopLayout";
+import MobileLayout from "@/layouts/MobileLayout";
+import GeneralLayout from "@/layouts/GeneralLayout";
 
 interface ResponsiveLayoutWrapperProps {
-    children: ReactNode;
-    type?: "auth" | "default";
+  children: ReactNode;
 }
 
+const ResponsiveLayoutWrapper = ({
+  children,
+}: ResponsiveLayoutWrapperProps) => {
+  const pathname = usePathname();
+  const { isMobile, isDesktop } = useResponsive();
 
-const ResponsiveLayoutWrapper = ({ children, type = "default" }: ResponsiveLayoutWrapperProps) => {
-    // checks if its mobile or desktop
-    const { isMobile, isDesktop } = useResponsive();
+  // Memoize layout detection for stability
+  const detectedType = useMemo(() => {
+    if (pathname.startsWith("/auth")) return "auth";
+    if (pathname.startsWith("/onboarding")) return "onboarding";
+    if (pathname.startsWith("/success")) return "success";
+    if (pathname === "/404" || pathname.startsWith("/not-found"))
+      return "not-found";
+    return "default";
+  }, [pathname]);
 
-    //use auth layout if its type of auth
-    if (type === "auth") {
-        return (
-            <AuthLayout>{children}</AuthLayout>
-        );
-    }
+  switch (detectedType) {
+    case "auth":
+      return <AuthLayout>{children}</AuthLayout>;
 
-    //uses default layouts when its default
-    return (
+    case "onboarding":
+    case "success":
+    case "not-found":
+      return <GeneralLayout>{children}</GeneralLayout>;
+
+    case "default":
+    default:
+      return (
         <>
-            {/* destop layout */}
-            {isDesktop && <DesktopLayout>{children}</DesktopLayout>}
-            {/* mobile layout */}
-            {isMobile && <MobileLayout>{children}</MobileLayout>}
+          {isDesktop && <DesktopLayout>{children}</DesktopLayout>}
+          {isMobile && <MobileLayout>{children}</MobileLayout>}
         </>
-    );
-}
+      );
+  }
+};
 
-export default ResponsiveLayoutWrapper
+export default ResponsiveLayoutWrapper;

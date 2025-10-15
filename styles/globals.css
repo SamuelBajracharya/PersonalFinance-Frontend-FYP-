@@ -1,6 +1,5 @@
 @import "tailwindcss";
-@import "./antdLayout.css";
-
+@import "./scrollbar.css";
 @theme {
   --color-primary: #ffaa2d;
   --color-accent: #2b74f5;
@@ -30,3 +29,4 @@
 body, .ant-layout, .ant-menu {
   font-family: 'Poppins', sans-serif;
 }
+

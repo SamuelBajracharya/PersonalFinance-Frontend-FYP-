@@ -12,15 +12,14 @@ const poppins = Poppins({
 // interface for props
 interface RootLayoutProps {
   children: ReactNode;
-  type?: "auth" | "default";
 }
 
-export default function RootLayout({ children, type = "default" }: RootLayoutProps) {
+export default function RootLayout({ children}: RootLayoutProps) {
   return (
     <html lang="en">
       <body className={`${poppins.className} bg-mainBG text-textmain`}>
         {/* Client wrapper handles responsive layouts */}
-        <ResponsiveLayoutWrapper type={type}>{children}</ResponsiveLayoutWrapper>
+        <ResponsiveLayoutWrapper>{children}</ResponsiveLayoutWrapper>
       </body>
     </html>
   )
