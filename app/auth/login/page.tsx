@@ -6,6 +6,7 @@ import { FaGoogle, FaFacebook } from "react-icons/fa";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 import Link from "next/link";
+import Logo from "@/components/gloabalComponents/Logo";
 
 interface LoginRequest {
   email: string;
@@ -22,9 +23,10 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full text-white px-6">
       {/* Logo */}
-      <h1 className="text-3xl font-extrabold mb-4 tracking-wide">LOGO</h1>
+      <div className="mb-4">
+        <Logo width={220} />
+      </div>
       <h2 className="text-xl font-semibold mb-12">Welcome Back!</h2>
-
       <Form
         name="login"
         onFinish={onFinish}

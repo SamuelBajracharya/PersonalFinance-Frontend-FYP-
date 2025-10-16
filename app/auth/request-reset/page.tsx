@@ -1,5 +1,6 @@
 "use client";
 
+import Logo from "@/components/gloabalComponents/Logo";
 import { Form, Input, Button } from "antd";
 
 interface ResetRequest {
@@ -14,10 +15,12 @@ const RequestReset = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full text-white px-6">
       {/* Logo */}
-      <h1 className="text-3xl font-extrabold mb-4 tracking-wide">LOGO</h1>
+      <div className="mb-4">
+        <Logo width={240} />
+      </div>
 
       <div className="text-lg my-8 max-w-md">
-        <h2 className="text-3xl font-medium text-primary text-center">
+        <h2 className="text-4xl font-semibold text-primary text-center">
           Forgot Password
         </h2>
         <p className="mt-4 text-textmain text-center">
