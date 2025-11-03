@@ -22,6 +22,7 @@ const ResponsiveLayoutWrapper = ({
 
   // Memoize layout detection for stability
   const detectedType = useMemo(() => {
+    if (pathname === "/") return "general";
     if (pathname.startsWith("/auth")) return "auth";
     if (pathname.startsWith("/onboarding")) return "onboarding";
     if (pathname.startsWith("/success")) return "success";
@@ -37,6 +38,7 @@ const ResponsiveLayoutWrapper = ({
     case "onboarding":
     case "success":
     case "not-found":
+    case "general":
       return <GeneralLayout>{children}</GeneralLayout>;
 
     case "default":

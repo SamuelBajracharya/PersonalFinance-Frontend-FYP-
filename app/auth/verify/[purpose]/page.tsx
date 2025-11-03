@@ -145,7 +145,7 @@ export default function VerificationPage({
         if (purpose === "email_verification") {
           router.push("/onboarding/goal");
         } else {
-          router.push("/");
+          router.push("/dashboard");
         }
       },
       onError: (err: any) =>
