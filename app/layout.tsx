@@ -1,7 +1,9 @@
 import { ReactNode } from "react";
 import ResponsiveLayoutWrapper from "./ResponsiveLayoutWrapper";
 import { Poppins } from "next/font/google";
-import "../styles/globals.css"
+import "../styles/globals.css";
+import QueryProvider from "@/components/providers/QueryProvider";
+import AuthProvider from "@/components/providers/AuthProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -14,14 +16,17 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
-export default function RootLayout({ children}: RootLayoutProps) {
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className={`${poppins.className} bg-mainBG text-textmain`}>
         {/* Client wrapper handles responsive layouts */}
-        <ResponsiveLayoutWrapper>{children}</ResponsiveLayoutWrapper>
+        {/* <AuthProvider> */}
+          <QueryProvider>
+            <ResponsiveLayoutWrapper>{children}</ResponsiveLayoutWrapper>
+          </QueryProvider>
+        {/* </AuthProvider> */}
       </body>
     </html>
-  )
-
+  );
 }

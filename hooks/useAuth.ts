@@ -1,27 +1,81 @@
-import { loginAPI, registerAPI, requestPasswordResetAPI, resetPasswordAPI, verifyOtpAPI } from "@/api/authAPI";
-import { LoginData, RegisterData, ResetPasswordData, ResetTokenResponse, TempTokenResponse, TokenResponse } from "@/types/authAPI";
-import { UseMutationOptions, useMutation } from "@tanstack/react-query";
+"use client";
 
-export const useLogin = () =>
-  useMutation<TempTokenResponse, Error, LoginData, unknown>(loginAPI);
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  loginAPI,
+  registerAPI,
+  requestOtpAPI,
+  verifyOtpAPI,
+  requestPasswordResetAPI,
+  resetPasswordAPI,
+  getCurrentUserAPI,
+  logoutAPI,
+} from "@/api/authAPI";
+import {
+  LoginData,
+  RegisterData,
+  OtpData,
+  ResetPasswordData,
+  TempTokenResponse,
+  TokenResponse,
+  ResetTokenResponse,
+  UserResponse,
+} from "@/types/authAPI";
+import { useRouter } from "next/navigation";
 
-export const useRegister = () =>
-  useMutation<TempTokenResponse, Error, RegisterData, unknown>(registerAPI);
+export const useLogin = () => {
+  return useMutation<TempTokenResponse, Error, LoginData>({
+    mutationFn: loginAPI,
+  });
+};
 
-export const useRequestOtp = () =>
-  useMutation<{ message: string }, Error, string, unknown>(requestOtpAPI);
+export const useRegister = () => {
+  return useMutation<TempTokenResponse, Error, RegisterData>({
+    mutationFn: registerAPI,
+  });
+};
 
-export const useVerifyOtp = () =>
-  useMutation<TokenResponse | ResetTokenResponse, Error, OtpData, unknown>(
-    verifyOtpAPI
-  );
+export const useRequestOtp = () => {
+  return useMutation<{ message: string }, Error, string>({
+    mutationFn: requestOtpAPI,
+  });
+};
 
-export const useRequestPasswordReset = () =>
-  useMutation<TempTokenResponse, Error, string, unknown>(
-    requestPasswordResetAPI
-  );
+export const useVerifyOtp = () => {
+  return useMutation<TokenResponse | ResetTokenResponse, Error, OtpData>({
+    mutationFn: verifyOtpAPI,
+  });
+};
 
-export const useResetPassword = () =>
-  useMutation<{ message: string }, Error, ResetPasswordData, unknown>(
-    resetPasswordAPI
-  );
+export const useRequestPasswordReset = () => {
+  return useMutation<TempTokenResponse, Error, string>({
+    mutationFn: requestPasswordResetAPI,
+  });
+};
+
+export const useResetPassword = () => {
+  return useMutation<{ message: string }, Error, ResetPasswordData>({
+    mutationFn: resetPasswordAPI,
+  });
+};
+
+export const useCurrentUser = () => {
+  return useQuery<UserResponse, Error>({
+    queryKey: ["currentUser"],
+    queryFn: getCurrentUserAPI,
+    retry: false,
+  });
+};
+
+export const useLogout = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation<void, Error, void>({
+    mutationFn: () => Promise.resolve(logoutAPI()),
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ["currentUser"] });
+      router.push("/login");
+    },
+  });
+};

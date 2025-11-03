@@ -1,81 +1,109 @@
 "use client";
 
 import Logo from "@/components/gloabalComponents/Logo";
-import React, { JSX, use } from "react";
-import { PiCheckFatFill } from "react-icons/pi";
+import { Form, Input, Button, message } from "antd";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import { useResetPassword } from "@/hooks/useAuth";
 
-type SuccessType = "verification" | "reset_password";
-
-interface TextMap {
-  [key: string]: {
-    title: string;
-    message: string;
-    buttonText: string;
-  };
+interface ResetFormValues {
+  password: string;
+  confirmPassword: string;
 }
 
-const textMap: TextMap = {
-  verification: {
-    title: "Verification Successful!",
-    message:
-      "Your account has been verified. You now have full access to all features and can proceed with your account.",
-    buttonText: "Continue",
-  },
-  reset_password: {
-    title: "Password Reset Successful!",
-    message:
-      "Your password has been successfully reset. You can now log in using your new password.",
-    buttonText: "Go to Login",
-  },
-};
+const ResetPassword = () => {
+  const router = useRouter();
+  const { mutateAsync: resetPassword, isPending } = useResetPassword();
 
-interface SuccessPageProps {
-  params: Promise<{
-    type: SuccessType;
-  }>;
-}
+  const onFinish = async (values: ResetFormValues) => {
+    const { password, confirmPassword } = values;
 
-export default function SuccessPage({ params }: SuccessPageProps): JSX.Element {
-  const { type } = use(params);
-  const { title, message, buttonText } = textMap[type] || textMap.verification;
+    if (password !== confirmPassword) {
+      message.error("Passwords do not match!");
+      return;
+    }
 
-  const handleContinue = () => {
-    if (type === "reset_password") {
-      window.location.href = "/auth/login";
-    } else {
-      window.location.href = "/";
+    const resetToken = Cookies.get("resetToken");
+
+    if (!resetToken) {
+      message.error("Missing reset token. Please restart the reset process.");
+      return;
+    }
+
+    try {
+      await resetPassword({
+        new_password: password,
+      });
+
+      message.success("Password has been successfully reset!");
+      router.push("/success/reset_password");
+    } catch (error: any) {
+      message.error(
+        error?.response?.data?.detail || "Failed to reset password."
+      );
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-text-main px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center w-full text-white px-6">
       {/* Logo */}
-      <div className="absolute top-12 left-16 text-3xl font-bold text-gray-100">
-        <Logo width={200} />
+      <div className="mb-4">
+        <Logo width={240} />
       </div>
 
-      {/* Success Icon */}
-      <div className="bg-green-500 rounded-full p-6 mb-12 flex items-center justify-center">
-        <PiCheckFatFill className="text-white text-7xl" />
+      <div className="text-lg my-8 max-w-md">
+        <h2 className="text-4xl font-semibold text-primary text-center">
+          Reset Password
+        </h2>
+        <p className="mt-4 text-textmain text-center">
+          Password must be 8 characters long with a combination of letters,
+          numbers and symbols.
+        </p>
       </div>
 
-      {/* Title */}
-      <h1 className="text-3xl md:text-4xl font-semibold text-[#FFA726] mb-4 text-center">
-        {title}
-      </h1>
-
-      {/* Message */}
-      <p className="text-gray-300 text-center max-w-md mb-16 leading-relaxed text-lg">
-        {message}
-      </p>
-
-      {/* Continue Button */}
-      <button
-        onClick={handleContinue}
-        className="bg-[#FFA726] hover:bg-[#FF9800] text-white font-semibold py-3 px-16 rounded-full transition-colors duration-200 cursor-pointer w-full max-w-md"
+      <Form
+        name="resetPassword"
+        onFinish={onFinish}
+        layout="vertical"
+        className="w-full max-w-md flex flex-col space-y-2"
       >
-        {buttonText}
-      </button>
+        {/* Password */}
+        <Form.Item
+          name="password"
+          label={<span className="text-white text-lg">Password</span>}
+          rules={[{ required: true, message: "Please enter new password" }]}
+        >
+          <Input.Password
+            placeholder="enter your new password"
+            className="!bg-accentBG !text-textmain !placeholder-gray-300 !rounded-full !py-3 !px-5 !border-none !focus:ring-2 !focus:ring-yellow-400 !text-lg"
+          />
+        </Form.Item>
+
+        {/* Confirm Password */}
+        <Form.Item
+          name="confirmPassword"
+          label={<span className="text-white text-lg">Confirm Password</span>}
+          rules={[{ required: true, message: "Please re-enter new password" }]}
+        >
+          <Input.Password
+            placeholder="re-enter your new password"
+            className="!bg-accentBG !text-textmain !placeholder-gray-300 !rounded-full !py-3 !px-5 !border-none !focus:ring-2 !focus:ring-yellow-400 !text-lg"
+          />
+        </Form.Item>
+
+        {/* Reset Password Button */}
+        <Form.Item>
+          <Button
+            htmlType="submit"
+            loading={isPending}
+            className="!bg-primary hover:!bg-primary/80 !text-textmain !text-lg !py-6 !rounded-full !font-semibold !w-full !border-none !transition mt-4"
+          >
+            {isPending ? "Resetting..." : "Reset Password"}
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
-}
+};
+
+export default ResetPassword;

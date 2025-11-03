@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox, message } from "antd";
 import { FaGoogle, FaFacebook } from "react-icons/fa";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Logo from "@/components/gloabalComponents/Logo";
+import { useRegister } from "@/hooks/useAuth";
+import Cookies from "js-cookie";
 
 interface SignUpRequest {
   email: string;
@@ -15,13 +18,39 @@ interface SignUpRequest {
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const { mutate: register, isPending } = useRegister();
+
+  const [messageApi, contextHolder] = message.useMessage();
 
   const onFinish = (values: SignUpRequest) => {
-    console.log("Form values:", values);
+    register(values, {
+      onSuccess: (data) => {
+        Cookies.set("tempToken", data.temp_token, {
+          expires: 1 / 24,
+          secure: true,
+          sameSite: "strict",
+        });
+
+        messageApi.success("Registration successful! Please verify OTP.");
+        router.push("/auth/verify/email_verification");
+      },
+      onError: (error: any) => {
+        const errMsg =
+          error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong";
+
+        // show toast
+        messageApi.error(errMsg);
+      },
+    });
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full text-white px-6">
+      {contextHolder}
+
       {/* Logo */}
       <div className="mb-4">
         <Logo width={220} />
@@ -32,6 +61,7 @@ const SignUp = () => {
         name="register"
         onFinish={onFinish}
         layout="vertical"
+        validateTrigger="onSubmit"
         className="w-full max-w-md flex flex-col space-y-4"
       >
         {/* Email */}
@@ -41,7 +71,8 @@ const SignUp = () => {
         >
           <Input
             placeholder="email"
-            className="!bg-accentBG !text-textmain !placeholder-gray-300 !rounded-full !py-3 !px-5 !border-none !focus:ring-2 !focus:ring-yellow-400 !text-lg"
+            className="!bg-accentBG !text-textmain !placeholder-gray-300 !rounded-full 
+              !py-3 !px-5 !border-none !focus:ring-2 !focus:ring-yellow-400 !text-lg"
           />
         </Form.Item>
 
@@ -52,7 +83,8 @@ const SignUp = () => {
         >
           <Input
             placeholder="name"
-            className="!bg-accentBG !text-textmain !placeholder-gray-300 !rounded-full !py-3 !px-5 !border-none !focus:ring-2 !focus:ring-yellow-400 !text-lg"
+            className="!bg-accentBG !text-textmain !placeholder-gray-300 
+              !rounded-full !py-3 !px-5 !border-none !focus:ring-2 !focus:ring-yellow-400 !text-lg"
           />
         </Form.Item>
 
@@ -65,7 +97,8 @@ const SignUp = () => {
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="password"
-              className="!bg-accentBG !text-textmain !placeholder-gray-300 !rounded-full !py-3 !px-5 !border-none !focus:ring-2 !focus:ring-yellow-400 !text-lg"
+              className="!bg-accentBG !text-textmain !placeholder-gray-300 
+                !rounded-full !py-3 !px-5 !border-none !focus:ring-2 !focus:ring-yellow-400 !text-lg"
             />
             <button
               type="button"
@@ -94,9 +127,11 @@ const SignUp = () => {
         <Form.Item>
           <Button
             htmlType="submit"
-            className="!bg-primary hover:!bg-primary/80 !text-textmain !text-lg !py-6 !rounded-full !font-semibold !w-full !border-none !transition mt-4"
+            loading={isPending}
+            className="!bg-primary hover:!bg-primary/80 !text-textmain !text-lg !py-6 !rounded-full 
+              !font-semibold !w-full !border-none !transition mt-4"
           >
-            Sign Up
+            {isPending ? "Signing Up..." : "Sign Up"}
           </Button>
         </Form.Item>
 
@@ -118,14 +153,18 @@ const SignUp = () => {
           <hr className="flex-grow border-gray-600" />
         </div>
 
-        {/* Google Button */}
-        <Button className="!flex !items-center !justify-center !bg-accentBG hover:!bg-accentBG/80 !py-6 !rounded-full !space-x-1 !transition !border-none !text-textmain !w-full !text-lg">
+        <Button
+          className="!flex !items-center !justify-center !bg-accentBG hover:!bg-accentBG/80 !py-6 
+            !rounded-full !space-x-1 !transition !border-none !text-textmain !w-full !text-lg"
+        >
           <FaGoogle />
           <span>Continue With Google</span>
         </Button>
 
-        {/* Facebook Button */}
-        <Button className="!flex !items-center !justify-center !bg-accentBG hover:!bg-accentBG/80 !py-6 !rounded-full !space-x-1 !transition !border-none !text-textmain !w-full !text-lg">
+        <Button
+          className="!flex !items-center !justify-center !bg-accentBG hover:!bg-accentBG/80 !py-6 
+            !rounded-full !space-x-1 !transition !border-none !text-textmain !w-full !text-lg"
+        >
           <FaFacebook className="text-blue-500" />
           <span>Continue With Facebook</span>
         </Button>
