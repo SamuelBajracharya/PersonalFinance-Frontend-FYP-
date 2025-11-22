@@ -1,17 +1,18 @@
 @import "tailwindcss";
 @import "./scrollbar.css";
+@import "./select.css";
 @theme {
   --color-primary: #ffaa2d;
   --color-accent: #2b74f5;
   --color-mainBG: #0c0c0c;
-  --color-secondaryBG: #1D1D1D;
+  --color-secondaryBG: #1d1d1d;
   --color-tableBG: #242424;
   --color-highlight: #212121;
   --color-accentBG: #424242;
-  --color-expense: #DF4C4D;
-  --color-income: #00C782;
-  --color-textmain: #FEFEFE;
-  --color-textsecondary: #B5AEAE;
+  --color-expense: #df4c4d;
+  --color-income: #00c782;
+  --color-textmain: #fefefe;
+  --color-textsecondary: #b5aeae;
 
   --font-sans: var(--font-poppins), sans-serif;
 
@@ -26,7 +27,86 @@
 }
 
 /* globals.css */
-body, .ant-layout, .ant-menu {
-  font-family: 'Poppins', sans-serif;
+body,
+.ant-layout,
+.ant-menu {
+  font-family: "Poppins", sans-serif;
 }
 
+/* Ant Design dark table overrides */
+.custom-table .ant-table {
+  background-color: transparent !important;
+  color: white !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.custom-table .ant-table-thead > tr > th {
+  background: #2a2a2d !important;
+  color: #ccc !important;
+  font-weight: 500;
+  padding: 14px 16px !important;
+  font-size: large;
+  border: none !important;
+}
+
+.custom-table .ant-table-tbody > tr > td {
+  background: #1e1e20 !important;
+  border-bottom: 1px solid #333 !important;
+  color: #e0e0e0 !important;
+  padding: 14px 16px !important;
+}
+
+.custom-table .ant-table-tbody > tr:hover > td {
+  background: #2a2a2d !important;
+  transition: background 0.2s ease-in-out;
+}
+
+/* Pagination styling */
+.custom-table .ant-pagination {
+  margin-top: 20px !important;
+  justify-content: center;
+}
+
+.custom-table .ant-pagination-item {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-table .ant-pagination-item a {
+  color: #ccc !important;
+}
+
+.custom-table .ant-pagination-item-active {
+  background-color: #f39c12 !important;
+  border-radius: 6px !important;
+}
+
+.custom-table .ant-pagination-item-active a {
+  color: #fff !important;
+}
+
+.custom-table .ant-pagination-prev .ant-pagination-item-link,
+.custom-table .ant-pagination-next .ant-pagination-item-link {
+  color: #f39c12 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Table scrollbar */
+.custom-table .ant-table-body::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.custom-table .ant-table-body::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 6px;
+}
+
+/* Optional: subtle shadow for the whole table container */
+.custom-table .ant-table-container {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+}

@@ -33,7 +33,7 @@ export default function NotFound() {
 
         {/* Back Button */}
         <Link
-          href="/"
+          href="/dashboard"
           className="bg-primary hover:bg-primary/80 font-medium h-[50px] text-lg px-6 py-3 rounded-full transition-colors duration-200 inline-block"
         >
           Back to Homepage

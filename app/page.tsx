@@ -3,60 +3,83 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+}
+
 export default function Home() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  function isPWAInstalled() {
+    return (
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true
+    );
+  }
+
   useEffect(() => {
-    // Register Service Worker
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").then(() => {
-        console.log("✅ SW registered");
-      });
+    // 1️⃣ Check if app is installed ON THIS DEVICE
+    if (isPWAInstalled()) {
+      router.replace("/auth/register");
+      return;
     }
 
-    // Listen for beforeinstallprompt
+    // If not installed → show UI
+    setLoading(false);
+
+    // Register service worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
+
+    // Capture install prompt
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
-      console.log("🔥 beforeinstallprompt fired!");
       setDeferredPrompt(e);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-    // Listen for appinstalled event
-    const handleAppInstalled = () => {
-      console.log("🎉 App installed!");
-      // Add a small delay so router navigation works correctly
-      setTimeout(() => {
-        router.push("/auth/register");
-      }, 500);
-    };
-
-    window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
       window.removeEventListener(
         "beforeinstallprompt",
         handleBeforeInstallPrompt
       );
-      window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, [router]);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      console.log("❌ PWA install not available yet.");
       alert("PWA install not available yet.");
       return;
     }
 
-    deferredPrompt.prompt();
+    // Show native install popup
+    await deferredPrompt.prompt();
+
     const choice = await deferredPrompt.userChoice;
-    console.log("User choice:", choice.outcome);
+
+    if (choice.outcome === "accepted") {
+      router.push("/auth/register");
+    }
+
     setDeferredPrompt(null);
   };
 
+  // 2️⃣ Loading while detecting PWA installation
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+        <div className="animate-pulse text-lg">Checking app status...</div>
+      </main>
+    );
+  }
+
+  // 3️⃣ If not installed → show installer
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
       <button
