@@ -1,11 +1,86 @@
+"use client";
+
 import Image from "next/image";
 import { FiDownload } from "react-icons/fi";
 import { PiStarFill } from "react-icons/pi";
 import { FaYoutube, FaXTwitter } from "react-icons/fa6";
 import { FaFacebook, FaLinkedin } from "react-icons/fa";
 import { PiInstagramLogoFill } from "react-icons/pi";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+}
 
 export default function Home() {
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  function isPWAInstalled() {
+    return (
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true
+    );
+  }
+
+  useEffect(() => {
+    if (isPWAInstalled()) {
+      router.replace("/auth/register");
+      return;
+    }
+
+    // If not installed → show UI
+    setLoading(false);
+
+    // Register service worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
+
+    // Capture install prompt
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt
+      );
+    };
+  }, [router]);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      alert("PWA install not available yet.");
+      return;
+    }
+
+    // Show native install popup
+    await deferredPrompt.prompt();
+
+    const choice = await deferredPrompt.userChoice;
+
+    if (choice.outcome === "accepted") {
+      router.push("/auth/register");
+    }
+
+    setDeferredPrompt(null);
+  };
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-lg">Checking app status...</div>
+      </main>
+    );
+  }
   return (
     <>
       <nav className="w-full border-b border-accent/80 px-6 py-6 fixed top-0 left-0 bg-mainBG/60 backdrop-blur-sm z-50">
@@ -60,6 +135,7 @@ export default function Home() {
 
             <div className="mt-8 flex items-center gap-4">
               <button
+                onClick={handleInstallClick}
                 className="
               bg-primary px-10 py-8 rounded-full font-medium flex items-center justify-center gap-3 w-[230px] h-16 text-lg
               "

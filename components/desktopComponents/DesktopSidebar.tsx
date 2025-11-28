@@ -21,7 +21,7 @@ const DesktopSidebar = () => {
   }, [pathname]);
 
   const mainNav = [
-    { href: "/", label: "Home", icon: <GoHomeFill size={20} /> },
+    { href: "/dashboard", label: "Home", icon: <GoHomeFill size={20} /> },
     {
       href: "/analytics",
       label: "Analytics",

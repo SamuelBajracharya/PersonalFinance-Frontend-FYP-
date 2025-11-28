@@ -47,7 +47,7 @@ export default function StatCard({ type, value }: StatCardProps) {
       label: "Balance",
       color: "text-blue-500",
       bg: "bg-blue-600",
-      icon: <FaBalanceScale className="text-2xl" />,
+      icon: <FaBalanceScale className="size-8" />,
       prefix: "$",
     },
   }[type];

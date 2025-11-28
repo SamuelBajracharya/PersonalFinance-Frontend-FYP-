@@ -115,9 +115,7 @@ export default function Home() {
               <div className="size-12 rounded-xl bg-primary flex items-center justify-center">
                 <FaExchangeAlt size={24} className="text-white" />
               </div>
-              <h3 className="text-lg font-semibold">
-                Total Transaction Summary
-              </h3>
+              <h3 className="text-lg font-medium">Total Transaction Summary</h3>
             </div>
             <Select
               value={period}
@@ -150,7 +148,7 @@ export default function Home() {
               <div className="size-12 rounded-xl bg-primary flex items-center justify-center">
                 <FaBalanceScale size={32} className="text-white" />
               </div>
-              <h3 className="text-lg font-semibold">Total Balance Summary</h3>
+              <h3 className="text-lg font-medium">Total Balance Summary</h3>
             </div>
             <Select
               value={period}
@@ -184,7 +182,7 @@ export default function Home() {
             <div className="size-12 rounded-xl bg-primary flex items-center justify-center ">
               <AiOutlineTransaction size={40} className="text-white" />
             </div>
-            <h3 className="text-lg font-semibold">Cashflow Statistics</h3>
+            <h3 className="text-lg font-medium">Cashflow Statistics</h3>
           </div>
           <Select
             value={period}
@@ -232,7 +230,7 @@ export default function Home() {
                   className="size-8"
                 />{" "}
               </div>
-              <h3 className="text-lg font-semibold">Expense Category Chart</h3>
+              <h3 className="text-lg font-medium">Expense Category Chart</h3>
             </div>
             <PieChart data={pieExpense} colors={expenseColors} />
           </div>
@@ -271,7 +269,7 @@ export default function Home() {
                   className="size-8"
                 />{" "}
               </div>
-              <h3 className="text-lg font-semibold">Income Category Chart</h3>
+              <h3 className="text-lg font-medium">Income Category Chart</h3>
             </div>
             <PieChart data={pieIncome} colors={incomeColors} />
           </div>
