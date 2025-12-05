@@ -3,7 +3,6 @@
 import Logo from "@/components/gloabalComponents/Logo";
 import React, {
   useState,
-  ChangeEvent,
   ClipboardEvent,
   KeyboardEvent,
   JSX,
@@ -14,7 +13,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { OtpData, TokenResponse, ResetTokenResponse } from "@/types/authAPI";
 import { useRequestOtp, useVerifyOtp } from "@/hooks/useAuth";
-import { message } from "antd"; 
+import { message } from "antd";
 
 type Purpose = "email_verification" | "password_reset" | "two_factor_auth";
 
@@ -129,14 +128,13 @@ export default function VerificationPage({
           return;
         }
 
-        // Normal login token
-        Cookies.set("access_token", res.access_token, {
+        Cookies.set("accessToken", res.access_token, {
           expires: 1,
           secure: true,
           sameSite: "strict",
         });
 
-        Cookies.set("refresh_token", res.refresh_token, {
+        Cookies.set("refreshToken", res.refresh_token, {
           expires: 7,
           secure: true,
           sameSite: "strict",

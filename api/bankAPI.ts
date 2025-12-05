@@ -5,7 +5,7 @@ const bankingAPI = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: false, // set true if backend requires cookies
+  withCredentials: false, 
 });
 
 export interface User {
@@ -79,3 +79,4 @@ export const addTransaction = async (
   );
   return data;
 };
+

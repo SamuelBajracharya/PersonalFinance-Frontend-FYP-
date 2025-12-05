@@ -4,10 +4,10 @@ import React from "react";
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { FaEyeSlash, FaRedoAlt } from "react-icons/fa";
-import { MdOutlineAttachMoney, MdMoneyOff } from "react-icons/md";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useAccount, useAccountTransactions } from "@/hooks/useBanking";
 import StatCard from "@/components/gloabalComponents/StatCards";
+import { useSyncBankData } from "@/hooks/useSync";
 
 interface Transaction {
   transaction_id: string;
@@ -23,13 +23,20 @@ interface Transaction {
 const Transactions: React.FC = () => {
   const accountId = "b2a1c3d4-e5f6-7788-9900-aabbccddeeff";
 
-  const { data: account, isLoading: accountLoading } = useAccount(accountId);
+  const {
+    data: account,
+    isLoading: accountLoading,
+    refetch: refetchAccount,
+  } = useAccount(accountId);
+
   const {
     data: transactions,
     isLoading: transactionsLoading,
     isError,
+    refetch: refetchTransactions,
   } = useAccountTransactions(accountId);
-  console.log("Transactions Data:", transactions);
+
+  const { mutate: syncBank, isPending: syncLoading } = useSyncBankData();
 
   const columns: ColumnsType<Transaction> = [
     {
@@ -132,14 +139,32 @@ const Transactions: React.FC = () => {
                 ${account.balance?.toFixed(2)} <FaEyeSlash />
               </p>
             </div>
-            <div className="bg-primary p-3 rounded-full cursor-pointer hover:bg-primary/80 transition">
-              <FaRedoAlt className="text-white text-2xl" />
+
+            {/* SYNC BUTTON */}
+            <div
+              className="bg-primary p-3 rounded-full cursor-pointer hover:bg-primary/80 transition"
+              onClick={() =>
+                syncBank(accountId, {
+                  onSuccess: () => {
+                    refetchAccount();
+                    refetchTransactions();
+                  },
+                })
+              }
+            >
+              {syncLoading ? (
+                <div className="animate-spin text-white text-2xl">
+                  <FaRedoAlt />
+                </div>
+              ) : (
+                <FaRedoAlt className="text-white text-2xl" />
+              )}
             </div>
           </div>
         </div>
+
         <div className="flex flex-col flex-grow gap-6">
           <div className="flex gap-6">
-            {/* Expenses Card */}
             <StatCard
               type="expense"
               value={
@@ -148,7 +173,6 @@ const Transactions: React.FC = () => {
                   .reduce((sum, t) => sum + t.amount, 0) ?? 0
               }
             />
-            {/* Incomes Card */}
             <StatCard
               type="income"
               value={
@@ -158,14 +182,14 @@ const Transactions: React.FC = () => {
               }
             />
           </div>
-          {/* Create Button */}
+
           <button className="bg-[#f39c12] hover:bg-[#e68a00] flex-grow transition font-medium text-lg py-3 px-0 rounded-full flex items-center justify-center gap-2">
             <AiOutlinePlus /> Create New Transaction
           </button>
         </div>
       </div>
 
-      {/* Table Section */}
+      {/* Table */}
       <div className="bg-secondaryBG rounded-2xl p-6">
         <Table
           columns={columns}

@@ -14,6 +14,8 @@ interface LineSerie {
 }
 
 export default function LineChart({ series = [] }: { series: LineSerie[] }) {
+  const incomeIds = ["weekly_income", "monthly_income", "yearly_income"];
+
   return (
     <div style={{ height: 350 }}>
       <ResponsiveLine
@@ -33,13 +35,12 @@ export default function LineChart({ series = [] }: { series: LineSerie[] }) {
           grid: { line: { stroke: "rgba(255,255,255,0.08)" } },
           axis: { ticks: { text: { fill: "#888" } } },
         }}
-        colors={(d) => (d.id === "income" ? "#40DCA3" : "#FF5A5A")}
+        colors={(d) => (incomeIds.includes(d.id) ? "#40DCA3" : "#FF5A5A")}
         useMesh={true}
         animate
         motionConfig="gentle"
         enableSlices={false}
         enablePoints={false} // remove points/circles
-
         layers={[
           "grid",
           "axes",
@@ -52,9 +53,9 @@ export default function LineChart({ series = [] }: { series: LineSerie[] }) {
                 d={line.path}
                 fill="none"
                 stroke={line.color}
-                strokeWidth={10}          // thicker than main line
+                strokeWidth={10} // thicker than main line
                 strokeLinecap="round"
-                opacity={0.2}             // shadow intensity
+                opacity={0.2} // shadow intensity
                 transform="translate(0, 4)" // offset down a few pixels
               />
             )),
