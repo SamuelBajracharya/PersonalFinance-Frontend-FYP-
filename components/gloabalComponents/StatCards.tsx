@@ -64,7 +64,7 @@ export default function StatCard({ type, value }: StatCardProps) {
         {/* Value */}
         <p className={`${config.color} text-xl tracking-wide`}>
           {config.prefix}
-          {value.toFixed(2)}
+          {Number(value ?? 0).toFixed(2)}
         </p>
       </div>
     </div>

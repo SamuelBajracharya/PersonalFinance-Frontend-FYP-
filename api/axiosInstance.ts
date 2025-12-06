@@ -15,6 +15,11 @@ export const authInstance: AxiosInstance = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+export const bankInstance: AxiosInstance = axios.create({
+  baseURL: "http://127.0.0.1:8000/api/v1/bank",
+  headers: { "Content-Type": "application/json" },
+});
+
 export const baseInstance: AxiosInstance = axios.create({
   baseURL: "http://127.0.0.1:8000/api/v1",
   headers: { "Content-Type": "application/json" },
@@ -87,3 +92,4 @@ export const attachAuthInterceptor = (axiosInstance: AxiosInstance) => {
 };
 
 attachAuthInterceptor(baseInstance);
+attachAuthInterceptor(bankInstance);

@@ -5,38 +5,26 @@ import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { FaEyeSlash, FaRedoAlt } from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai";
-import { useAccount, useAccountTransactions } from "@/hooks/useBanking";
 import StatCard from "@/components/gloabalComponents/StatCards";
-import { useSyncBankData } from "@/hooks/useSync";
-
-interface Transaction {
-  transaction_id: string;
-  description: string;
-  from_to: string;
-  type: "CREDIT" | "DEBIT";
-  amount: number;
-  created_at: string;
-  category: string;
-  account_id: string;
-}
+import {
+  useAccountTransactions,
+  useBankAccount,
+} from "@/hooks/useBankTransaction";
+import { Transaction } from "@/api/transactionAPI";
 
 const Transactions: React.FC = () => {
-  const accountId = "b2a1c3d4-e5f6-7788-9900-aabbccddeeff";
+  const accountId = "9da523ad-769c-4095-b376-2db6b3cf2441";
 
   const {
     data: account,
     isLoading: accountLoading,
-    refetch: refetchAccount,
-  } = useAccount(accountId);
-
-  const {
-    data: transactions,
-    isLoading: transactionsLoading,
     isError,
-    refetch: refetchTransactions,
-  } = useAccountTransactions(accountId);
+  } = useBankAccount(accountId);
+  console.log("Account Data:", account);
 
-  const { mutate: syncBank, isPending: syncLoading } = useSyncBankData();
+  const { data: transactions, isLoading: transactionLoading } =
+    useAccountTransactions(accountId);
+  console.log("Transactions Data:", transactions);
 
   const columns: ColumnsType<Transaction> = [
     {
@@ -54,8 +42,8 @@ const Transactions: React.FC = () => {
     },
     {
       title: "From/To",
-      dataIndex: "from_to",
-      key: "from_to",
+      dataIndex: "merchant",
+      key: "merchant",
       render: (text) => <span className="text-gray-300">{text}</span>,
     },
     {
@@ -82,14 +70,14 @@ const Transactions: React.FC = () => {
             record.type === "DEBIT" ? "text-red-500" : "text-green-500"
           } font-medium`}
         >
-          Rs.{text.toFixed(2)}
+          Rs.{Number(text).toFixed(2)}
         </span>
       ),
     },
     {
       title: "Date & Time",
-      dataIndex: "created_at",
-      key: "created_at",
+      dataIndex: "date",
+      key: "date",
       render: (text) => (
         <span className="text-gray-300">{new Date(text).toLocaleString()}</span>
       ),
@@ -102,7 +90,7 @@ const Transactions: React.FC = () => {
     },
   ];
 
-  if (accountLoading || transactionsLoading) {
+  if (accountLoading || transactionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
         <p>Loading account details...</p>
@@ -136,29 +124,16 @@ const Transactions: React.FC = () => {
             <div className="flex gap-2">
               <p className="text-[#d1d0d0] text-xl">Balance:</p>
               <p className="text-primary text-xl flex items-center gap-2">
-                ${account.balance?.toFixed(2)} <FaEyeSlash />
+                ${Number(account.balance || 0).toFixed(2)}
+                <FaEyeSlash />
               </p>
             </div>
 
             {/* SYNC BUTTON */}
-            <div
-              className="bg-primary p-3 rounded-full cursor-pointer hover:bg-primary/80 transition"
-              onClick={() =>
-                syncBank(accountId, {
-                  onSuccess: () => {
-                    refetchAccount();
-                    refetchTransactions();
-                  },
-                })
-              }
-            >
-              {syncLoading ? (
-                <div className="animate-spin text-white text-2xl">
-                  <FaRedoAlt />
-                </div>
-              ) : (
-                <FaRedoAlt className="text-white text-2xl" />
-              )}
+            <div className="bg-primary p-3 rounded-full cursor-pointer hover:bg-primary/80 transition">
+              <div className="animate-spin text-white text-2xl">
+                <FaRedoAlt />
+              </div>
             </div>
           </div>
         </div>
@@ -170,15 +145,16 @@ const Transactions: React.FC = () => {
               value={
                 transactions
                   ?.filter((t) => t.type === "DEBIT")
-                  .reduce((sum, t) => sum + t.amount, 0) ?? 0
+                  .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0
               }
             />
+
             <StatCard
               type="income"
               value={
                 transactions
                   ?.filter((t) => t.type === "CREDIT")
-                  .reduce((sum, t) => sum + t.amount, 0) ?? 0
+                  .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0
               }
             />
           </div>
@@ -194,7 +170,7 @@ const Transactions: React.FC = () => {
         <Table
           columns={columns}
           dataSource={transactions?.map((t) => ({
-            key: t.transaction_id,
+            key: t.id,
             ...t,
           }))}
           pagination={{

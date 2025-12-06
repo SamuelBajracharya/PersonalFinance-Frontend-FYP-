@@ -74,6 +74,7 @@ export default function Home() {
                 { value: "monthly", label: "Monthly" },
                 { value: "weekly", label: "Weekly" },
               ]}
+              defaultValue="monthly"
               className="custom-select"
             />
           </div>
@@ -109,6 +110,7 @@ export default function Home() {
                 { value: "monthly", label: "Monthly" },
                 { value: "weekly", label: "Weekly" },
               ]}
+              defaultValue="monthly"
               className="custom-select"
             />
           </div>
@@ -145,6 +147,7 @@ export default function Home() {
               { value: "monthly", label: "Monthly" },
               { value: "weekly", label: "Weekly" },
             ]}
+            defaultValue="monthly"
             className="custom-select"
           />
         </div>
