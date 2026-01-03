@@ -8,6 +8,7 @@ import { FaFacebook, FaLinkedin } from "react-icons/fa";
 import { PiInstagramLogoFill } from "react-icons/pi";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -110,10 +111,11 @@ export default function Home() {
               </a>
             </div>
           </div>
-          {/* ------ RIGHT: Login Button ------ */}
-          <button className="bg-blue-500 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-600">
-            Log In
-          </button>
+          <Link href="/auth/login">
+            <button className="bg-blue-500 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-600 cursor-pointer">
+              Log In
+            </button>
+          </Link>
         </div>
       </nav>
       <main className="min-h-screen flex flex-col items-center justify-center px-24 overflow-hidden">

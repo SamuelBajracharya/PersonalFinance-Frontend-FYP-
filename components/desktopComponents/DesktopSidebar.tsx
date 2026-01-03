@@ -63,7 +63,7 @@ const DesktopSidebar = () => {
 
   return (
     <aside
-      className="fixed top-4 left-4 bg-secondaryBG rounded-2xl shadow-lg flex flex-col p-4"
+      className="fixed top-4 left-4 bg-secondaryBG rounded-2xl shadow-lg flex flex-col p-4 z-50"
       style={{
         width: "calc(300px - 16px)",
         height: "calc(100vh - 32px)",
