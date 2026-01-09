@@ -46,8 +46,8 @@ const DesktopSidebar = () => {
       icon: <FaPiggyBank size={20} />,
     },
     {
-      href: "/aiadvisor",
-      label: "AI Advisor",
+      href: "/ai-assistant",
+      label: "AI Assistant",
       icon: <PiChatCircleTextFill size={22} />,
     },
     { href: "/rewards", label: "Rewards", icon: <IoTrophy size={18} /> },

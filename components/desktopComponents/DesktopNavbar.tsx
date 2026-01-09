@@ -10,19 +10,15 @@ const DesktopNavbar = () => {
 
   const isProfile = pathname === "/profile";
 
-  // Function to convert pathname to title
   const getTitle = (path: string) => {
     if (path === "/budgetgoals") return "Budget Goals";
 
-    // Remove leading slash and split by hyphen
     const words = path.replace(/^\//, "").split(/[-\/]/);
 
-    // Capitalize each word
     const capitalized = words.map(
       (word) => word.charAt(0).toUpperCase() + word.slice(1)
     );
 
-    // Join back with space
     return capitalized.join(" ") || "Dashboard";
   };
 

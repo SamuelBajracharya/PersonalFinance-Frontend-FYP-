@@ -2,14 +2,13 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { BsArrowUp } from "react-icons/bs";
-import { useAIAdvisor } from "@/hooks/useAIAdvisor";
+import { useAIAssistant } from "@/hooks/useAIAssistant";
 
 type Message = {
   id: string;
   role: "user" | "assistant";
   content: string;
 };
-
 
 const SESSION_ID_KEY = "ai_advisor_session_id";
 
@@ -23,7 +22,6 @@ const getSessionId = () => {
   }
   return id;
 };
-
 
 const TypingDots = () => (
   <div className="flex gap-1 text-2xl px-2">
@@ -121,13 +119,13 @@ const formatAssistantText = (text: string) => {
 
 /* ---------------- Main Component ---------------- */
 
-export default function AIAdvisor() {
+export default function AIAssistant() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLocked, setIsLocked] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { mutateAsync, isPending } = useAIAdvisor();
+  const { mutateAsync, isPending } = useAIAssistant();
 
   const sessionId = getSessionId();
   const STORAGE_KEY = sessionId ? `ai_advisor_messages_${sessionId}` : null;
