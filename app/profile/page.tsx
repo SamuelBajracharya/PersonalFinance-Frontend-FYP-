@@ -9,6 +9,8 @@ import { VscEyeClosed } from "react-icons/vsc";
 import StatCard from "@/components/gloabalComponents/StatCards";
 import AchievementCard from "@/components/gloabalComponents/AchievementCard";
 import { useCurrentUser } from "@/hooks/useAuth";
+import { useMyUnlockedRewards } from "@/hooks/useRewards";
+import Link from "next/link";
 
 // XP → Title Logic
 function getXpTitle(xp: number) {
@@ -27,6 +29,7 @@ export default function Profile() {
   const [showPassword, setShowPassword] = useState(false);
 
   const { data: user, isLoading, error } = useCurrentUser();
+  const { data: myRewards, isLoading: rewardsLoading } = useMyUnlockedRewards();
 
   const handleToggleLink = () => setIsLinked(!isLinked);
 
@@ -37,14 +40,10 @@ export default function Profile() {
     <div className="p-6">
       {/* Top Section */}
       <div className="flex gap-8 items-center">
-        {/* Profile Image */}
         <div className="size-48 overflow-hidden rounded-full bg-white" />
 
         <div className="flex flex-col justify-center gap-2">
-          {/* USER NAME */}
           <h1 className="text-5xl font-medium tracking-wide">{user?.name}</h1>
-
-          {/* XP TITLE */}
           <p className="text-gray-200 text-2xl tracking-wide">
             {getXpTitle(user?.total_xp ?? 0)}
           </p>
@@ -53,7 +52,6 @@ export default function Profile() {
 
       {/* Email + Password */}
       <div className="grid grid-cols-5 gap-6 mt-10">
-        {/* Email */}
         <div className="bg-accentBG flex items-center gap-3 px-6 py-4 rounded-full col-span-2">
           <MdEmail className="size-8" />
           <input
@@ -64,30 +62,25 @@ export default function Profile() {
           />
         </div>
 
-        {/* Password */}
         <div className="bg-accentBG flex items-center gap-3 px-6 pr-3 py-2 rounded-full col-span-2">
           <MdLock className="size-8" />
-
           <input
             type={showPassword ? "text" : "password"}
             value={showPassword ? "••••••••••••" : "************"}
             readOnly
             className="bg-transparent outline-none w-full text-xl"
           />
-
           <VscEyeClosed
             className="size-8 text-white cursor-pointer"
             onClick={() => setShowPassword(!showPassword)}
           />
-
-          {/* Edit Password */}
           <div className="rounded-full bg-accent flex items-center justify-center w-12 h-12 px-3 cursor-pointer">
             <MdEdit className="text-white size-7" />
           </div>
         </div>
       </div>
 
-      {/* Linked Account Section */}
+      {/* Linked Account + Stats */}
       <div className="grid grid-cols-7 gap-6 mt-10">
         <div className="bg-linear-to-br from-[#1b1b1b] to-[#0e0e0e] p-6 rounded-2xl col-span-3 relative">
           <div>
@@ -111,12 +104,10 @@ export default function Profile() {
           </button>
         </div>
 
-        {/* Expenses */}
         <div className="col-span-2">
           <StatCard type="expense" value={86.85} />
         </div>
 
-        {/* Income */}
         <div className="col-span-2">
           <StatCard type="income" value={86.85} />
         </div>
@@ -125,16 +116,31 @@ export default function Profile() {
       {/* Achievements */}
       <div className="flex items-center justify-between mt-10">
         <h2 className="text-2xl font-medium tracking-wide">Achievements</h2>
-        <button className="text-primary text-lg">view all</button>
+        <Link
+          href="/achievements"
+          className="text-primary text-lg hover:underline"
+        >
+          view all
+        </Link>
       </div>
 
       <div className="grid grid-cols-6 gap-6 mt-4 overflow-x-auto">
-        <AchievementCard title="Big Saver" subtitle="Save $500 total" />
-        <AchievementCard title="Big Saver" subtitle="Save $500 total" />
-        <AchievementCard title="Big Saver" subtitle="Save $500 total" />
-        <AchievementCard title="Big Saver" subtitle="Save $500 total" />
-        <AchievementCard title="Big Saver" subtitle="Save $500 total" />
-        <AchievementCard title="Big Saver" subtitle="Save $500 total" />
+        {rewardsLoading && <p>Loading achievements...</p>}
+
+        {myRewards?.map((ur) => (
+          <AchievementCard
+            key={ur.id}
+            title={`${ur.reward.name} ${ur.reward.tier}`}
+            subtitle={`${ur.reward.requirement_value}`}
+            reward_type={`${ur.reward.reward_type}`}
+          />
+        ))}
+
+        {!rewardsLoading && myRewards?.length === 0 && (
+          <p className="text-gray-400 col-span-6">
+            No achievements unlocked yet.
+          </p>
+        )}
       </div>
     </div>
   );

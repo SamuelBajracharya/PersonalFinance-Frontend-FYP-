@@ -22,8 +22,8 @@ export const WhatIfCard = ({
       </p>
 
       <p className="text-primary text-2xl font-bold mb-6">
-        Save {saveAmount}$
-        <span className="text-gray-400 font-normal text-base">/week!!</span>
+        Save Rs. {saveAmount}
+        <span className="text-gray-400 font-normal text-base">/month!!</span>
       </p>
 
       <button className="w-full py-3 rounded-full border border-primary text-primary text-[16px] font-medium hover:bg-primary/10 transition-colors">
