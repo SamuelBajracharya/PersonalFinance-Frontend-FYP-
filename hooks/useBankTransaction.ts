@@ -4,11 +4,13 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   loginToBank,
   getBankAccounts,
-  getBankAccount,
-  getAccountTransactions,
   createTransaction,
   BankAccount,
   Transaction,
+  unlinkBankAccounts,
+  deleteUserTransactionData,
+  getNabilBankTransactions,
+  getNabilBankAccount,
 } from "@/api/transactionAPI";
 
 // login to bank
@@ -16,6 +18,27 @@ export const useLoginToBank = () => {
   return useMutation({
     mutationFn: (data: { username: string; password: string }) =>
       loginToBank(data.username, data.password),
+
+    onSuccess: () => {
+      localStorage.setItem("isBankLinked", "true");
+    },
+  });
+};
+
+// unlinks bank account
+export const useUnlinkBankAccounts = () => {
+  return useMutation({
+    mutationFn: unlinkBankAccounts,
+    onSuccess: () => {
+      localStorage.setItem("isBankLinked", "false");
+    },
+  });
+};
+
+// deletes all the users bank data
+export const useDeleteUserTransactionData = () => {
+  return useMutation({
+    mutationFn: deleteUserTransactionData,
   });
 };
 
@@ -27,24 +50,23 @@ export const useBankAccounts = () => {
   });
 };
 
-// get single bank account by id
-export const useBankAccount = (accountId: string) => {
+// get Nabil Bank account (current user)
+export const useNabilBankAccount = (enabled: boolean) => {
   return useQuery<BankAccount>({
-    queryKey: ["bank-account", accountId],
-    queryFn: () => getBankAccount(accountId!),
-    enabled: !!accountId,
+    queryKey: ["nabil-bank-account"],
+    queryFn: getNabilBankAccount,
+    enabled,
   });
 };
 
-// get transactions for an account
-export const useAccountTransactions = (accountId: string) => {
+// get Nabil Bank transactions (current user)
+export const useNabilBankTransactions = (enabled: boolean) => {
   return useQuery<Transaction[]>({
-    queryKey: ["bank-account-transactions", accountId],
-    queryFn: () => getAccountTransactions(accountId!),
-    enabled: !!accountId,
+    queryKey: ["nabil-bank-transactions"],
+    queryFn: getNabilBankTransactions,
+    enabled,
   });
 };
-
 // create a transaction
 export const useCreateTransaction = () => {
   return useMutation({

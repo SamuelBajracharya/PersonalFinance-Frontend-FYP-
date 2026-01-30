@@ -66,9 +66,15 @@ const OnboardingPage = () => {
   const [inputValue, setInputValue] = useState("");
 
   const handleNext = () => {
-    if (step === "goal") router.push("/onboarding/spending");
-    else if (step === "spending") router.push("/onboarding/budget-category");
-    else console.log("Finished onboarding with:", { selected, inputValue });
+    if (step === "goal") {
+      router.push("/onboarding/spending");
+    } else if (step === "spending") {
+      router.push("/onboarding/budget-category");
+    } else if (step === "budget-category") {
+      localStorage.setItem("isBankLinked", "false");
+
+      router.push("/dashboard");
+    }
   };
 
   return (

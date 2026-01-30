@@ -1,16 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // react-icons
 import { MdEmail, MdLock, MdEdit } from "react-icons/md";
 import { VscEyeClosed } from "react-icons/vsc";
+import { PiWarningFill } from "react-icons/pi";
 
 import StatCard from "@/components/gloabalComponents/StatCards";
 import AchievementCard from "@/components/gloabalComponents/AchievementCard";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useMyUnlockedRewards } from "@/hooks/useRewards";
+
 import Link from "next/link";
+import { Button } from "antd";
+import {
+  useDeleteUserTransactionData,
+  useUnlinkBankAccounts,
+} from "@/hooks/useBankTransaction";
 
 // XP → Title Logic
 function getXpTitle(xp: number) {
@@ -25,13 +32,32 @@ function getXpTitle(xp: number) {
 }
 
 export default function Profile() {
-  const [isLinked, setIsLinked] = useState(true);
+  const [isLinked, setIsLinked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const { data: user, isLoading, error } = useCurrentUser();
   const { data: myRewards, isLoading: rewardsLoading } = useMyUnlockedRewards();
 
-  const handleToggleLink = () => setIsLinked(!isLinked);
+  const unlinkMutation = useUnlinkBankAccounts();
+  const deleteDataMutation = useDeleteUserTransactionData();
+
+  //sync UI with localStorage
+  useEffect(() => {
+    const linked = localStorage.getItem("isBankLinked") === "true";
+    setIsLinked(linked);
+  }, []);
+
+  const handleUnlink = () => {
+    unlinkMutation.mutate(undefined, {
+      onSuccess: () => {
+        setIsLinked(false);
+      },
+    });
+  };
+
+  const handleDeleteData = () => {
+    deleteDataMutation.mutate();
+  };
 
   if (isLoading) return <p className="p-6">Loading...</p>;
   if (error) return <p className="p-6 text-red-500">Failed to load user</p>;
@@ -92,16 +118,19 @@ export default function Profile() {
             </p>
           </div>
 
-          <button
-            onClick={handleToggleLink}
-            className={`absolute bottom-6 right-6 px-4 py-2 rounded-full transition border ${
-              isLinked
-                ? "border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                : "border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white"
-            }`}
-          >
-            {isLinked ? "Unlink Account" : "Link Account"}
-          </button>
+          {isLinked ? (
+            <button
+              onClick={handleUnlink}
+              disabled={unlinkMutation.isPending}
+              className="absolute bottom-6 right-6 px-4 py-2 rounded-full transition border border-red-500 text-red-500 hover:bg-red-500 hover:text-white disabled:opacity-50 cursor-pointer"
+            >
+              Unlink Account
+            </button>
+          ) : (
+            <button className="absolute bottom-6 right-6 px-4 py-2 rounded-full transition border border-accent text-accent hover:bg-accent hover:text-white disabled:opacity-50 cursor-pointer">
+              Link Account
+            </button>
+          )}
         </div>
 
         <div className="col-span-2">
@@ -141,6 +170,19 @@ export default function Profile() {
             No achievements unlocked yet.
           </p>
         )}
+      </div>
+
+      {/* Delete Data */}
+      <div className="mt-20">
+        <Button
+          type="link"
+          loading={deleteDataMutation.isPending}
+          onClick={handleDeleteData}
+          className="!text-red-500 no-underline !text-2xl !flex !flex-row !items-center !justify-center"
+        >
+          <PiWarningFill className="w-8" />
+          Delete Data
+        </Button>
       </div>
     </div>
   );

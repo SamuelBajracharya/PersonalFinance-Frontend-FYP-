@@ -9,9 +9,14 @@ type StatType = "expense" | "income" | "balance";
 interface StatCardProps {
   type: StatType;
   value: number;
+  disabled?: boolean;
 }
 
-export default function StatCard({ type, value }: StatCardProps) {
+export default function StatCard({
+  type,
+  value,
+  disabled = false,
+}: StatCardProps) {
   const config = {
     expense: {
       label: "Expenses",
@@ -35,7 +40,7 @@ export default function StatCard({ type, value }: StatCardProps) {
       icon: (
         <Image
           src="/income.svg"
-          alt="Expense Icon"
+          alt="Income Icon"
           width={24}
           height={24}
           className="size-8"
@@ -53,7 +58,9 @@ export default function StatCard({ type, value }: StatCardProps) {
   }[type];
 
   return (
-    <div className="bg-secondaryBG rounded-2xl flex flex-grow items-center justify-between px-6 py-8">
+    <div
+      className={`bg-secondaryBG rounded-2xl flex flex-grow items-center justify-between px-6 py-8 transition`}
+    >
       <div className="flex flex-col gap-4">
         {/* Icon + label */}
         <div className="flex items-center gap-4">
@@ -63,8 +70,14 @@ export default function StatCard({ type, value }: StatCardProps) {
 
         {/* Value */}
         <p className={`${config.color} text-xl tracking-wide`}>
-          {config.prefix}
-          {Number(value ?? 0).toFixed(2)}
+          {disabled ? (
+            "N/A"
+          ) : (
+            <>
+              {config.prefix}
+              {Number(value).toFixed(2)}
+            </>
+          )}
         </p>
       </div>
     </div>

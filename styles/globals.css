@@ -41,6 +41,13 @@ body,
   overflow: hidden;
   z-index: 0;
 }
+.custom-table .ant-table-tbody > tr {
+  height: 64px !important;
+}
+
+.custom-table .ant-table-tbody {
+  min-height: calc(200px * 5) !important;
+}
 
 .custom-table .ant-table-thead > tr > th {
   background: #2a2a2d !important;

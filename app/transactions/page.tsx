@@ -1,30 +1,38 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { FaEyeSlash, FaRedoAlt } from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai";
 import StatCard from "@/components/gloabalComponents/StatCards";
-import {
-  useAccountTransactions,
-  useBankAccount,
-} from "@/hooks/useBankTransaction";
+
 import { Transaction } from "@/api/transactionAPI";
+import { useBankOverlay } from "@/stores/useBankOverlay";
+import LinkAccountOverlay from "@/components/gloabalComponents/LinkAccountOverlay";
+import {
+  useNabilBankAccount,
+  useNabilBankTransactions,
+} from "@/hooks/useBankTransaction";
 
 const Transactions: React.FC = () => {
-  const accountId = "9da523ad-769c-4095-b376-2db6b3cf2441";
+  const [isBankLinked, setIsBankLinked] = useState(false);
+  const openOverlay = useBankOverlay((state) => state.open);
+  const isOpen = useBankOverlay((state) => state.isOpen);
+
+  useEffect(() => {
+    const linked = localStorage.getItem("isBankLinked");
+    setIsBankLinked(linked === "true");
+  }, []);
 
   const {
     data: account,
     isLoading: accountLoading,
     isError,
-  } = useBankAccount(accountId);
-  console.log("Account Data:", account);
+  } = useNabilBankAccount(isBankLinked);
 
   const { data: transactions, isLoading: transactionLoading } =
-    useAccountTransactions(accountId);
-  console.log("Transactions Data:", transactions);
+    useNabilBankTransactions(isBankLinked);
 
   const columns: ColumnsType<Transaction> = [
     {
@@ -34,7 +42,7 @@ const Transactions: React.FC = () => {
       render: (text: string) => (
         <div className="flex items-center gap-3">
           <div className="bg-gradient-to-br from-orange-400 to-yellow-500 rounded-full size-10 flex items-center justify-center text-white font-bold shadow-md">
-            💸
+            T
           </div>
           <span className="text-gray-200">{text}</span>
         </div>
@@ -90,15 +98,27 @@ const Transactions: React.FC = () => {
     },
   ];
 
-  if (accountLoading || transactionLoading) {
+  const expenseTotal = isBankLinked
+    ? (transactions
+        ?.filter((t) => t.type === "DEBIT")
+        .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0)
+    : 0;
+
+  const incomeTotal = isBankLinked
+    ? (transactions
+        ?.filter((t) => t.type === "CREDIT")
+        .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0)
+    : 0;
+
+  if (isBankLinked && (accountLoading || transactionLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
-        <p>Loading account details...</p>
+        Loading account details...
       </div>
     );
   }
 
-  if (isError || !account) {
+  if (isBankLinked && (isError || !account)) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-500">
         Failed to load account data.
@@ -110,56 +130,69 @@ const Transactions: React.FC = () => {
     <div className="min-h-screen px-6 py-6 font-sans">
       <div className="flex w-full gap-6 mb-6">
         {/* Account Card */}
-        <div className="bg-gradient-to-br from-[#161616] to-[#414040] rounded-2xl p-6 flex flex-col flex-grow-1 justify-between">
-          <div>
-            <p className="text-[#d1d0d0] text-2xl tracking-widest mb-1">
-              {account.account_number_masked}
-            </p>
-            <p className="text-primary font-semibold text-xl">
-              {account.bank_name} ({account.account_type})
-            </p>
+        {!isBankLinked ? (
+          <div className="flex-grow bg-gradient-to-br from-[#1c1c1c] to-[#3a3a3a] rounded-2xl p-6 flex flex-col items-start justify-between">
+            <div>
+              <p className="text-[#f39c12] text-3xl font-semibold mb-2">
+                Link Account
+              </p>
+              <p className="text-gray-300 text-lg max-w-md">
+                For a smoother experience, please link your bank account.
+              </p>
+            </div>
+            <div className="flex flex-row justify-end w-full">
+              <button
+                onClick={openOverlay}
+                className="border border-accent text-accent px-12 py-3 rounded-full text-lg cursor-pointer hover:bg-accent hover:text-white transition font-medium"
+              >
+                Link Account
+              </button>
+            </div>
           </div>
-
-          <div className="flex justify-between items-center mt-5">
-            <div className="flex gap-2">
-              <p className="text-[#d1d0d0] text-xl">Balance:</p>
-              <p className="text-primary text-xl flex items-center gap-2">
-                ${Number(account.balance || 0).toFixed(2)}
-                <FaEyeSlash />
+        ) : (
+          <div className="bg-gradient-to-br from-[#161616] to-[#414040] rounded-2xl p-6 flex flex-col flex-grow justify-between">
+            <div>
+              <p className="text-[#d1d0d0] text-2xl tracking-widest mb-1">
+                {account?.account_number_masked}
+              </p>
+              <p className="text-primary font-semibold text-xl">
+                {account?.bank_name} ({account?.account_type})
               </p>
             </div>
 
-            {/* SYNC BUTTON */}
-            <div className="bg-primary p-3 rounded-full cursor-pointer hover:bg-primary/80 transition">
-              <div className="animate-spin text-white text-2xl">
-                <FaRedoAlt />
+            <div className="flex justify-between items-center mt-5">
+              <div className="flex gap-2">
+                <p className="text-[#d1d0d0] text-xl">Balance:</p>
+                <p className="text-primary text-xl flex items-center gap-2">
+                  ${Number(account?.balance || 0).toFixed(2)}
+                  <FaEyeSlash />
+                </p>
+              </div>
+
+              <div className="bg-primary p-3 rounded-full cursor-pointer hover:bg-primary/80 transition">
+                <FaRedoAlt className="text-white text-2xl animate-spin" />
               </div>
             </div>
           </div>
-        </div>
+        )}
 
+        {/* Stats Section */}
         <div className="flex flex-col flex-grow gap-6">
           <div className="flex gap-6">
             <StatCard
               type="expense"
-              value={
-                transactions
-                  ?.filter((t) => t.type === "DEBIT")
-                  .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0
-              }
+              value={expenseTotal}
+              disabled={!isBankLinked}
             />
 
             <StatCard
               type="income"
-              value={
-                transactions
-                  ?.filter((t) => t.type === "CREDIT")
-                  .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0
-              }
+              value={incomeTotal}
+              disabled={!isBankLinked}
             />
           </div>
 
-          <button className="bg-[#f39c12] hover:bg-[#e68a00] flex-grow transition font-medium text-lg py-3 px-0 rounded-full flex items-center justify-center gap-2">
+          <button className="bg-[#f39c12] disabled:opacity-40 hover:bg-[#e68a00] transition font-medium text-lg py-3 rounded-full flex items-center justify-center gap-2">
             <AiOutlinePlus /> Create New Transaction
           </button>
         </div>
@@ -169,18 +202,25 @@ const Transactions: React.FC = () => {
       <div className="bg-secondaryBG rounded-2xl p-6">
         <Table
           columns={columns}
-          dataSource={transactions?.map((t) => ({
-            key: t.id,
-            ...t,
-          }))}
+          dataSource={
+            isBankLinked ? transactions?.map((t) => ({ key: t.id, ...t })) : []
+          }
+          locale={{
+            emptyText: (
+              <div className="text-gray-400 text-lg py-30 text-center">
+                No data available
+              </div>
+            ),
+          }}
           pagination={{
             pageSize: 5,
-            total: transactions?.length ?? 0,
+            total: isBankLinked ? (transactions?.length ?? 0) : 0,
             showSizeChanger: false,
           }}
           className="custom-table"
         />
       </div>
+      {isOpen && <LinkAccountOverlay />}
     </div>
   );
 };

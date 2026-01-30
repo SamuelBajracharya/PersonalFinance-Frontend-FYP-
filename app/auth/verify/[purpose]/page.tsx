@@ -15,7 +15,7 @@ import { OtpData, TokenResponse, ResetTokenResponse } from "@/types/authAPI";
 import { useRequestOtp, useVerifyOtp } from "@/hooks/useAuth";
 import { message } from "antd";
 
-type Purpose = "email_verification" | "password_reset" | "two_factor_auth";
+type Purpose = "account_verification" | "password_reset" | "two_factor_auth";
 
 interface TextMap {
   [key: string]: {
@@ -25,7 +25,7 @@ interface TextMap {
 }
 
 const textMap: TextMap = {
-  email_verification: {
+  account_verification: {
     title: "Enter Verification Code",
     subtitle: "Please input the 6-digit verification code sent to your email",
   },
@@ -55,7 +55,7 @@ export default function VerificationPage({
   const { mutate: verifyOtp, isPending: verifying } = useVerifyOtp();
   const { mutate: resendOtp, isPending: resending } = useRequestOtp();
 
-  const { title, subtitle } = textMap[purpose] || textMap.email_verification;
+  const { title, subtitle } = textMap[purpose] || textMap.account_verification;
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -124,7 +124,7 @@ export default function VerificationPage({
             secure: true,
             sameSite: "strict",
           });
-          router.push(`/auth/reset-password`);
+          router.push("/success/password_reset");
           return;
         }
 
@@ -140,15 +140,17 @@ export default function VerificationPage({
           sameSite: "strict",
         });
 
-        if (purpose === "email_verification") {
-          router.push("/onboarding/goal");
-        } else {
-          router.push("/dashboard");
-        }
+        const successRouteMap: Record<Purpose, string> = {
+          account_verification: "/success/account_verification",
+          password_reset: "/success/password_reset",
+          two_factor_auth: "/success/two_factor_auth",
+        };
+
+        router.push(successRouteMap[purpose]);
       },
       onError: (err: any) =>
         message.error(
-          err?.response?.data?.message || "Invalid or expired code"
+          err?.response?.data?.message || "Invalid or expired code",
         ),
     });
   };
@@ -204,8 +206,8 @@ export default function VerificationPage({
           {cooldown > 0
             ? `Resend in ${cooldown}s`
             : resending
-            ? "Resending..."
-            : "Resend code"}
+              ? "Resending..."
+              : "Resend code"}
         </button>
       </p>
 

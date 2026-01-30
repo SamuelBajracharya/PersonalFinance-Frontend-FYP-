@@ -28,7 +28,7 @@ export interface Transaction {
 // login to bank and sync accounts
 export const loginToBank = async (
   username: string,
-  password: string
+  password: string,
 ): Promise<any> => {
   const formData = new FormData();
   formData.append("username", username);
@@ -46,28 +46,36 @@ export const getBankAccounts = async (): Promise<BankAccount[]> => {
   return response.data;
 };
 
-// get single bank account by id
-export const getBankAccount = async (
-  accountId: string
-): Promise<BankAccount> => {
-  const response = await bankInstance.get(`/accounts/${accountId}`);
-  return response.data;
-};
-
 // create a new transaction
 export const createTransaction = async (
-  transactionData: Partial<Transaction>
+  transactionData: Partial<Transaction>,
 ): Promise<Transaction> => {
   const response = await bankInstance.post("/transactions", transactionData);
   return response.data;
 };
 
-// get all transactions for a bank account
-export const getAccountTransactions = async (
-  accountId: string
-): Promise<Transaction[]> => {
-  const response = await bankInstance.get(
-    `/accounts/${accountId}/transactions`
-  );
+// Get Nabil Bank account for current user
+export const getNabilBankAccount = async (): Promise<BankAccount> => {
+  const response = await bankInstance.get("/accounts/nabil");
+  return response.data;
+};
+
+// Get transactions for Nabil Bank account (current user)
+export const getNabilBankTransactions = async (): Promise<Transaction[]> => {
+  const response = await bankInstance.get("/accounts/nabil/transactions");
+  return response.data;
+};
+
+// unlink all bank accounts for current user
+export const unlinkBankAccounts = async (): Promise<{ message: string }> => {
+  const response = await bankInstance.post("/unlink");
+  return response.data;
+};
+
+// delete all transaction data for current user
+export const deleteUserTransactionData = async (): Promise<{
+  message: string;
+}> => {
+  const response = await bankInstance.delete("/delete-data");
   return response.data;
 };
