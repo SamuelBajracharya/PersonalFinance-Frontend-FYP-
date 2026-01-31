@@ -41,7 +41,7 @@ const LinkAccountOverlay: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="relative w-full max-w-2xl rounded-2xl bg-secondaryBG p-8">
+      <div className="relative w-full max-w-lg rounded-2xl bg-secondaryBG p-8">
         {/* Close */}
         <button
           onClick={handleClose}
@@ -68,7 +68,7 @@ const LinkAccountOverlay: React.FC = () => {
             placeholder="Phone number"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full rounded-full bg-accentBG px-8 py-4 text-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-full bg-transparent px-8 py-3 text-lg border-1 border-primary text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
           />
 
           <input
@@ -76,26 +76,25 @@ const LinkAccountOverlay: React.FC = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-full bg-accentBG px-8 py-4 text-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-full bg-transparent px-8 py-3 text-lg border-1 border-primary text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
         {/* Actions */}
-        <div className="mt-12 flex gap-4">
-          <button
-            onClick={handleClose}
-            disabled={isPending}
-            className="flex-1 rounded-full border border-gray-200 py-3 text-gray-200 font-medium text-lg hover:bg-white/5 transition disabled:opacity-40 cursor-pointer"
-          >
-            Cancel
-          </button>
-
+        <div className="mt-12 flex flex-col gap-4">
           <button
             onClick={handleSubmit}
             disabled={!username || !password || isPending}
-            className="flex-1 rounded-full bg-primary py-3 text-lg font-medium hover:bg-primary/80 transition disabled:opacity-60 cursor-pointer"
+            className="flex-1 rounded-full bg-primary py-4 text-lg font-medium hover:bg-primary/80 transition disabled:opacity-60 cursor-pointer"
           >
             {isPending ? "Linking..." : "Link Account"}
+          </button>
+          <button
+            onClick={handleClose}
+            disabled={isPending}
+            className="flex-1 rounded-full  py-4 text-white bg-accentBG font-medium text-lg hover:bg-white/5 transition disabled:opacity-40 cursor-pointer"
+          >
+            Cancel
           </button>
         </div>
       </div>

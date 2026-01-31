@@ -1,19 +1,30 @@
 /* Main visible select box */
 .custom-select .ant-select-selector {
   background: transparent !important;
-  border: 1px solid #ffaa2d !important;
+  border: none !important;
   padding: 0.5rem 1rem;
   width: 120px !important;
   border-radius: 2rem !important;
-  color: #ffaa2d; /* yellow text */
+  color: white !important;
   height: 2.5rem;
 }
 
+.custom-select .ant-select-selection-search-input,
+.custom-select .ant-select-selection-placeholder {
+  border: none !important;
+  color: rgb(141, 141, 145) !important;
+  font-size: large !important;
+  padding: 16px 16px !important;
+    font-weight: 500;
+
+}
 /* Selected text */
 .custom-select .ant-select-selection-item {
-  color: #ffaa2d !important;
+  color: white !important;
   font-weight: 500;
   width: 100px !important;
+  font-size: large !important;
+  padding: 16px 16px !important;
 }
 
 /* Dropdown popup */
@@ -32,6 +43,10 @@
 /* Selected item */
 .ant-select-item-option-selected {
   background-color: #ffaa2d !important;
+  color: white !important;
+}
+
+.ant-select-item-option-content {
   color: white !important;
 }
 

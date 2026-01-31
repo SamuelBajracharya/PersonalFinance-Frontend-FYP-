@@ -1,105 +1,202 @@
 "use client";
 
+import React, { useState } from "react";
 import BarChart from "@/components/gloabalComponents/BarChart";
 import { CoffeeSpendingCard } from "@/components/gloabalComponents/CoffeeSpendingCard";
-import React from "react";
-// Changed to react-icons
 import { BsFileText, BsPlus } from "react-icons/bs";
-
-const chartData = [
-  { day: "M", amount: 55 },
-  { day: "T", amount: 20 },
-  { day: "W", amount: 58 },
-  { day: "T", amount: 68 },
-  { day: "F", amount: 25 },
-  { day: "S", amount: 60 },
-  { day: "S", amount: 95 },
-];
+import { useMyBudgets } from "@/hooks/useBudgetGoals";
+import { useCreateBudgetOverlay } from "@/stores/useCreateBudgetOverlay";
+import CreateBudgetOverlay from "@/components/gloabalComponents/CreateBudgetOverlay";
+import { useBudgetPredictions } from "@/hooks/useBudgetPrediction";
 
 export default function BudgetGoals() {
+  const { data: budgets = [], isLoading } = useMyBudgets();
+  const { data: predictions = [], isLoading: isPredictionLoading } =
+    useBudgetPredictions();
+
+  const { isCreateBudgetOpen, openCreateBudget } = useCreateBudgetOverlay();
+
+  // Track selected category
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Filter predictions based on selected category
+  const filteredPredictions = selectedCategory
+    ? predictions.filter((p) => p.category === selectedCategory)
+    : predictions;
+
+  // Derive chart data from filtered predictions
+  const chartData = filteredPredictions.map((p) => ({
+    day: p.category,
+    amount: Number(p.predicted_amount),
+  }));
+
+  // Derive totals for selected category
+  const totalPredictedSpend = filteredPredictions.reduce(
+    (sum, p) => sum + Number(p.predicted_amount),
+    0,
+  );
+
+  const totalRemainingBudget = filteredPredictions.reduce(
+    (sum, p) => sum + Number(p.remaining_budget),
+    0,
+  );
+
+  const predictedOverspend = Math.max(
+    totalPredictedSpend - totalRemainingBudget,
+    0,
+  );
+
+  // Current spending = budget_amount - remaining_budget
+  const currentSpending = budgets
+    .filter((b) => b.category === selectedCategory)
+    .reduce(
+      (sum, b) => sum + (Number(b.budget_amount) - Number(b.remaining_budget)),
+      0,
+    );
+
   return (
     <div className="min-h-screen p-6 font-sans text-gray-200">
+      {/* Create Budget Button */}
+      <div className="flex justify-end mb-6">
+        <button
+          onClick={openCreateBudget}
+          className="flex items-center gap-2 bg-primary px-6 py-3 rounded-full text-lg font-medium hover:bg-primary/80 transition"
+        >
+          <BsPlus size={20} />
+          Create New Budget
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mx-auto">
-        {/* --- LEFT COLUMN (List) --- */}
+        {/* LEFT COLUMN */}
         <div className="lg:col-span-4 flex flex-col gap-2">
-          <CoffeeSpendingCard isActive={true} />
-          <CoffeeSpendingCard />
-          <CoffeeSpendingCard />
-          <CoffeeSpendingCard />
+          {isLoading && (
+            <p className="text-gray-400 text-center py-6">Loading budgets...</p>
+          )}
+
+          {!isLoading && budgets.length === 0 && (
+            <p className="text-gray-400 text-center py-6">
+              No budgets created yet.
+            </p>
+          )}
+
+          {budgets.map((budget) => (
+            <CoffeeSpendingCard
+              key={budget.id}
+              category={budget.category}
+              budgetAmount={Number(budget.budget_amount)}
+              startDate={budget.start_date}
+              endDate={budget.end_date}
+              isActive={budget.category === selectedCategory}
+              onClick={() => setSelectedCategory(budget.category)}
+            />
+          ))}
         </div>
 
-        {/* --- RIGHT COLUMN (Details) --- */}
+        {/* RIGHT COLUMN */}
         <div className="lg:col-span-8 flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-accent rounded-xl text-white">
-                <BsFileText size={24} />
-              </div>
-              <h2 className="text-2xl font-semibold text-white">
-                Coffee Spending
-              </h2>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-accent rounded-xl text-white">
+              <BsFileText size={24} />
             </div>
-            {/* 1. AI Suggestion Card */}
-            <div className="bg-secondaryBG p-6 rounded-2xl">
-              <h3 className="text-white text-xl font-medium mb-2">
-                AI Suggestion & Forcast
-              </h3>
-              <p className="text-gray-300 !text-[16px] mb-6 leading-relaxed">
-                If you continue spending on shopping like last week, you could
-                overshoot your budget by around $180 (30%). Consider reducing
-                non-essential buys to stay on target.
-              </p>
+            <h2 className="text-2xl font-semibold text-white">
+              Budget Details
+            </h2>
+          </div>
 
-              <div className="bg-accentBG w-fit px-4 py-3 rounded-xl border-l-4 border-accent">
-                <p className="text-textmain text-sm uppercase font-medium mb-1">
-                  Predicted Overspend
-                </p>
-                <p className="text-accent text-2xl font-bold">$2.00</p>
-              </div>
+          <div className="bg-secondaryBG p-6 rounded-2xl">
+            <h3 className="text-white text-xl font-medium mb-2">
+              AI Suggestion & Forecast
+            </h3>
+            <p className="text-gray-300 text-[16px] mb-6 leading-relaxed">
+              AI-generated insights for {selectedCategory || "all categories"}.
+            </p>
+
+            <div className="bg-accentBG w-fit px-4 py-3 rounded-xl border-l-4 border-accent">
+              <p className="text-textmain text-sm uppercase font-medium mb-1">
+                Predicted Overspend
+              </p>
+              <p className="text-accent text-2xl font-bold">
+                NPR {predictedOverspend.toFixed(2)}
+              </p>
             </div>
           </div>
 
-          {/* 2. Pace & Prediction Card */}
           <div className="bg-secondaryBG p-6 rounded-2xl">
             <h3 className="text-white text-xl font-medium mb-6">
               Pace & Prediction
             </h3>
 
             <div className="space-y-6">
-              {/* Bar 1: Current */}
               <div>
                 <div className="flex justify-between text-lg mb-2">
-                  <span className="text-white">Current Spendings</span>
-                  <span className="text-gray-400">$10 / $20 (50%)</span>
+                  <span>Current Spendings</span>
+                  <span className="text-gray-400">
+                    NPR {currentSpending.toFixed(0)} / NPR{" "}
+                    {totalRemainingBudget.toFixed(0)}
+                  </span>
                 </div>
                 <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-primary w-1/2 rounded-full"></div>
+                  <div
+                    className="h-full bg-primary rounded-full"
+                    style={{
+                      width: `${
+                        totalRemainingBudget
+                          ? Math.min(
+                              (currentSpending / totalRemainingBudget) * 100,
+                              100,
+                            )
+                          : 0
+                      }%`,
+                    }}
+                  />
                 </div>
               </div>
 
-              {/* Bar 2: Predicted */}
               <div>
                 <div className="flex justify-between text-lg mb-2">
-                  <span className="text-white">AI Predicted Spendings</span>
-                  <span className="text-gray-400">$24 / $20 (120%)</span>
+                  <span>AI Predicted Spendings</span>
+                  <span className="text-gray-400">
+                    NPR {totalPredictedSpend.toFixed(0)} / NPR{" "}
+                    {totalRemainingBudget.toFixed(0)}
+                  </span>
                 </div>
-                <div className="h-3 w-full bg-gray-800 rounded-full relative overflow-hidden">
-                  <div className="h-full bg-accent w-[120%] rounded-full absolute top-0 left-0"></div>
+                <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-accent rounded-full"
+                    style={{
+                      width: `${
+                        totalRemainingBudget
+                          ? Math.min(
+                              (totalPredictedSpend / totalRemainingBudget) *
+                                100,
+                              100,
+                            )
+                          : 0
+                      }%`,
+                    }}
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 3. Spending History */}
           <div className="bg-secondaryBG p-6 rounded-2xl">
             <h3 className="text-white text-xl font-medium mb-4">
               Spending History
             </h3>
-            <BarChart data={chartData} indexBy="day" valueKey="amount" />
+
+            {isPredictionLoading ? (
+              <p className="text-gray-400">Loading predictions...</p>
+            ) : (
+              <BarChart data={chartData} indexBy="day" valueKey="amount" />
+            )}
           </div>
         </div>
       </div>
+
+      {/* Overlay */}
+      {isCreateBudgetOpen && <CreateBudgetOverlay />}
     </div>
   );
 }

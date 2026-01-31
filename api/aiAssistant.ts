@@ -13,7 +13,7 @@ export interface AIAssistantResponse {
 export const fetchAIAdvisorAPI = async (payload: AIAssistantRequest) => {
   const response = await baseInstance.post<AIAssistantResponse>(
     "/ai/advisor",
-    payload
+    payload,
   );
   return response.data;
 };
