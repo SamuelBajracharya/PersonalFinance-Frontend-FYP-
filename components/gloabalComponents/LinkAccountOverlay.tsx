@@ -6,7 +6,7 @@ import { useLoginToBank } from "@/hooks/useBankTransaction";
 import { useBankOverlay } from "@/stores/useBankOverlay";
 
 const LinkAccountOverlay: React.FC = () => {
-  const { isOpen, close } = useBankOverlay();
+  const { isOpen, close, setBankLinked } = useBankOverlay();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -23,11 +23,17 @@ const LinkAccountOverlay: React.FC = () => {
   };
 
   const handleSubmit = () => {
+    if (!username || !password) return;
+
     mutate(
       { username, password },
       {
         onSuccess: () => {
-          handleClose();
+          setBankLinked(true);
+
+          setUsername("");
+          setPassword("");
+          close();
         },
       },
     );
@@ -35,7 +41,7 @@ const LinkAccountOverlay: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="relative w-full max-w-2xl rounded-2xl bg-secondaryBG p-8 ">
+      <div className="relative w-full max-w-2xl rounded-2xl bg-secondaryBG p-8">
         {/* Close */}
         <button
           onClick={handleClose}
@@ -79,7 +85,7 @@ const LinkAccountOverlay: React.FC = () => {
           <button
             onClick={handleClose}
             disabled={isPending}
-            className="flex-1 rounded-full border border-gray-200 py-3 text-gray-200 font-medium text-lg cursor-pointer hover:bg-white/5 transition disabled:opacity-40"
+            className="flex-1 rounded-full border border-gray-200 py-3 text-gray-200 font-medium text-lg hover:bg-white/5 transition disabled:opacity-40 cursor-pointer"
           >
             Cancel
           </button>

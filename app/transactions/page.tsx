@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { FaEyeSlash, FaRedoAlt } from "react-icons/fa";
@@ -16,14 +16,12 @@ import {
 } from "@/hooks/useBankTransaction";
 
 const Transactions: React.FC = () => {
-  const [isBankLinked, setIsBankLinked] = useState(false);
-  const openOverlay = useBankOverlay((state) => state.open);
-  const isOpen = useBankOverlay((state) => state.isOpen);
+  const { isOpen, isBankLinked, open, initialize } = useBankOverlay();
 
+  // Initialize persisted state once
   useEffect(() => {
-    const linked = localStorage.getItem("isBankLinked");
-    setIsBankLinked(linked === "true");
-  }, []);
+    initialize();
+  }, [initialize]);
 
   const {
     data: account,
@@ -129,9 +127,8 @@ const Transactions: React.FC = () => {
   return (
     <div className="min-h-screen px-6 py-6 font-sans">
       <div className="flex w-full gap-6 mb-6">
-        {/* Account Card */}
         {!isBankLinked ? (
-          <div className="flex-grow bg-gradient-to-br from-[#1c1c1c] to-[#3a3a3a] rounded-2xl p-6 flex flex-col items-start justify-between">
+          <div className="flex-grow bg-gradient-to-br from-[#1c1c1c] to-[#3a3a3a] rounded-2xl p-6 flex flex-col justify-between">
             <div>
               <p className="text-[#f39c12] text-3xl font-semibold mb-2">
                 Link Account
@@ -140,10 +137,10 @@ const Transactions: React.FC = () => {
                 For a smoother experience, please link your bank account.
               </p>
             </div>
-            <div className="flex flex-row justify-end w-full">
+            <div className="flex justify-end">
               <button
-                onClick={openOverlay}
-                className="border border-accent text-accent px-12 py-3 rounded-full text-lg cursor-pointer hover:bg-accent hover:text-white transition font-medium"
+                onClick={open}
+                className="border border-accent text-accent px-12 py-3 rounded-full text-lg hover:bg-accent hover:text-white transition cursor-pointer"
               >
                 Link Account
               </button>
@@ -164,19 +161,17 @@ const Transactions: React.FC = () => {
               <div className="flex gap-2">
                 <p className="text-[#d1d0d0] text-xl">Balance:</p>
                 <p className="text-primary text-xl flex items-center gap-2">
-                  ${Number(account?.balance || 0).toFixed(2)}
+                  ${Number(account?.balance).toFixed(2)}
                   <FaEyeSlash />
                 </p>
               </div>
-
-              <div className="bg-primary p-3 rounded-full cursor-pointer hover:bg-primary/80 transition">
+              <div className="bg-primary p-3 rounded-full cursor-pointer">
                 <FaRedoAlt className="text-white text-2xl animate-spin" />
               </div>
             </div>
           </div>
         )}
 
-        {/* Stats Section */}
         <div className="flex flex-col flex-grow gap-6">
           <div className="flex gap-6">
             <StatCard
@@ -184,7 +179,6 @@ const Transactions: React.FC = () => {
               value={expenseTotal}
               disabled={!isBankLinked}
             />
-
             <StatCard
               type="income"
               value={incomeTotal}
@@ -192,34 +186,23 @@ const Transactions: React.FC = () => {
             />
           </div>
 
-          <button className="bg-[#f39c12] disabled:opacity-40 hover:bg-[#e68a00] transition font-medium text-lg py-3 rounded-full flex items-center justify-center gap-2">
+          <button className="bg-[#f39c12] hover:bg-[#e68a00] transition font-medium text-lg py-3 rounded-full flex items-center justify-center gap-2">
             <AiOutlinePlus /> Create New Transaction
           </button>
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-secondaryBG rounded-2xl p-6">
         <Table
           columns={columns}
           dataSource={
             isBankLinked ? transactions?.map((t) => ({ key: t.id, ...t })) : []
           }
-          locale={{
-            emptyText: (
-              <div className="text-gray-400 text-lg py-30 text-center">
-                No data available
-              </div>
-            ),
-          }}
-          pagination={{
-            pageSize: 5,
-            total: isBankLinked ? (transactions?.length ?? 0) : 0,
-            showSizeChanger: false,
-          }}
+          pagination={{ pageSize: 5, showSizeChanger: false }}
           className="custom-table"
         />
       </div>
+
       {isOpen && <LinkAccountOverlay />}
     </div>
   );
