@@ -75,7 +75,7 @@ export const useLogout = () => {
     mutationFn: () => Promise.resolve(logoutAPI()),
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["currentUser"] });
-      router.push("/login");
+      router.push("/auth/login");
     },
   });
 };

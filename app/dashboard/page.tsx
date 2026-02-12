@@ -8,22 +8,27 @@ import StatCard from "@/components/gloabalComponents/StatCards";
 import { SuggestionCard } from "@/components/gloabalComponents/SuggestionCard";
 import { ActiveGoal } from "@/components/gloabalComponents/ActiveGoal";
 import { useFetchDashboard } from "@/hooks/useDashboard";
+import { useNabilBankAccount } from "@/hooks/useBankTransaction";
+import { useBankOverlay } from "@/stores/useBankOverlay";
 
 type Period = "weekly" | "monthly" | "yearly";
 
 export default function Dashboard() {
   const [lineChartPeriod, setLineChartPeriod] = useState<Period>("monthly");
+  const { isBankLinked, initialize } = useBankOverlay();
+  const { data: account } = useNabilBankAccount(isBankLinked);
 
-  // TODO: Replace this with your real selectedAccountId
-  const selectedAccountId = "b2a1c3d4-e5f6-7788-9900-aabbccddeeff";
-
-  const { mutate: fetchDashboard, data, isPending } = useFetchDashboard();
+  const { mutate: fetchDashboard, data } = useFetchDashboard();
 
   useEffect(() => {
-    if (selectedAccountId) {
-      fetchDashboard(selectedAccountId);
+    initialize();
+  }, [initialize]);
+
+  useEffect(() => {
+    if (isBankLinked && account?.id) {
+      fetchDashboard(account.id);
     }
-  }, [selectedAccountId]);
+  }, [isBankLinked, account?.id, fetchDashboard]);
 
   // Extract data safely
   const summary = data?.summary;
@@ -35,8 +40,8 @@ export default function Dashboard() {
     lineChartPeriod === "yearly"
       ? yearlySeries
       : lineChartPeriod === "monthly"
-      ? monthlySeries
-      : weeklySeries;
+        ? monthlySeries
+        : weeklySeries;
 
   return (
     <div className="p-6 grid grid-cols-12 gap-6 min-h-screen">

@@ -12,7 +12,7 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 }
 
 export const authInstance: AxiosInstance = axios.create({
-  baseURL: "http://127.00.1:8000/api/v1/auth",
+  baseURL: "http://127.0.0.1:8000/api/v1/auth",
   headers: { "Content-Type": "application/json" },
 });
 
@@ -29,8 +29,8 @@ export const baseInstance: AxiosInstance = axios.create({
 // A flag to prevent multiple token refresh attempts at once
 let isRefreshing = false;
 let failedQueue: Array<{
-  resolve: (value?: any) => void;
-  reject: (reason?: any) => void;
+  resolve: (value: string) => void;
+  reject: (reason?: unknown) => void;
 }> = [];
 
 const processQueue = (error: AxiosError | null, token: string | null = null) => {
@@ -78,7 +78,7 @@ export const attachAuthInterceptor = (axiosInstance: AxiosInstance) => {
 
         // If a refresh is already in progress, queue the original request
         if (isRefreshing) {
-          return new Promise((resolve, reject) => {
+          return new Promise<string>((resolve, reject) => {
             failedQueue.push({ resolve, reject });
           })
             .then((token) => {
@@ -108,12 +108,12 @@ export const attachAuthInterceptor = (axiosInstance: AxiosInstance) => {
 
             // Process all requests that were queued while refreshing
             processQueue(null, newAccessToken);
-          } catch (refreshError: any) {
+          } catch (refreshError: unknown) {
             console.error("Session expired during interceptor refresh:", refreshError);
             Cookies.remove("accessToken");
             Cookies.remove("refreshToken");
             if (typeof window !== "undefined") {
-              window.location.href = "/login"; // Redirect to login on refresh failure
+              window.location.href = "/auth/login"; // Redirect to login on refresh failure
             }
             reject(refreshError);
             processQueue(refreshError as AxiosError); // Notify queued requests of the failure

@@ -34,9 +34,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
 
       <body className={`${poppins.className} bg-mainBG text-textmain`}>
-        <QueryProvider>
-          <ResponsiveLayoutWrapper>{children}</ResponsiveLayoutWrapper>
-        </QueryProvider>
+        <AuthProvider>
+          <QueryProvider>
+            <ResponsiveLayoutWrapper>{children}</ResponsiveLayoutWrapper>
+          </QueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );

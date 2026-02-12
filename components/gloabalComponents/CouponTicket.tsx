@@ -1,11 +1,23 @@
+type BrandType = "daraz" | "worldlink" | "himalayan_java" | "foodmandu";
+export type TierLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+type CouponTicketProps = {
+  title?: string;
+  brand?: BrandType;
+  tier?: TierLevel;
+  discount?: string;
+  expiry?: string;
+  code?: string;
+};
+
 export default function CouponTicket({
   title = "Foodmandu Voucher",
-  brand = "foodmandu", // daraz | worldlink | himalayan_java | foodmandu
-  tier = 2, // novice | bronze | silver | gold | platinum | diamond
+  brand = "foodmandu",
+  tier = 2,
   discount = "20% OFF",
   expiry = "30 Mar 2026",
   code = "",
-}) {
+}: CouponTicketProps) {
   // Background Color Map by partner brand
   const brandColors = {
     daraz: "#f97316", // orange

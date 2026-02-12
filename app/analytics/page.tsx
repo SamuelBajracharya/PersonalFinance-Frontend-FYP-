@@ -10,6 +10,8 @@ import BarChart from "@/components/gloabalComponents/BarChart";
 import LineChart from "@/components/gloabalComponents/LineChart";
 import PieChart from "@/components/gloabalComponents/PieChart";
 import { useFetchAnalytics } from "@/hooks/useAnalytics";
+import { useNabilBankAccount } from "@/hooks/useBankTransaction";
+import { useBankOverlay } from "@/stores/useBankOverlay";
 
 // Colors
 const expenseColors = ["#8E0D28", "#B12434", "#D54654", "#F08B84", "#F4C9B9"];
@@ -20,14 +22,22 @@ type Period = "weekly" | "monthly" | "yearly";
 export default function Home() {
   const [period, setPeriod] = useState<Period>("yearly");
   const [lineChartPeriod, setLineChartPeriod] = useState<Period>("monthly");
+  const { isBankLinked, initialize } = useBankOverlay();
+  const { data: account } = useNabilBankAccount(isBankLinked);
 
   const { mutate: fetchAnalytics, data, isPending } = useFetchAnalytics();
 
   useEffect(() => {
-    fetchAnalytics("b2a1c3d4-e5f6-7788-9900-aabbccddeeff", {
+    initialize();
+  }, [initialize]);
+
+  useEffect(() => {
+    if (!isBankLinked || !account?.id) return;
+
+    fetchAnalytics(account.id, {
       onError: () => message.error("Failed to load analytics."),
     });
-  }, [fetchAnalytics]);
+  }, [isBankLinked, account?.id, fetchAnalytics]);
 
   const api = data || {};
   console.log("Analytics API Data:", api);
@@ -84,8 +94,8 @@ export default function Home() {
               period === "yearly"
                 ? yearlyTransactionData
                 : period === "monthly"
-                ? monthlyTransactionData
-                : weeklyTransactionData
+                  ? monthlyTransactionData
+                  : weeklyTransactionData
             }
             indexBy="label"
             valueKey="value"
@@ -120,8 +130,8 @@ export default function Home() {
               period === "yearly"
                 ? yearlyBalanceData
                 : period === "monthly"
-                ? monthlyBalanceData
-                : weeklyBalanceData
+                  ? monthlyBalanceData
+                  : weeklyBalanceData
             }
             indexBy="label"
             valueKey="value"
@@ -157,8 +167,8 @@ export default function Home() {
             lineChartPeriod === "yearly"
               ? yearlyLineSeries
               : lineChartPeriod === "monthly"
-              ? monthlyLineSeries
-              : weeklyLineSeries
+                ? monthlyLineSeries
+                : weeklyLineSeries
           }
         />
 

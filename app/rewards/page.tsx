@@ -5,7 +5,9 @@ import { BsTrophy } from "react-icons/bs";
 
 import { RecentActivityItem } from "@/components/gloabalComponents/RecentActivityCard";
 import { WhatIfCard } from "@/components/gloabalComponents/WhatIfCard";
-import CouponTicket from "@/components/gloabalComponents/CouponTicket";
+import CouponTicket, {
+  TierLevel,
+} from "@/components/gloabalComponents/CouponTicket";
 
 import { useWhatIfSccenarios } from "@/hooks/useWhatIf";
 import { useRecentRewardActivity } from "@/hooks/useRewards";
@@ -130,7 +132,7 @@ export default function Rewards() {
                     key={voucher.id}
                     title={voucher.title}
                     brand={getBrandFromTitle(voucher.title)}
-                    tier={voucher.tier_required}
+                    tier={voucher.tier_required as TierLevel}
                     discount={getDiscountText(
                       voucher.discount_type,
                       voucher.discount_value,

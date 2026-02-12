@@ -42,6 +42,7 @@ interface UserResponse {
   is_verified: boolean;
   total_xp: number;
   created_at: string;
+  rank: number;
 }
 
 export type {
