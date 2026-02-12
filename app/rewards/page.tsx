@@ -3,13 +3,15 @@
 import React from "react";
 import { BsTrophy } from "react-icons/bs";
 
-import { ActiveGoal } from "@/components/gloabalComponents/ActiveGoal";
 import { RecentActivityItem } from "@/components/gloabalComponents/RecentActivityCard";
 import { WhatIfCard } from "@/components/gloabalComponents/WhatIfCard";
+import CouponTicket from "@/components/gloabalComponents/CouponTicket";
 
 import { useWhatIfSccenarios } from "@/hooks/useWhatIf";
 import { useRecentRewardActivity } from "@/hooks/useRewards";
 import { useCurrentUser } from "@/hooks/useAuth";
+import { useMyActiveVouchers } from "@/hooks/useCoupons";
+import Link from "next/link";
 
 export default function Rewards() {
   const { data: whatIfScenarios, isLoading, isError } = useWhatIfSccenarios();
@@ -19,6 +21,12 @@ export default function Rewards() {
     isError: recentError,
   } = useRecentRewardActivity();
   const { data: currentUser } = useCurrentUser();
+
+  const {
+    data: myVouchers,
+    isLoading: vouchersLoading,
+    isError: vouchersError,
+  } = useMyActiveVouchers();
 
   const totalXp = currentUser?.total_xp ?? 0;
   const rank = currentUser?.rank ?? "Novice";
@@ -49,18 +57,36 @@ export default function Rewards() {
       ? Math.max(currentRank.max - totalXp, 0)
       : 0;
 
+  const getBrandFromTitle = (title: string) => {
+    const lower = title.toLowerCase();
+
+    if (lower.includes("worldlink")) return "worldlink";
+    if (lower.includes("daraz")) return "daraz";
+    if (lower.includes("coffee")) return "himalayan_java";
+    if (lower.includes("gym")) return "daraz"; // fallback style if gym added later
+    return "foodmandu"; // default fallback
+  };
+
+  const getDiscountText = (type: string, value: number) => {
+    return type === "PERCENTAGE" ? `${value}% OFF` : `Rs ${value} OFF`;
+  };
+
   return (
     <div className="min-h-screen p-6 font-sans text-gray-200">
-      <div className="mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 ">
+        {/* LEFT SIDE */}
         <div className="lg:col-span-8 flex flex-col gap-8">
+          {/* WHAT IF */}
           <div>
             <h2 className="text-textmain text-2xl font-semibold tracking-wide mb-4">
               What If?
             </h2>
+
             {isLoading && <p className="text-gray-400">Loading scenarios...</p>}
             {isError && (
               <p className="text-red-400">Failed to load what-if scenarios.</p>
             )}
+
             {!isLoading && whatIfScenarios && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {whatIfScenarios.map((scenario, index) => (
@@ -75,18 +101,52 @@ export default function Rewards() {
             )}
           </div>
 
+          {/* ACTIVE COUPONS */}
           <div>
-            <h2 className="text-textmain text-2xl font-semibold tracking-wide mb-4">
-              Active Goals
-            </h2>
-            <div className="flex flex-col gap-4">
-              <ActiveGoal title="Food and Dining" saved={16} target={40} />
-              <ActiveGoal title="Food and Dining" saved={16} target={40} />
+            <div className="flex justify-between items-center">
+              <h2 className="text-textmain text-2xl font-semibold tracking-wide mb-4">
+                Active Coupons
+              </h2>
+              <Link
+                href="/coupons"
+                className="text-primary text-lg hover:underline"
+              >
+                view all
+              </Link>
             </div>
+
+            {vouchersLoading && (
+              <p className="text-gray-400">Loading coupons...</p>
+            )}
+
+            {vouchersError && (
+              <p className="text-red-400">Failed to load coupons.</p>
+            )}
+
+            {!vouchersLoading && myVouchers && (
+              <div className="grid grid-cols-2 gap-4">
+                {myVouchers.map((voucher) => (
+                  <CouponTicket
+                    key={voucher.id}
+                    title={voucher.title}
+                    brand={getBrandFromTitle(voucher.title)}
+                    tier={voucher.tier_required}
+                    discount={getDiscountText(
+                      voucher.discount_type,
+                      voucher.discount_value,
+                    )}
+                    expiry={new Date(voucher.expires_at).toLocaleDateString()}
+                    code={voucher.code}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
+        {/* RIGHT SIDE */}
         <div className="lg:col-span-4 flex flex-col gap-8">
+          {/* XP CARD */}
           <div className="bg-secondaryBG p-8 rounded-3xl flex flex-col items-center text-center">
             <div className="inline-flex items-center gap-2 border border-primary px-6 py-3 rounded-full text-primary text-[16px] font-medium mb-6">
               <BsTrophy size={24} />
@@ -107,6 +167,7 @@ export default function Rewards() {
                   style={{ width: `${Math.min(progress, 100)}%` }}
                 />
               </div>
+
               {currentRank?.next ? (
                 <p className="text-gray-200 text-[16px]">
                   {xpToNext} XP more to {currentRank.next}
@@ -119,17 +180,21 @@ export default function Rewards() {
             </div>
           </div>
 
+          {/* RECENT ACTIVITIES */}
           <div>
             <h2 className="text-textmain text-2xl font-semibold tracking-wide mb-4">
               Recent Activities
             </h2>
+
             <div className="flex flex-col gap-4">
               {recentLoading && (
                 <p className="text-gray-400">Loading recent activity...</p>
               )}
+
               {recentError && (
                 <p className="text-red-400">Failed to load recent activity.</p>
               )}
+
               {!recentLoading &&
                 recentActivities?.map((activity, index) => (
                   <RecentActivityItem
