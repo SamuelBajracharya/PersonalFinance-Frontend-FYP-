@@ -19,6 +19,9 @@ import {
   useUnlinkBankAccounts,
 } from "@/hooks/useBankTransaction";
 
+import { useProfileOverlays } from "@/stores/useProfileOverlays";
+import TextConfirmationOverlay from "@/components/gloabalComponents/TextConfirmationOverlay";
+
 // XP → Title Logic
 function getXpTitle(xp: number) {
   if (xp <= 0) return "Beginner";
@@ -41,7 +44,13 @@ export default function Profile() {
   const unlinkMutation = useUnlinkBankAccounts();
   const deleteDataMutation = useDeleteUserTransactionData();
 
-  //sync UI with localStorage
+  const {
+    isUnlinkAccountConfirmationOpen,
+    openUnlinkAccountConfirmation,
+    closeUnlinkAccountConfirmation,
+  } = useProfileOverlays();
+
+  // Sync UI with localStorage
   useEffect(() => {
     const linked = localStorage.getItem("isBankLinked") === "true";
     setIsLinked(linked);
@@ -51,12 +60,9 @@ export default function Profile() {
     unlinkMutation.mutate(undefined, {
       onSuccess: () => {
         setIsLinked(false);
+        closeUnlinkAccountConfirmation();
       },
     });
-  };
-
-  const handleDeleteData = () => {
-    deleteDataMutation.mutate();
   };
 
   if (isLoading) return <p className="p-6">Loading...</p>;
@@ -120,7 +126,7 @@ export default function Profile() {
 
           {isLinked ? (
             <button
-              onClick={handleUnlink}
+              onClick={openUnlinkAccountConfirmation}
               disabled={unlinkMutation.isPending}
               className="absolute bottom-6 right-6 px-4 py-2 rounded-full transition border border-red-500 text-red-500 hover:bg-red-500 hover:text-white disabled:opacity-50 cursor-pointer"
             >
@@ -177,13 +183,22 @@ export default function Profile() {
         <Button
           type="link"
           loading={deleteDataMutation.isPending}
-          onClick={handleDeleteData}
+          onClick={() => deleteDataMutation.mutate()}
           className="!text-red-500 no-underline !text-2xl !flex !flex-row !items-center !justify-center"
         >
           <PiWarningFill className="w-8" />
           Delete Data
         </Button>
       </div>
+
+      {/* Text Confirmation Overlay for Unlink Account */}
+      <TextConfirmationOverlay
+        title="Unlink Account?"
+        confirmationText="unlink account"
+        isOpen={isUnlinkAccountConfirmationOpen}
+        onConfirm={handleUnlink}
+        onCancel={closeUnlinkAccountConfirmation}
+      />
     </div>
   );
 }
