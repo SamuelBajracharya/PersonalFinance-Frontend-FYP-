@@ -6,9 +6,19 @@ import {
   VoucherTemplate,
   UserVoucher,
   RedeemResponse,
+  fetchVoucherByIdAPI,
 } from "@/api/couponsAPI";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+// GET /vouchers/{voucher_id}
+export const useVoucherById = (voucherId: string) => {
+  return useQuery<UserVoucher, unknown>({
+    queryKey: ["voucher", voucherId],
+    queryFn: () => fetchVoucherByIdAPI(voucherId),
+    enabled: !!voucherId,
+  });
+};
 
 // GET /vouchers/available
 export const useAvailableVoucherTemplates = () => {

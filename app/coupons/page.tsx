@@ -1,7 +1,7 @@
 "use client";
 
 import { UserVoucher, VoucherTemplate } from "@/api/couponsAPI";
-import CouponTicket from "@/components/gloabalComponents/CouponTicket";
+import CouponTicket, { TierLevel } from "@/components/gloabalComponents/CouponTicket";
 import {
   useAvailableVoucherTemplates,
   useMyActiveVouchers,
@@ -45,7 +45,7 @@ export default function CouponsPage() {
                 key={voucher.id}
                 title={voucher.title}
                 brand={getBrandFromTitle(voucher.title)}
-                tier={voucher.tier_required}
+                tier={voucher.tier_required as TierLevel}
                 discount={getDiscountText(
                   voucher.discount_type,
                   voucher.discount_value,
@@ -69,7 +69,7 @@ export default function CouponsPage() {
                 key={voucher.id}
                 title={voucher.title}
                 brand={getBrandFromTitle(voucher.title)}
-                tier={voucher.tier_required}
+                tier={voucher.tier_required as TierLevel}
                 discount={getDiscountText(
                   voucher.discount_type,
                   voucher.discount_value,
@@ -94,7 +94,7 @@ export default function CouponsPage() {
                 key={voucher.id}
                 title={voucher.title}
                 brand={getBrandFromTitle(voucher.title)}
-                tier={voucher.tier_required}
+                tier={voucher.tier_required as TierLevel}
                 discount={getDiscountText(
                   voucher.discount_type,
                   voucher.discount_value,

@@ -1,3 +1,4 @@
+
 import { baseInstance } from "./axiosInstance";
 
 export interface VoucherTemplate {
@@ -30,6 +31,12 @@ export interface RedeemResponse {
   status: "REDEEMED";
   expires_at: string;
 }
+
+// GET /vouchers/{voucher_id}
+export const fetchVoucherByIdAPI = async (voucherId: string) => {
+  const response = await baseInstance.get<UserVoucher>(`/vouchers/${voucherId}`);
+  return response.data;
+};
 
 // GET /vouchers/available
 export const fetchAvailableVoucherTemplatesAPI = async () => {

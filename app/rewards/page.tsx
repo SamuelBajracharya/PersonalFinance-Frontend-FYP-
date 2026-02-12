@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { BsTrophy } from "react-icons/bs";
 
 import { RecentActivityItem } from "@/components/gloabalComponents/RecentActivityCard";
@@ -8,14 +8,20 @@ import { WhatIfCard } from "@/components/gloabalComponents/WhatIfCard";
 import CouponTicket, {
   TierLevel,
 } from "@/components/gloabalComponents/CouponTicket";
+import VoucherCongratsOverlay from "@/components/gloabalComponents/VoucherCongratsOverlay";
 
 import { useWhatIfSccenarios } from "@/hooks/useWhatIf";
 import { useRecentRewardActivity } from "@/hooks/useRewards";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useMyActiveVouchers } from "@/hooks/useCoupons";
+import { useVouchersOverlay } from "@/stores/useVouchersOverlay";
 import Link from "next/link";
 
+const SEEN_VOUCHERS_KEY = "seen_voucher_ids";
+
 export default function Rewards() {
+  const { openVoucherOverlay } = useVouchersOverlay();
+
   const { data: whatIfScenarios, isLoading, isError } = useWhatIfSccenarios();
   const {
     data: recentActivities,
@@ -28,6 +34,7 @@ export default function Rewards() {
     data: myVouchers,
     isLoading: vouchersLoading,
     isError: vouchersError,
+    refetch: refetchMyVouchers,
   } = useMyActiveVouchers();
 
   const totalXp = currentUser?.total_xp ?? 0;
@@ -51,7 +58,7 @@ export default function Rewards() {
   const progress =
     currentRank && currentRank.max > currentRank.min
       ? ((totalXp - currentRank.min) / (currentRank.max - currentRank.min)) *
-        100
+      100
       : 100;
 
   const xpToNext =
@@ -72,6 +79,39 @@ export default function Rewards() {
   const getDiscountText = (type: string, value: number) => {
     return type === "PERCENTAGE" ? `${value}% OFF` : `Rs ${value} OFF`;
   };
+
+  useEffect(() => {
+    if (!myVouchers || typeof window === "undefined") return;
+
+    const currentIds = myVouchers.map((voucher) => voucher.id);
+    const seenRaw = localStorage.getItem(SEEN_VOUCHERS_KEY);
+
+    if (!seenRaw) {
+      localStorage.setItem(SEEN_VOUCHERS_KEY, JSON.stringify(currentIds));
+      return;
+    }
+
+    const seenIds = new Set<string>(JSON.parse(seenRaw));
+    const unseen = myVouchers.filter((voucher) => !seenIds.has(voucher.id));
+
+    if (unseen.length) {
+      const newest = unseen.sort(
+        (a, b) =>
+          new Date(b.issued_at).getTime() - new Date(a.issued_at).getTime(),
+      )[0];
+
+      openVoucherOverlay(newest.id);
+      localStorage.setItem(SEEN_VOUCHERS_KEY, JSON.stringify(currentIds));
+    }
+  }, [myVouchers, openVoucherOverlay]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      refetchMyVouchers();
+    }, 15000);
+
+    return () => clearInterval(intervalId);
+  }, [refetchMyVouchers]);
 
   return (
     <div className="min-h-screen p-6 font-sans text-gray-200">
@@ -210,6 +250,8 @@ export default function Rewards() {
           </div>
         </div>
       </div>
+
+      <VoucherCongratsOverlay />
     </div>
   );
 }
