@@ -12,8 +12,8 @@ import PieChart from "@/components/gloabalComponents/PieChart";
 import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
 import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 import { useFetchAnalytics } from "@/hooks/useAnalytics";
-import { useNabilBankAccount } from "@/hooks/useBankTransaction";
 import { useBankOverlay } from "@/stores/useBankOverlay";
+import { useNabilAccountStore } from "@/stores/useNabilAccountStore";
 
 // Colors
 const expenseColors = ["#8E0D28", "#B12434", "#D54654", "#F08B84", "#F4C9B9"];
@@ -25,7 +25,7 @@ export default function Home() {
   const [period, setPeriod] = useState<Period>("yearly");
   const [lineChartPeriod, setLineChartPeriod] = useState<Period>("monthly");
   const { isBankLinked, initialize } = useBankOverlay();
-  const { data: account } = useNabilBankAccount(isBankLinked);
+  const nabilAccountId = useNabilAccountStore((state) => state.nabilAccountId);
 
   const { mutate: fetchAnalytics, data, isPending } = useFetchAnalytics();
 
@@ -34,12 +34,12 @@ export default function Home() {
   }, [initialize]);
 
   useEffect(() => {
-    if (!isBankLinked || !account?.id) return;
+    if (!isBankLinked || !nabilAccountId) return;
 
-    fetchAnalytics(account.id, {
+    fetchAnalytics(nabilAccountId, {
       onError: () => message.error("Failed to load analytics."),
     });
-  }, [isBankLinked, account?.id, fetchAnalytics]);
+  }, [isBankLinked, nabilAccountId, fetchAnalytics]);
 
   const api = data || {};
   console.log("Analytics API Data:", api);

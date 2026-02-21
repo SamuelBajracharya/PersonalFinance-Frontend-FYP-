@@ -22,6 +22,7 @@ import {
   UserResponse,
 } from "@/types/authAPI";
 import { useRouter } from "next/navigation";
+import { useNabilAccountStore } from "@/stores/useNabilAccountStore";
 
 export const useLogin = () => {
   return useMutation<TempTokenResponse, Error, LoginData>({
@@ -71,11 +72,15 @@ export const useCurrentUser = () => {
 export const useLogout = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const clearNabilAccountId = useNabilAccountStore(
+    (state) => state.clearNabilAccountId,
+  );
 
   return useMutation<void, Error, void>({
     mutationFn: () => Promise.resolve(logoutAPI()),
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["currentUser"] });
+      clearNabilAccountId();
       router.push("/auth/login");
     },
   });

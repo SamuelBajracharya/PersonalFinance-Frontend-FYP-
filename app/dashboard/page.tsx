@@ -8,15 +8,15 @@ import StatCard from "@/components/gloabalComponents/StatCards";
 import { SuggestionCard } from "@/components/gloabalComponents/SuggestionCard";
 import { ActiveGoal } from "@/components/gloabalComponents/ActiveGoal";
 import { useFetchDashboard } from "@/hooks/useDashboard";
-import { useNabilBankAccount } from "@/hooks/useBankTransaction";
 import { useBankOverlay } from "@/stores/useBankOverlay";
+import { useNabilAccountStore } from "@/stores/useNabilAccountStore";
 
 type Period = "weekly" | "monthly" | "yearly";
 
 export default function Dashboard() {
   const [lineChartPeriod, setLineChartPeriod] = useState<Period>("monthly");
   const { isBankLinked, initialize } = useBankOverlay();
-  const { data: account } = useNabilBankAccount(isBankLinked);
+  const nabilAccountId = useNabilAccountStore((state) => state.nabilAccountId);
 
   const { mutate: fetchDashboard, data } = useFetchDashboard();
 
@@ -25,10 +25,10 @@ export default function Dashboard() {
   }, [initialize]);
 
   useEffect(() => {
-    if (isBankLinked && account?.id) {
-      fetchDashboard(account.id);
+    if (isBankLinked && nabilAccountId) {
+      fetchDashboard(nabilAccountId);
     }
-  }, [isBankLinked, account?.id, fetchDashboard]);
+  }, [isBankLinked, nabilAccountId, fetchDashboard]);
 
   // Extract data safely
   const summary = data?.summary;

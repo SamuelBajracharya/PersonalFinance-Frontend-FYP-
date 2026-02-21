@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 
 export const useFetchAnalytics = () => {
   return useMutation({
-    mutationFn: (accountId: string) => fetchAnalyticsAPI(accountId),
+    mutationFn: (externalAccountId: string) =>
+      fetchAnalyticsAPI(externalAccountId),
   });
 };

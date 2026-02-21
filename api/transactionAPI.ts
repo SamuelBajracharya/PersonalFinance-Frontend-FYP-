@@ -25,11 +25,28 @@ export interface Transaction {
   source?: string;
 }
 
+export interface SyncedBankAccount {
+  user_id: string;
+  bank_name: string;
+  account_number_masked: string;
+  account_type: string;
+  balance: number;
+  account_id: string;
+}
+
+export interface BankLoginSyncResponse {
+  status: string;
+  message: string;
+  synced_accounts: SyncedBankAccount[];
+  synced_stock_instruments: number;
+  bank_token: string;
+}
+
 // login to bank and sync accounts
 export const loginToBank = async (
   username: string,
   password: string,
-): Promise<any> => {
+): Promise<BankLoginSyncResponse> => {
   const formData = new FormData();
   formData.append("username", username);
   formData.append("password", password);
