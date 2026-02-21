@@ -9,6 +9,8 @@ import Image from "next/image";
 import BarChart from "@/components/gloabalComponents/BarChart";
 import LineChart from "@/components/gloabalComponents/LineChart";
 import PieChart from "@/components/gloabalComponents/PieChart";
+import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
+import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 import { useFetchAnalytics } from "@/hooks/useAnalytics";
 import { useNabilBankAccount } from "@/hooks/useBankTransaction";
 import { useBankOverlay } from "@/stores/useBankOverlay";
@@ -56,15 +58,12 @@ export default function Home() {
 
   const pieExpense = api.pieExpense || [];
   const pieIncome = api.pieIncome || [];
+  const showInitialSkeletons =
+    isPending &&
+    !data;
 
   return (
     <div className="min-h-screen space-y-6 p-6">
-      {isPending && (
-        <div className="text-center text-primary text-lg font-medium">
-          Loading analytics...
-        </div>
-      )}
-
       {/* TRANSACTION SUMMARY */}
       <div className="grid grid-cols-2 gap-x-6">
         <div className="bg-secondaryBG rounded-2xl p-6">
@@ -89,17 +88,21 @@ export default function Home() {
             />
           </div>
 
-          <BarChart
-            data={
-              period === "yearly"
-                ? yearlyTransactionData
-                : period === "monthly"
-                  ? monthlyTransactionData
-                  : weeklyTransactionData
-            }
-            indexBy="label"
-            valueKey="value"
-          />
+          {showInitialSkeletons ? (
+            <SkeletonBlock className="h-[320px] w-full rounded-xl bg-highlight" />
+          ) : (
+            <BarChart
+              data={
+                period === "yearly"
+                  ? yearlyTransactionData
+                  : period === "monthly"
+                    ? monthlyTransactionData
+                    : weeklyTransactionData
+              }
+              indexBy="label"
+              valueKey="value"
+            />
+          )}
         </div>
 
         {/* BALANCE SUMMARY */}
@@ -125,17 +128,21 @@ export default function Home() {
             />
           </div>
 
-          <BarChart
-            data={
-              period === "yearly"
-                ? yearlyBalanceData
-                : period === "monthly"
-                  ? monthlyBalanceData
-                  : weeklyBalanceData
-            }
-            indexBy="label"
-            valueKey="value"
-          />
+          {showInitialSkeletons ? (
+            <SkeletonBlock className="h-[320px] w-full rounded-xl bg-highlight" />
+          ) : (
+            <BarChart
+              data={
+                period === "yearly"
+                  ? yearlyBalanceData
+                  : period === "monthly"
+                    ? monthlyBalanceData
+                    : weeklyBalanceData
+              }
+              indexBy="label"
+              valueKey="value"
+            />
+          )}
         </div>
       </div>
 
@@ -162,15 +169,19 @@ export default function Home() {
           />
         </div>
 
-        <LineChart
-          series={
-            lineChartPeriod === "yearly"
-              ? yearlyLineSeries
-              : lineChartPeriod === "monthly"
-                ? monthlyLineSeries
-                : weeklyLineSeries
-          }
-        />
+        {showInitialSkeletons ? (
+          <SkeletonBlock className="h-[350px] w-full rounded-xl bg-highlight" />
+        ) : (
+          <LineChart
+            series={
+              lineChartPeriod === "yearly"
+                ? yearlyLineSeries
+                : lineChartPeriod === "monthly"
+                  ? monthlyLineSeries
+                  : weeklyLineSeries
+            }
+          />
+        )}
 
         {/* Legend */}
         <div className="flex gap-6 mt-4 items-center justify-center">
@@ -202,11 +213,15 @@ export default function Home() {
               </div>
               <h3 className="text-lg font-medium">Expense Category Chart</h3>
             </div>
-            <PieChart data={pieExpense} colors={expenseColors} />
+            {showInitialSkeletons ? (
+              <SkeletonBlock className="h-[300px] w-[300px] rounded-xl bg-highlight" />
+            ) : (
+              <PieChart data={pieExpense} colors={expenseColors} />
+            )}
           </div>
 
           <div className="w-3/7 flex flex-col justify-center ml-16 mt-8">
-            {pieExpense.map((p, i) => (
+            {!showInitialSkeletons && pieExpense.map((p, i) => (
               <div
                 key={p.id}
                 className="flex items-center justify-between mb-4"
@@ -242,11 +257,15 @@ export default function Home() {
               </div>
               <h3 className="text-lg font-medium">Income Category Chart</h3>
             </div>
-            <PieChart data={pieIncome} colors={incomeColors} />
+            {showInitialSkeletons ? (
+              <SkeletonBlock className="h-[300px] w-[300px] rounded-xl bg-highlight" />
+            ) : (
+              <PieChart data={pieIncome} colors={incomeColors} />
+            )}
           </div>
 
           <div className="w-3/7 flex flex-col justify-center ml-16 mt-8">
-            {pieIncome.map((p, i) => (
+            {!showInitialSkeletons && pieIncome.map((p, i) => (
               <div
                 key={p.id}
                 className="flex items-center justify-between mb-4"
@@ -267,6 +286,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <LoadingOverlay show={isPending} />
     </div>
   );
 }

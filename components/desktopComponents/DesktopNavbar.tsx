@@ -12,6 +12,7 @@ const DesktopNavbar = () => {
 
   const getTitle = (path: string) => {
     if (path === "/budgetgoals") return "Budget Goals";
+    if (path === "/mystocks") return "My Stocks";
 
     const words = path.replace(/^\//, "").split(/[-\/]/);
 

@@ -9,6 +9,8 @@ import { PiWarningFill } from "react-icons/pi";
 
 import StatCard from "@/components/gloabalComponents/StatCards";
 import AchievementCard from "@/components/gloabalComponents/AchievementCard";
+import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
+import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useMyUnlockedRewards } from "@/hooks/useRewards";
 
@@ -40,6 +42,8 @@ export default function Profile() {
 
   const { data: user, isLoading, error } = useCurrentUser();
   const { data: myRewards, isLoading: rewardsLoading } = useMyUnlockedRewards();
+  const showInitialSkeletons = isLoading && !user;
+  const showLoadingOverlay = showInitialSkeletons || rewardsLoading;
 
   const unlinkMutation = useUnlinkBankAccounts();
   const deleteDataMutation = useDeleteUserTransactionData();
@@ -65,20 +69,33 @@ export default function Profile() {
     });
   };
 
-  if (isLoading) return <p className="p-6">Loading...</p>;
-  if (error) return <p className="p-6 text-red-500">Failed to load user</p>;
-
   return (
     <div className="p-6">
+      {error && !showInitialSkeletons && (
+        <p className="mb-6 text-red-500">Failed to load user</p>
+      )}
       {/* Top Section */}
       <div className="flex gap-8 items-center">
-        <div className="size-48 overflow-hidden rounded-full bg-white" />
+        {showInitialSkeletons ? (
+          <SkeletonBlock className="size-48 rounded-full bg-tableBG" />
+        ) : (
+          <div className="size-48 overflow-hidden rounded-full bg-white" />
+        )}
 
         <div className="flex flex-col justify-center gap-2">
-          <h1 className="text-5xl font-medium tracking-wide">{user?.name}</h1>
-          <p className="text-gray-200 text-2xl tracking-wide">
-            {getXpTitle(user?.total_xp ?? 0)}
-          </p>
+          {showInitialSkeletons ? (
+            <>
+              <SkeletonBlock className="h-12 w-64" />
+              <SkeletonBlock className="h-8 w-36" />
+            </>
+          ) : (
+            <>
+              <h1 className="text-5xl font-medium tracking-wide">{user?.name}</h1>
+              <p className="text-gray-200 text-2xl tracking-wide">
+                {getXpTitle(user?.total_xp ?? 0)}
+              </p>
+            </>
+          )}
         </div>
       </div>
 
@@ -88,7 +105,7 @@ export default function Profile() {
           <MdEmail className="size-8" />
           <input
             type="text"
-            value={user?.email ?? ""}
+            value={showInitialSkeletons ? "" : user?.email ?? ""}
             readOnly
             className="bg-transparent outline-none text-xl w-full"
           />
@@ -115,16 +132,25 @@ export default function Profile() {
       {/* Linked Account + Stats */}
       <div className="grid grid-cols-7 gap-6 mt-10">
         <div className="bg-linear-to-br from-[#1b1b1b] to-[#0e0e0e] p-6 rounded-2xl col-span-3 relative">
-          <div>
-            <p className="text-gray-400 tracking-widest">
-              {isLinked ? "XXXX XXXX 1234" : "Link Account"}
-            </p>
-            <p className="text-yellow-400 font-medium mt-1">
-              {isLinked ? user?.name : "No username"}
-            </p>
-          </div>
+          {showInitialSkeletons ? (
+            <>
+              <SkeletonBlock className="h-6 w-36" />
+              <SkeletonBlock className="h-6 w-28 mt-2" />
+            </>
+          ) : (
+            <div>
+              <p className="text-gray-400 tracking-widest">
+                {isLinked ? "XXXX XXXX 1234" : "Link Account"}
+              </p>
+              <p className="text-yellow-400 font-medium mt-1">
+                {isLinked ? user?.name : "No username"}
+              </p>
+            </div>
+          )}
 
-          {isLinked ? (
+          {showInitialSkeletons ? (
+            <SkeletonBlock className="absolute bottom-6 right-6 h-10 w-36 rounded-full" />
+          ) : isLinked ? (
             <button
               onClick={openUnlinkAccountConfirmation}
               disabled={unlinkMutation.isPending}
@@ -140,11 +166,19 @@ export default function Profile() {
         </div>
 
         <div className="col-span-2">
-          <StatCard type="expense" value={86.85} />
+          {showInitialSkeletons ? (
+            <SkeletonBlock className="h-[152px] rounded-2xl bg-secondaryBG" />
+          ) : (
+            <StatCard type="expense" value={86.85} />
+          )}
         </div>
 
         <div className="col-span-2">
-          <StatCard type="income" value={86.85} />
+          {showInitialSkeletons ? (
+            <SkeletonBlock className="h-[152px] rounded-2xl bg-secondaryBG" />
+          ) : (
+            <StatCard type="income" value={86.85} />
+          )}
         </div>
       </div>
 
@@ -160,9 +194,12 @@ export default function Profile() {
       </div>
 
       <div className="grid grid-cols-6 gap-6 mt-4 overflow-x-auto">
-        {rewardsLoading && <p>Loading achievements...</p>}
+        {rewardsLoading && !myRewards &&
+          Array.from({ length: 6 }).map((_, index) => (
+            <SkeletonBlock key={index} className="h-[200px] rounded-4xl bg-tableBG" />
+          ))}
 
-        {myRewards?.map((ur) => (
+        {!rewardsLoading && myRewards?.map((ur) => (
           <AchievementCard
             key={ur.id}
             title={`${ur.reward.name} ${ur.reward.tier}`}
@@ -199,6 +236,8 @@ export default function Profile() {
         onConfirm={handleUnlink}
         onCancel={closeUnlinkAccountConfirmation}
       />
+
+      <LoadingOverlay show={showLoadingOverlay} />
     </div>
   );
 }

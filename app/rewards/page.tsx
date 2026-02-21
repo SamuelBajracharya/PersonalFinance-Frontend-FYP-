@@ -9,6 +9,8 @@ import CouponTicket, {
   TierLevel,
 } from "@/components/gloabalComponents/CouponTicket";
 import VoucherCongratsOverlay from "@/components/gloabalComponents/VoucherCongratsOverlay";
+import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
+import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 
 import { useWhatIfSccenarios } from "@/hooks/useWhatIf";
 import { useRecentRewardActivity } from "@/hooks/useRewards";
@@ -28,7 +30,7 @@ export default function Rewards() {
     isLoading: recentLoading,
     isError: recentError,
   } = useRecentRewardActivity();
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser, isLoading: currentUserLoading } = useCurrentUser();
 
   const {
     data: myVouchers,
@@ -39,6 +41,16 @@ export default function Rewards() {
 
   const totalXp = currentUser?.total_xp ?? 0;
   const rank = currentUser?.rank ?? "Novice";
+
+  const showWhatIfSkeleton = isLoading && !whatIfScenarios;
+  const showCouponsSkeleton = vouchersLoading && !myVouchers;
+  const showXpSkeleton = currentUserLoading && !currentUser;
+  const showRecentSkeleton = recentLoading && !recentActivities;
+  const showLoadingOverlay =
+    showWhatIfSkeleton ||
+    showCouponsSkeleton ||
+    showXpSkeleton ||
+    showRecentSkeleton;
 
   const rankThresholds: Record<
     string,
@@ -124,12 +136,24 @@ export default function Rewards() {
               What If?
             </h2>
 
-            {isLoading && <p className="text-gray-400">Loading scenarios...</p>}
+            {showWhatIfSkeleton && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="bg-secondaryBG p-5 rounded-2xl">
+                    <SkeletonBlock className="h-7 w-full" />
+                    <SkeletonBlock className="h-7 w-4/5 mt-2" />
+                    <SkeletonBlock className="h-8 w-3/5 mt-6" />
+                    <SkeletonBlock className="h-11 w-full mt-6 rounded-full" />
+                  </div>
+                ))}
+              </div>
+            )}
+
             {isError && (
               <p className="text-red-400">Failed to load what-if scenarios.</p>
             )}
 
-            {!isLoading && whatIfScenarios && (
+            {!showWhatIfSkeleton && whatIfScenarios && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {whatIfScenarios.map((scenario, index) => (
                   <WhatIfCard
@@ -157,15 +181,22 @@ export default function Rewards() {
               </Link>
             </div>
 
-            {vouchersLoading && (
-              <p className="text-gray-400">Loading coupons...</p>
+            {showCouponsSkeleton && (
+              <div className="grid grid-cols-2 gap-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <SkeletonBlock
+                    key={index}
+                    className="h-[220px] rounded-3xl bg-secondaryBG"
+                  />
+                ))}
+              </div>
             )}
 
             {vouchersError && (
               <p className="text-red-400">Failed to load coupons.</p>
             )}
 
-            {!vouchersLoading && myVouchers && (
+            {!showCouponsSkeleton && myVouchers && (
               <div className="grid grid-cols-2 gap-4">
                 {myVouchers.map((voucher) => (
                   <CouponTicket
@@ -189,38 +220,50 @@ export default function Rewards() {
         {/* RIGHT SIDE */}
         <div className="lg:col-span-4 flex flex-col gap-8">
           {/* XP CARD */}
-          <div className="bg-secondaryBG p-8 rounded-3xl flex flex-col items-center text-center">
-            <div className="inline-flex items-center gap-2 border border-primary px-6 py-3 rounded-full text-primary text-[16px] font-medium mb-6">
-              <BsTrophy size={24} />
-              {rank}
+          {showXpSkeleton ? (
+            <div className="bg-secondaryBG p-8 rounded-3xl flex flex-col items-center text-center">
+              <SkeletonBlock className="h-12 w-52 rounded-full mb-6" />
+              <SkeletonBlock className="h-14 w-28" />
+              <SkeletonBlock className="h-5 w-40 mt-2 mb-8" />
+              <div className="w-full">
+                <SkeletonBlock className="h-2 w-full rounded-full mb-3" />
+                <SkeletonBlock className="h-5 w-48 mx-auto" />
+              </div>
             </div>
-
-            <div className="text-5xl font-bold text-primary mb-1">
-              {totalXp}
-            </div>
-            <div className="text-gray-200 text-[16px] mb-8">
-              Experience Points
-            </div>
-
-            <div className="w-full">
-              <div className="h-2 bg-accentBG rounded-full mb-3 overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full transition-all"
-                  style={{ width: `${Math.min(progress, 100)}%` }}
-                />
+          ) : (
+            <div className="bg-secondaryBG p-8 rounded-3xl flex flex-col items-center text-center">
+              <div className="inline-flex items-center gap-2 border border-primary px-6 py-3 rounded-full text-primary text-[16px] font-medium mb-6">
+                <BsTrophy size={24} />
+                {rank}
               </div>
 
-              {currentRank?.next ? (
-                <p className="text-gray-200 text-[16px]">
-                  {xpToNext} XP more to {currentRank.next}
-                </p>
-              ) : (
-                <p className="text-gray-200 text-[16px]">
-                  Max rank achieved 🎉
-                </p>
-              )}
+              <div className="text-5xl font-bold text-primary mb-1">
+                {totalXp}
+              </div>
+              <div className="text-gray-200 text-[16px] mb-8">
+                Experience Points
+              </div>
+
+              <div className="w-full">
+                <div className="h-2 bg-accentBG rounded-full mb-3 overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all"
+                    style={{ width: `${Math.min(progress, 100)}%` }}
+                  />
+                </div>
+
+                {currentRank?.next ? (
+                  <p className="text-gray-200 text-[16px]">
+                    {xpToNext} XP more to {currentRank.next}
+                  </p>
+                ) : (
+                  <p className="text-gray-200 text-[16px]">
+                    Max rank achieved 🎉
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* RECENT ACTIVITIES */}
           <div>
@@ -229,15 +272,27 @@ export default function Rewards() {
             </h2>
 
             <div className="flex flex-col gap-4">
-              {recentLoading && (
-                <p className="text-gray-400">Loading recent activity...</p>
-              )}
+              {showRecentSkeleton &&
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-secondaryBG rounded-2xl p-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <SkeletonBlock className="h-5 w-36" />
+                        <SkeletonBlock className="h-4 w-44 mt-2" />
+                      </div>
+                      <SkeletonBlock className="h-6 w-14" />
+                    </div>
+                  </div>
+                ))}
 
               {recentError && (
                 <p className="text-red-400">Failed to load recent activity.</p>
               )}
 
-              {!recentLoading &&
+              {!showRecentSkeleton &&
                 recentActivities?.map((activity, index) => (
                   <RecentActivityItem
                     key={`${activity.reward_id}-${index}`}
@@ -250,6 +305,8 @@ export default function Rewards() {
           </div>
         </div>
       </div>
+
+      <LoadingOverlay show={showLoadingOverlay} />
 
       <VoucherCongratsOverlay />
     </div>

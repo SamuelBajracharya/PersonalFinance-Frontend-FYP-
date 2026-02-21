@@ -10,11 +10,12 @@ const MobileNavbar = () => {
 
     // convert /analytics/something → Analytics Something
     const pageTitle = pathname
-        .split("/")                  
-        .filter(Boolean)            
+        .split("/")
+        .filter(Boolean)
         .map(part =>
-            part.replace(/-/g, " ")    
-                .replace(/\b\w/g, c => c.toUpperCase()) 
+            (part === "mystocks" ? "my stocks" : part)
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, c => c.toUpperCase())
         )
         .join(" / ");
     return (

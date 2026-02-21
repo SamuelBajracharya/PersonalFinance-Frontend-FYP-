@@ -14,6 +14,7 @@ export const useMyBudgets = () => {
   return useQuery<Budget[], unknown>({
     queryKey: ["budgets", "me"],
     queryFn: () => fetchMyBudgetsAPI(),
+    placeholderData: (previousData) => previousData,
   });
 };
 

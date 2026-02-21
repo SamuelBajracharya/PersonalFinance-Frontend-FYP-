@@ -12,6 +12,7 @@ export const useAllRewardsWithStatus = () => {
   return useQuery<RewardWithUnlockStatus[], unknown>({
     queryKey: ["rewards", "all"],
     queryFn: () => fetchAllRewardsWithStatusAPI(),
+    placeholderData: (previousData) => previousData,
   });
 };
 
@@ -19,6 +20,7 @@ export const useMyUnlockedRewards = () => {
   return useQuery<UserReward[], unknown>({
     queryKey: ["rewards", "me"],
     queryFn: () => fetchMyUnlockedRewardsAPI(),
+    placeholderData: (previousData) => previousData,
   });
 };
 
@@ -26,5 +28,6 @@ export const useRecentRewardActivity = () => {
   return useQuery<RecentReward[], unknown>({
     queryKey: ["rewards", "recent-activity"],
     queryFn: () => fetchRecentRewardActivityAPI(),
+    placeholderData: (previousData) => previousData,
   });
 };

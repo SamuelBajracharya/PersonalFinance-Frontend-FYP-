@@ -56,6 +56,7 @@ export const useNabilBankAccount = (enabled: boolean) => {
     queryKey: ["nabil-bank-account"],
     queryFn: getNabilBankAccount,
     enabled,
+    placeholderData: (previousData) => previousData,
   });
 };
 
@@ -65,6 +66,7 @@ export const useNabilBankTransactions = (enabled: boolean) => {
     queryKey: ["nabil-bank-transactions"],
     queryFn: getNabilBankTransactions,
     enabled,
+    placeholderData: (previousData) => previousData,
   });
 };
 // create a transaction

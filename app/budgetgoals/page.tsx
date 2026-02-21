@@ -8,11 +8,16 @@ import { useMyBudgets } from "@/hooks/useBudgetGoals";
 import { useCreateBudgetOverlay } from "@/stores/useCreateBudgetOverlay";
 import CreateBudgetOverlay from "@/components/gloabalComponents/CreateBudgetOverlay";
 import { useBudgetPredictions } from "@/hooks/useBudgetPrediction";
+import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
+import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 
 export default function BudgetGoals() {
   const { data: budgets = [], isLoading } = useMyBudgets();
   const { data: predictions = [], isLoading: isPredictionLoading } =
     useBudgetPredictions();
+  const showLoadingOverlay = isLoading || isPredictionLoading;
+  const showInitialSkeletons =
+    showLoadingOverlay && budgets.length === 0 && predictions.length === 0;
 
   const { isCreateBudgetOpen, openCreateBudget } = useCreateBudgetOverlay();
 
@@ -70,17 +75,21 @@ export default function BudgetGoals() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mx-auto">
         {/* LEFT COLUMN */}
         <div className="lg:col-span-4 flex flex-col gap-2">
-          {isLoading && (
-            <p className="text-gray-400 text-center py-6">Loading budgets...</p>
-          )}
+          {showInitialSkeletons &&
+            Array.from({ length: 4 }).map((_, index) => (
+              <SkeletonBlock
+                key={index}
+                className="h-[170px] rounded-2xl bg-secondaryBG"
+              />
+            ))}
 
-          {!isLoading && budgets.length === 0 && (
+          {!showInitialSkeletons && !isLoading && budgets.length === 0 && (
             <p className="text-gray-400 text-center py-6">
               No budgets created yet.
             </p>
           )}
 
-          {budgets.map((budget) => (
+          {!showInitialSkeletons && budgets.map((budget) => (
             <CoffeeSpendingCard
               key={budget.id}
               category={budget.category}
@@ -105,95 +114,122 @@ export default function BudgetGoals() {
           </div>
 
           <div className="bg-secondaryBG p-6 rounded-2xl">
-            <h3 className="text-white text-xl font-medium mb-2">
-              AI Suggestion & Forecast
-            </h3>
-            <p className="text-gray-300 text-[16px] mb-6 leading-relaxed">
-              AI-generated insights for {selectedCategory || "all categories"}.
-            </p>
-
-            <div className="bg-accentBG w-fit px-4 py-3 rounded-xl border-l-4 border-accent">
-              <p className="text-textmain text-sm uppercase font-medium mb-1">
-                Predicted Overspend
-              </p>
-              <p className="text-accent text-2xl font-bold">
-                NPR {predictedOverspend.toFixed(2)}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-secondaryBG p-6 rounded-2xl">
-            <h3 className="text-white text-xl font-medium mb-6">
-              Pace & Prediction
-            </h3>
-
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between text-lg mb-2">
-                  <span>Current Spendings</span>
-                  <span className="text-gray-400">
-                    NPR {currentSpending.toFixed(0)} / NPR{" "}
-                    {totalRemainingBudget.toFixed(0)}
-                  </span>
-                </div>
-                <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full"
-                    style={{
-                      width: `${
-                        totalRemainingBudget
-                          ? Math.min(
-                              (currentSpending / totalRemainingBudget) * 100,
-                              100,
-                            )
-                          : 0
-                      }%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-lg mb-2">
-                  <span>AI Predicted Spendings</span>
-                  <span className="text-gray-400">
-                    NPR {totalPredictedSpend.toFixed(0)} / NPR{" "}
-                    {totalRemainingBudget.toFixed(0)}
-                  </span>
-                </div>
-                <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-accent rounded-full"
-                    style={{
-                      width: `${
-                        totalRemainingBudget
-                          ? Math.min(
-                              (totalPredictedSpend / totalRemainingBudget) *
-                                100,
-                              100,
-                            )
-                          : 0
-                      }%`,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-secondaryBG p-6 rounded-2xl">
-            <h3 className="text-white text-xl font-medium mb-4">
-              Spending History
-            </h3>
-
-            {isPredictionLoading ? (
-              <p className="text-gray-400">Loading predictions...</p>
+            {showInitialSkeletons ? (
+              <>
+                <SkeletonBlock className="h-7 w-56" />
+                <SkeletonBlock className="h-5 w-80 mt-2" />
+                <SkeletonBlock className="h-16 w-44 mt-6 rounded-xl" />
+              </>
             ) : (
-              <BarChart data={chartData} indexBy="day" valueKey="amount" />
+              <>
+                <h3 className="text-white text-xl font-medium mb-2">
+                  AI Suggestion & Forecast
+                </h3>
+                <p className="text-gray-300 text-[16px] mb-6 leading-relaxed">
+                  AI-generated insights for {selectedCategory || "all categories"}.
+                </p>
+
+                <div className="bg-accentBG w-fit px-4 py-3 rounded-xl border-l-4 border-accent">
+                  <p className="text-textmain text-sm uppercase font-medium mb-1">
+                    Predicted Overspend
+                  </p>
+                  <p className="text-accent text-2xl font-bold">
+                    NPR {predictedOverspend.toFixed(2)}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="bg-secondaryBG p-6 rounded-2xl">
+            {showInitialSkeletons ? (
+              <>
+                <SkeletonBlock className="h-7 w-48 mb-6" />
+                <SkeletonBlock className="h-6 w-full mb-2" />
+                <SkeletonBlock className="h-3 w-full rounded-full mb-6" />
+                <SkeletonBlock className="h-6 w-full mb-2" />
+                <SkeletonBlock className="h-3 w-full rounded-full" />
+              </>
+            ) : (
+              <>
+                <h3 className="text-white text-xl font-medium mb-6">
+                  Pace & Prediction
+                </h3>
+
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex justify-between text-lg mb-2">
+                      <span>Current Spendings</span>
+                      <span className="text-gray-400">
+                        NPR {currentSpending.toFixed(0)} / NPR{" "}
+                        {totalRemainingBudget.toFixed(0)}
+                      </span>
+                    </div>
+                    <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full"
+                        style={{
+                          width: `${totalRemainingBudget
+                              ? Math.min(
+                                (currentSpending / totalRemainingBudget) * 100,
+                                100,
+                              )
+                              : 0
+                            }%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-lg mb-2">
+                      <span>AI Predicted Spendings</span>
+                      <span className="text-gray-400">
+                        NPR {totalPredictedSpend.toFixed(0)} / NPR{" "}
+                        {totalRemainingBudget.toFixed(0)}
+                      </span>
+                    </div>
+                    <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-accent rounded-full"
+                        style={{
+                          width: `${totalRemainingBudget
+                              ? Math.min(
+                                (totalPredictedSpend / totalRemainingBudget) *
+                                100,
+                                100,
+                              )
+                              : 0
+                            }%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="bg-secondaryBG p-6 rounded-2xl">
+            {showInitialSkeletons ? (
+              <>
+                <SkeletonBlock className="h-7 w-44 mb-4" />
+                <SkeletonBlock className="h-[320px] w-full rounded-xl bg-highlight" />
+              </>
+            ) : (
+              <>
+                <h3 className="text-white text-xl font-medium mb-4">
+                  Spending History
+                </h3>
+
+                <BarChart data={chartData} indexBy="day" valueKey="amount" />
+              </>
             )}
           </div>
         </div>
       </div>
+
+      <LoadingOverlay show={showLoadingOverlay} />
 
       {/* Overlay */}
       {isCreateBudgetOpen && <CreateBudgetOverlay />}

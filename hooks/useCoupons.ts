@@ -25,6 +25,7 @@ export const useAvailableVoucherTemplates = () => {
   return useQuery<VoucherTemplate[], unknown>({
     queryKey: ["voucher-templates"],
     queryFn: () => fetchAvailableVoucherTemplatesAPI(),
+    placeholderData: (previousData) => previousData,
   });
 };
 
@@ -33,6 +34,7 @@ export const useMyActiveVouchers = () => {
   return useQuery<UserVoucher[], unknown>({
     queryKey: ["my-vouchers"],
     queryFn: () => fetchMyActiveVouchersAPI(),
+    placeholderData: (previousData) => previousData,
   });
 };
 
@@ -41,6 +43,7 @@ export const useVoucherHistory = () => {
   return useQuery<UserVoucher[], unknown>({
     queryKey: ["voucher-history"],
     queryFn: () => fetchVoucherHistoryAPI(),
+    placeholderData: (previousData) => previousData,
   });
 };
 

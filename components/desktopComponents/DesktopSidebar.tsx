@@ -6,6 +6,7 @@ import { GoHomeFill } from "react-icons/go";
 import { AiFillPieChart } from "react-icons/ai";
 import { IoTrophy } from "react-icons/io5";
 import { FaPiggyBank } from "react-icons/fa6";
+import { FaChartLine } from "react-icons/fa6";
 import { IoMdHelpCircle } from "react-icons/io";
 import { PiChatCircleTextFill } from "react-icons/pi";
 import Image from "next/image";
@@ -46,6 +47,11 @@ const DesktopSidebar = () => {
       icon: <FaPiggyBank size={20} />,
     },
     {
+      href: "/mystocks",
+      label: "My Stocks",
+      icon: <FaChartLine size={18} />,
+    },
+    {
       href: "/ai-assistant",
       label: "AI Assistant",
       icon: <PiChatCircleTextFill size={22} />,
@@ -83,18 +89,16 @@ const DesktopSidebar = () => {
               key={item.href}
               onClick={() => router.push(item.href)}
               className={`flex items-center gap-3 w-full p-2 rounded-full transition-colors cursor-pointer
-                ${
-                  isActive
-                    ? "bg-accent font-semibold"
-                    : "hover:bg-accent/60 hover:text-textmain"
+                ${isActive
+                  ? "bg-accent font-semibold"
+                  : "hover:bg-accent/60 hover:text-textmain"
                 }
               `}
             >
               {/* Icon wrapper */}
               <div
-                className={`flex items-center justify-center w-8 h-8 ${
-                  isActive ? "bg-yellow-400" : ""
-                } rounded-full`}
+                className={`flex items-center justify-center w-8 h-8 ${isActive ? "bg-yellow-400" : ""
+                  } rounded-full`}
               >
                 {item.icon}
               </div>
@@ -113,17 +117,15 @@ const DesktopSidebar = () => {
               key={item.href}
               onClick={() => router.push(item.href)}
               className={`flex items-center gap-3 w-full p-2 rounded-full transition-colors cursor-pointer
-                ${
-                  isActive
-                    ? "bg-accent font-normal"
-                    : "hover:bg-accent/60 hover:text-textmain"
+                ${isActive
+                  ? "bg-accent font-normal"
+                  : "hover:bg-accent/60 hover:text-textmain"
                 }
               `}
             >
               <div
-                className={`flex items-center justify-center size-8 ${
-                  isActive ? "bg-yellow-400" : ""
-                } rounded-full`}
+                className={`flex items-center justify-center size-8 ${isActive ? "bg-yellow-400" : ""
+                  } rounded-full`}
               >
                 {item.icon}
               </div>

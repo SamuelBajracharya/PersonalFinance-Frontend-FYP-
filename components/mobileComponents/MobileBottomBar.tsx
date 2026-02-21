@@ -6,6 +6,7 @@ import { GoHomeFill } from "react-icons/go";
 import { AiFillPieChart } from "react-icons/ai";
 import { IoTrophy } from "react-icons/io5";
 import { FaPiggyBank } from "react-icons/fa6";
+import { FaChartLine } from "react-icons/fa6";
 import Image from "next/image";
 
 const MobileBottomBar = () => {
@@ -33,6 +34,7 @@ const MobileBottomBar = () => {
       ),
     },
     { href: "/budgetgoals", icon: <FaPiggyBank size={22} /> },
+    { href: "/mystocks", icon: <FaChartLine size={21} /> },
     { href: "/rewards", icon: <IoTrophy size={22} /> },
   ];
 
@@ -51,17 +53,15 @@ const MobileBottomBar = () => {
           >
             {idx === 2 ? (
               <div
-                className={`size-11 flex items-center justify-center rounded-full ${
-                  isActive ? "bg-primary" : "bg-accent"
-                }`}
+                className={`size-11 flex items-center justify-center rounded-full ${isActive ? "bg-primary" : "bg-accent"
+                  }`}
               >
                 {item.icon}
               </div>
             ) : (
               <div
-                className={`${
-                  isActive ? "text-primary" : "text-primaryText/70"
-                }`}
+                className={`${isActive ? "text-primary" : "text-primaryText/70"
+                  }`}
               >
                 {item.icon}
               </div>

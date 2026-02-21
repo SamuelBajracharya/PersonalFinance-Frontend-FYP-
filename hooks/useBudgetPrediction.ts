@@ -8,5 +8,6 @@ export const useBudgetPredictions = () => {
   return useQuery<BudgetPrediction[], unknown>({
     queryKey: ["budget-predictions"],
     queryFn: fetchBudgetPredictionsAPI,
+    placeholderData: (previousData) => previousData,
   });
 };

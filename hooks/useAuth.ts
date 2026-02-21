@@ -64,6 +64,7 @@ export const useCurrentUser = () => {
     queryKey: ["currentUser"],
     queryFn: getCurrentUserAPI,
     retry: false,
+    placeholderData: (previousData) => previousData,
   });
 };
 
