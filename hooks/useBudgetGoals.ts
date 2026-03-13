@@ -1,6 +1,20 @@
 import {
+  BudgetGoalAdaptiveAdjustment,
+  BudgetGoalPeriodReview,
+  BudgetGoalPredictionExplanation,
+  BudgetGoalSimulationRequest,
+  BudgetGoalSimulationResult,
+  BudgetGoalStatus,
+  BudgetGoalSuggestionsResponse,
   createBudgetAPI,
+  fetchBudgetGoalAdaptiveAdjustmentAPI,
+  fetchBudgetGoalPeriodReviewAPI,
+  fetchBudgetGoalStatusesAPI,
+  fetchBudgetGoalSuggestionsAPI,
+  fetchBudgetPredictionExplanationAPI,
+  fetchSingleBudgetGoalStatusAPI,
   fetchMyBudgetsAPI,
+  simulateBudgetGoalAPI,
   updateBudgetAPI,
   deleteBudgetAPI,
   Budget,
@@ -57,5 +71,78 @@ export const useDeleteBudget = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["budgets", "me"] });
     },
+  });
+};
+
+// Get all budget goal statuses
+export const useBudgetGoalStatuses = () => {
+  return useQuery<BudgetGoalStatus[], unknown>({
+    queryKey: ["budget-goal-statuses"],
+    queryFn: fetchBudgetGoalStatusesAPI,
+    placeholderData: (previousData) => previousData,
+  });
+};
+
+// Get single budget goal status
+export const useSingleBudgetGoalStatus = (budgetId: string) => {
+  return useQuery<BudgetGoalStatus, unknown>({
+    queryKey: ["budget-goal-status", budgetId],
+    queryFn: () => fetchSingleBudgetGoalStatusAPI(budgetId),
+    enabled: !!budgetId,
+    placeholderData: (previousData) => previousData,
+  });
+};
+
+// Get prediction explanation
+export const useBudgetPredictionExplanation = (budgetId: string) => {
+  return useQuery<BudgetGoalPredictionExplanation, unknown>({
+    queryKey: ["budget-prediction-explanation", budgetId],
+    queryFn: () => fetchBudgetPredictionExplanationAPI(budgetId),
+    enabled: !!budgetId,
+    placeholderData: (previousData) => previousData,
+  });
+};
+
+// Simulate budget goal outcome
+export const useSimulateBudgetGoal = () => {
+  return useMutation({
+    mutationFn: ({
+      budgetId,
+      payload,
+    }: {
+      budgetId: string;
+      payload: BudgetGoalSimulationRequest;
+    }) =>
+      simulateBudgetGoalAPI(budgetId, payload),
+  });
+};
+
+// Get goal suggestions
+export const useBudgetGoalSuggestions = (budgetId: string) => {
+  return useQuery<BudgetGoalSuggestionsResponse, unknown>({
+    queryKey: ["budget-goal-suggestions", budgetId],
+    queryFn: () => fetchBudgetGoalSuggestionsAPI(budgetId),
+    enabled: !!budgetId,
+    placeholderData: (previousData) => previousData,
+  });
+};
+
+// Get adaptive adjustment
+export const useBudgetGoalAdaptiveAdjustment = (budgetId: string) => {
+  return useQuery<BudgetGoalAdaptiveAdjustment, unknown>({
+    queryKey: ["budget-goal-adaptive-adjustment", budgetId],
+    queryFn: () => fetchBudgetGoalAdaptiveAdjustmentAPI(budgetId),
+    enabled: !!budgetId,
+    placeholderData: (previousData) => previousData,
+  });
+};
+
+// Get period review
+export const useBudgetGoalPeriodReview = (budgetId: string) => {
+  return useQuery<BudgetGoalPeriodReview, unknown>({
+    queryKey: ["budget-goal-period-review", budgetId],
+    queryFn: () => fetchBudgetGoalPeriodReviewAPI(budgetId),
+    enabled: !!budgetId,
+    placeholderData: (previousData) => previousData,
   });
 };
