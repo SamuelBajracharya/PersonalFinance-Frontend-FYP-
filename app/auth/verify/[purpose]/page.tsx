@@ -48,6 +48,7 @@ interface VerificationPageProps {
 export default function VerificationPage({
   params,
 }: VerificationPageProps): JSX.Element {
+  const secureCookie = process.env.NODE_ENV === "production";
   const { purpose } = use(params);
   const [code, setCode] = useState<string[]>(new Array(6).fill(""));
   const [cooldown, setCooldown] = useState(0);
@@ -121,7 +122,7 @@ export default function VerificationPage({
         if ("reset_token" in res) {
           Cookies.set("resetToken", res.reset_token, {
             expires: 1 / 24,
-            secure: true,
+            secure: secureCookie,
             sameSite: "strict",
           });
           router.push("/success/password_reset");
@@ -130,13 +131,13 @@ export default function VerificationPage({
 
         Cookies.set("accessToken", res.access_token, {
           expires: 1,
-          secure: true,
+          secure: secureCookie,
           sameSite: "strict",
         });
 
         Cookies.set("refreshToken", res.refresh_token, {
           expires: 7,
-          secure: true,
+          secure: secureCookie,
           sameSite: "strict",
         });
 

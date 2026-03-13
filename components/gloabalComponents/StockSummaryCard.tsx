@@ -9,6 +9,7 @@ interface StockSummaryCardProps {
     icon: ReactNode;
     tone?: SummaryTone;
     format?: ValueFormat;
+    currencySymbol?: string;
 }
 
 const toneClass: Record<SummaryTone, string> = {
@@ -24,10 +25,11 @@ export default function StockSummaryCard({
     icon,
     tone = "primary",
     format = "currency",
+    currencySymbol = "$",
 }: StockSummaryCardProps) {
     const displayValue =
         format === "currency"
-            ? `$${value.toFixed(2)}`
+            ? `${currencySymbol}${value.toFixed(2)}`
             : Math.round(value).toString();
 
     return (

@@ -14,6 +14,7 @@ interface ResetRequest {
 
 const RequestReset = () => {
   const router = useRouter();
+  const secureCookie = process.env.NODE_ENV === "production";
   const [loading, setLoading] = useState(false);
   const { mutate: requestReset } = useRequestPasswordReset();
 
@@ -25,7 +26,7 @@ const RequestReset = () => {
       onSuccess: (res: TempTokenResponse) => {
         Cookies.set("tempToken", res.temp_token, {
           expires: 1 / 24, // expires in 1 hour
-          secure: true,
+          secure: secureCookie,
           sameSite: "strict",
         });
 

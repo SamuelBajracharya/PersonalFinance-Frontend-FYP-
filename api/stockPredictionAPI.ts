@@ -13,6 +13,7 @@ export interface FuturePricePoint {
 export interface StockPrediction {
     instrument: string;
     name: string;
+    currency?: string;
     source: string;
     quantity: number;
     horizon_days: number;

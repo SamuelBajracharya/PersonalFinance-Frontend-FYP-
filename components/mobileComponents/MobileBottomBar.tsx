@@ -47,7 +47,7 @@ const MobileBottomBar = () => {
             key={idx}
             onClick={() => {
               setActive(item.href);
-              router.push(item.href); // client-side navigation
+              router.push(item.href);
             }}
             className="w-[50px] h-[50px] flex flex-col items-center justify-center relative"
           >

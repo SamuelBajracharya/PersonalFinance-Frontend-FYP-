@@ -7,6 +7,7 @@ interface StockInstrumentCardProps {
     changePercent: number;
     holdingValue: number;
     holdingAmount: number;
+    currencySymbol?: string;
     active?: boolean;
     onClick?: () => void;
 }
@@ -18,6 +19,7 @@ export default function StockInstrumentCard({
     changePercent,
     holdingValue,
     holdingAmount,
+    currencySymbol = "$",
     active = false,
     onClick,
 }: StockInstrumentCardProps) {
@@ -26,12 +28,12 @@ export default function StockInstrumentCard({
     return (
         <div
             onClick={onClick}
-            className={`rounded-2xl bg-secondaryBG p-5 border ${active ? "border-accent" : "border-transparent"} min-w-[250px] ${onClick ? "cursor-pointer" : ""}`}
+            className={`rounded-2xl bg-secondaryBG p-5 border ${active ? "border-accent" : "border-transparent"} w-full min-w-[250px] max-w-[280px] ${onClick ? "cursor-pointer" : ""}`}
         >
             <div className="flex items-start justify-between">
-                <div>
-                    <p className="text-2xl font-medium">{symbol}</p>
-                    <p className="text-textsecondary text-sm">{company}</p>
+                <div className="min-w-0 max-w-[180px]">
+                    <p className="text-2xl font-medium truncate whitespace-nowrap">{symbol}</p>
+                    <p className="text-textsecondary text-sm truncate whitespace-nowrap">{company}</p>
                 </div>
 
                 <div
@@ -46,7 +48,7 @@ export default function StockInstrumentCard({
             </div>
 
             <div className="mt-6 space-y-1">
-                <p className="text-4xl font-medium leading-none">${price.toFixed(2)}</p>
+                <p className="text-4xl font-medium leading-none">{currencySymbol}{price.toFixed(2)}</p>
                 <p className={`text-sm font-medium ${isPositive ? "text-income" : "text-expense"}`}>
                     {isPositive ? "+" : ""}
                     {changePercent.toFixed(2)}%
@@ -56,11 +58,11 @@ export default function StockInstrumentCard({
             <div className="mt-8 rounded-xl bg-highlight px-4 py-3 grid grid-cols-2 gap-4">
                 <div>
                     <p className="text-xs text-textsecondary">value</p>
-                    <p className="text-primary text-2xl font-medium">{holdingValue.toFixed(2)}</p>
+                    <p className="text-primary text-2xl font-medium">{currencySymbol}{holdingValue.toFixed(2)}</p>
                 </div>
                 <div className="text-right">
                     <p className="text-xs text-textsecondary">amount</p>
-                    <p className="text-accent text-2xl font-medium">{holdingAmount}</p>
+                    <p className="text-accent text-[22px] font-medium">{holdingAmount}</p>
                 </div>
             </div>
         </div>

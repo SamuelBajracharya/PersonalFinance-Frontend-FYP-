@@ -22,6 +22,9 @@ const rangeToHorizon: Record<RangeFilter, number> = {
     "1Y": 365,
 };
 
+const getCurrencySymbol = (currency?: string) =>
+    currency?.toUpperCase() === "RS" ? "Rs." : "$";
+
 export default function MyStocksPage() {
     const [range, setRange] = useState<RangeFilter>("1M");
     const [selectedInstrument, setSelectedInstrument] = useState<string | null>(null);
@@ -44,6 +47,7 @@ export default function MyStocksPage() {
                     changePercent: item.expected_return_pct,
                     holdingValue,
                     holdingAmount: item.quantity,
+                    currency: item.currency,
                 };
             }),
         [predictions],
@@ -85,6 +89,8 @@ export default function MyStocksPage() {
 
     const currentPrice = selectedPrediction?.past_price_history.at(-1)?.price ?? 0;
     const forecastReturn = selectedPrediction?.expected_return_pct ?? 0;
+    const selectedCurrencySymbol = getCurrencySymbol(selectedPrediction?.currency);
+    const portfolioCurrencySymbol = getCurrencySymbol(instruments[0]?.currency);
     const errorMessage =
         error && error instanceof AxiosError
             ? (error.response?.data?.detail as string | undefined) ?? error.message
@@ -134,6 +140,7 @@ export default function MyStocksPage() {
                                 changePercent={item.changePercent}
                                 holdingValue={item.holdingValue}
                                 holdingAmount={item.holdingAmount}
+                                currencySymbol={getCurrencySymbol(item.currency)}
                                 active={item.symbol === selectedInstrument || (!selectedInstrument && index === 0)}
                                 onClick={() => setSelectedInstrument(item.symbol)}
                             />
@@ -193,7 +200,7 @@ export default function MyStocksPage() {
                             <div className="mt-5 flex items-center gap-3">
                                 <div className="rounded-lg bg-highlight px-3 py-2">
                                     <p className="text-xs text-textsecondary">Current</p>
-                                    <p className="text-xl font-medium">${currentPrice.toFixed(2)}</p>
+                                    <p className="text-xl font-medium">{selectedCurrencySymbol}{currentPrice.toFixed(2)}</p>
                                 </div>
                                 <div className="rounded-lg bg-income/20 px-3 py-2">
                                     <p className="text-xs text-textsecondary">Forecast Return</p>
@@ -229,6 +236,7 @@ export default function MyStocksPage() {
                         <StockSummaryCard
                             title="Portfolio Value"
                             value={summary.portfolioValue}
+                            currencySymbol={portfolioCurrencySymbol}
                             tone="primary"
                             icon={<FaCoins className="size-6 text-primary" />}
                         />

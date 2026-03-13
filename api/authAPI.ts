@@ -11,6 +11,8 @@ import {
 import Cookies from "js-cookie";
 import { authInstance } from "./axiosInstance";
 
+const secureCookie = process.env.NODE_ENV === "production";
+
 // Login (returns temp_token)
 export const loginAPI = async (
   loginData: LoginData
@@ -18,7 +20,7 @@ export const loginAPI = async (
   const res = await authInstance.post<TempTokenResponse>("/login", loginData);
   if (res.data.temp_token) {
     Cookies.set("tempToken", res.data.temp_token, {
-      secure: true,
+      secure: secureCookie,
       sameSite: "strict",
     });
   }
@@ -35,7 +37,7 @@ export const registerAPI = async (
   );
   if (res.data.temp_token) {
     Cookies.set("tempToken", res.data.temp_token, {
-      secure: true,
+      secure: secureCookie,
       sameSite: "strict",
     });
   }
@@ -72,11 +74,11 @@ export const verifyOtpAPI = async (
 
   if ("access_token" in res.data) {
     Cookies.set("accessToken", res.data.access_token, {
-      secure: true,
+      secure: secureCookie,
       sameSite: "strict",
     });
     Cookies.set("refreshToken", res.data.refresh_token, {
-      secure: true,
+      secure: secureCookie,
       sameSite: "strict",
     });
     Cookies.remove("tempToken");
@@ -84,7 +86,7 @@ export const verifyOtpAPI = async (
 
   if ("reset_token" in res.data) {
     Cookies.set("resetToken", res.data.reset_token, {
-      secure: true,
+      secure: secureCookie,
       sameSite: "strict",
     });
   }
@@ -102,7 +104,7 @@ export const requestPasswordResetAPI = async (
   );
   if (res.data.temp_token) {
     Cookies.set("tempToken", res.data.temp_token, {
-      secure: true,
+      secure: secureCookie,
       sameSite: "strict",
     });
   }
