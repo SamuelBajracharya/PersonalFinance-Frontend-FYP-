@@ -6,9 +6,10 @@ import React from "react";
 interface PieChartProps {
   data: { id: string; value: number; label?: string }[];
   colors?: string[];
+  onSliceClick?: (payload: { id: string; value: number; label?: string }) => void;
 }
 
-export default function PieChart({ data, colors }: PieChartProps) {
+export default function PieChart({ data, colors, onSliceClick }: PieChartProps) {
   return (
     <div
       style={{
@@ -26,6 +27,15 @@ export default function PieChart({ data, colors }: PieChartProps) {
         borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
         enableArcLinkLabels={false}
         enableArcLabels={false}
+        onClick={(datum) => {
+          if (!onSliceClick) return;
+
+          onSliceClick({
+            id: String(datum.id),
+            value: datum.value,
+            label: datum.label ? String(datum.label) : undefined,
+          });
+        }}
         tooltip={({ datum }) => (
           <div
             style={{

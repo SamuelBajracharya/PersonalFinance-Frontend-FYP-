@@ -8,6 +8,37 @@ const AUTH_API_BASE =
 const ACCESS_COOKIE = "accessToken";
 const REFRESH_COOKIE = "refreshToken";
 
+const PUBLIC_EXACT_PATHS = new Set([
+  "/",
+  "/404",
+  "/not-found",
+  "/auth/login",
+  "/auth/register",
+]);
+
+const PUBLIC_PREFIXES = ["/auth", "/onboarding", "/success"];
+const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/analytics",
+  "/transactions",
+  "/budgetgoals",
+  "/ai-assistant",
+  "/coupons",
+  "/rewards",
+  "/profile",
+  "/help",
+  "/achievements",
+  "/mystocks",
+];
+
+const isKnownPath = (pathname: string): boolean => {
+  if (PUBLIC_EXACT_PATHS.has(pathname)) return true;
+  if (PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return true;
+  if (PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix)))
+    return true;
+  return false;
+};
+
 const normalizeToken = (value?: string): string | undefined => {
   if (!value) return undefined;
   try {
@@ -65,6 +96,11 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const accessToken = normalizeToken(req.cookies.get(ACCESS_COOKIE)?.value);
   const refreshToken = normalizeToken(req.cookies.get(REFRESH_COOKIE)?.value);
+
+  // Always normalize unknown URLs to the dedicated 404 route.
+  if (!isKnownPath(pathname)) {
+    return NextResponse.redirect(new URL("/404", req.url));
+  }
 
   const isAuthPage = pathname === "/auth/login" || pathname === "/auth/register";
   const isPublicPage = pathname === "/" || pathname === "/404";

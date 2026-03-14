@@ -3,16 +3,22 @@
 import { ResponsiveBar, BarDatum } from "@nivo/bar";
 import React from "react";
 
-interface BarChartProps<T extends Record<string, string | number>> {
+interface BarChartProps<T extends object> {
   data: T[];
   indexBy: keyof T;
   valueKey: keyof T;
+  onBarClick?: (payload: {
+    indexValue: string | number;
+    value: number;
+    key: string;
+  }) => void;
 }
 
-export default function BarChart<T extends Record<string, string | number>>({
+export default function BarChart<T extends object>({
   data,
   indexBy,
   valueKey,
+  onBarClick,
 }: BarChartProps<T>) {
   const keys = [valueKey as string];
 
@@ -102,6 +108,18 @@ export default function BarChart<T extends Record<string, string | number>>({
         )}
         animate
         motionConfig="gentle"
+        onClick={(bar) => {
+          if (!onBarClick) return;
+
+          const value =
+            typeof bar.value === "number" ? bar.value : Number(bar.value);
+
+          onBarClick({
+            indexValue: bar.indexValue,
+            value,
+            key: String(bar.id),
+          });
+        }}
       />
     </div>
   );

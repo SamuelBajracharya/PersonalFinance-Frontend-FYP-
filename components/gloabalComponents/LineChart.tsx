@@ -13,7 +13,19 @@ interface LineSerie {
   data: LineDatum[];
 }
 
-export default function LineChart({ series = [] }: { series: LineSerie[] }) {
+interface LineChartProps {
+  series: LineSerie[];
+  onPointClick?: (payload: {
+    seriesId: string;
+    x: string | number;
+    y: number;
+  }) => void;
+}
+
+export default function LineChart({
+  series = [],
+  onPointClick,
+}: LineChartProps) {
   const incomeIds = ["weekly_income", "monthly_income", "yearly_income"];
 
   return (
@@ -40,7 +52,25 @@ export default function LineChart({ series = [] }: { series: LineSerie[] }) {
         animate
         motionConfig="gentle"
         enableSlices={false}
-        enablePoints={false} // remove points/circles
+        enablePoints={Boolean(onPointClick)}
+        pointSize={8}
+        pointColor={{ from: "color" }}
+        pointBorderWidth={2}
+        pointBorderColor={{ from: "background" }}
+        onClick={(point) => {
+          if (!onPointClick) return;
+
+          const y =
+            typeof point.data.y === "number"
+              ? point.data.y
+              : Number(point.data.y);
+
+          onPointClick({
+            seriesId: String(point.serieId),
+            x: point.data.x,
+            y,
+          });
+        }}
         layers={[
           "grid",
           "axes",
