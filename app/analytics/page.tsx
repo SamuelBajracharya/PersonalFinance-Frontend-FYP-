@@ -7,6 +7,7 @@ import { AiOutlineTransaction } from "react-icons/ai";
 import Image from "next/image";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
+import { ResponsiveLine } from "@nivo/line";
 
 import BarChart from "@/components/gloabalComponents/BarChart";
 import LineChart from "@/components/gloabalComponents/LineChart";
@@ -22,6 +23,8 @@ import {
     AnalyticsBarPoint,
     AnalyticsLineSeries,
     AnalyticsResponse,
+    AnalyticsMoMGrowthPoint,
+    AnalyticsSavingsRatePoint,
 } from "@/types/analytics";
 
 const expenseColors = ["#8E0D28", "#B12434", "#D54654", "#F08B84", "#F4C9B9"];
@@ -100,6 +103,33 @@ const sumPieValues = (data: AnalyticsPiePoint[]) =>
 
 const formatRupees = (value: number, fractionDigits = 2) =>
     `Rs. ${Number(value || 0).toFixed(fractionDigits)}`;
+
+const parseAmount = (value: string | number | null | undefined) => {
+    if (value === null || value === undefined) return 0;
+    if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+
+    const sanitized = String(value).replace(/,/g, "").trim();
+    const parsed = Number(sanitized);
+    return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const getPointLabel = (point: AnalyticsSavingsRatePoint) =>
+    String(point.label ?? point.month ?? point.x ?? "-");
+
+const getSavingsRateValue = (point: AnalyticsSavingsRatePoint) => {
+    const candidates = [
+        point.savingsRatePct,
+        point.savingsRate,
+        point.value,
+    ];
+
+    for (const candidate of candidates) {
+        const parsed = parseAmount(candidate);
+        if (Number.isFinite(parsed)) return parsed;
+    }
+
+    return 0;
+};
 
 const hasAnyPoints = (analytics: AnalyticsResponse): boolean => {
     return (
@@ -218,7 +248,7 @@ const getImageDimensions = (dataUrl: string): Promise<{ width: number; height: n
 };
 
 const actionButtonBaseClass =
-    "h-9 rounded-lg px-3 text-xs font-semibold tracking-wide transition cursor-pointer";
+    "h-9 rounded-xl px-4 text-sm font-semibold tracking-wide transition cursor-pointer";
 const csvButtonClass =
     `${actionButtonBaseClass} bg-primary text-white hover:opacity-90`;
 const pdfButtonClass =
@@ -294,6 +324,8 @@ export default function AnalyticsPage() {
     });
 
     const api = analyticsQuery.data || emptyAnalytics;
+    console.log(api)
+
 
     const yearlyTransactionData = api.yearlyTransactionData;
     const monthlyTransactionData = api.monthlyTransactionData;
@@ -454,6 +486,78 @@ export default function AnalyticsPage() {
     const currentExpenseTotal = sumPieValues(pieExpense);
     const currentIncomeTotal = sumPieValues(pieIncome);
     const currentNet = currentIncomeTotal - currentExpenseTotal;
+
+    const gaugeData = api.expenseIncomeGauge;
+    const gaugeRatioPct = Math.max(
+        0,
+        Math.min(100, parseAmount(gaugeData?.expenseToIncomeRatioPct))
+    );
+    const gaugeStrokeColor =
+        gaugeRatioPct >= 90 ? "#ef4444" : gaugeRatioPct >= 70 ? "#f59e0b" : "#22c55e";
+
+    const momGrowthData = api.momGrowth ?? [];
+    const momSeries = useMemo(() => {
+        const points = momGrowthData as AnalyticsMoMGrowthPoint[];
+        return [
+            {
+                id: "mom_income",
+                data: points.map((point) => ({ x: point.label, y: parseAmount(point.income) })),
+            },
+            {
+                id: "mom_expense",
+                data: points.map((point) => ({ x: point.label, y: parseAmount(point.expense) })),
+            },
+        ];
+    }, [momGrowthData]);
+
+    const discretionaryData = useMemo(() => {
+        const split = api.discretionarySplit;
+        const segments = split?.segments ?? [];
+
+        const mapped = segments
+            .map((segment, index) => {
+                const rawLabel =
+                    segment.label ?? segment.name ?? segment.category ?? segment.id ?? `Segment ${index + 1}`;
+                const rawValue = segment.value ?? segment.amount ?? 0;
+
+                return {
+                    id: String(rawLabel),
+                    label: String(rawLabel),
+                    value: parseAmount(rawValue),
+                };
+            })
+            .filter((segment) => segment.value > 0);
+
+        if (mapped.length > 0) {
+            return mapped;
+        }
+
+        return [
+            {
+                id: "Discretionary",
+                label: "Discretionary",
+                value: parseAmount(split?.discretionary),
+            },
+            {
+                id: "Non-Discretionary",
+                label: "Non-Discretionary",
+                value: parseAmount(split?.nonDiscretionary),
+            },
+        ];
+    }, [api.discretionarySplit]);
+
+    const savingsTrendSeries = useMemo(() => {
+        const points = api.savingsRateTrend?.points ?? [];
+        return [
+            {
+                id: "savings_rate",
+                data: points.map((point) => ({
+                    x: getPointLabel(point),
+                    y: getSavingsRateValue(point),
+                })),
+            },
+        ];
+    }, [api.savingsRateTrend?.points]);
 
     const exportRows = useMemo<ExportRow[]>(() => {
         const rows: ExportRow[] = [];
@@ -648,6 +752,10 @@ export default function AnalyticsPage() {
             const cashflowChart = await captureChart("cashflow");
             const expenseChart = await captureChart("expense");
             const incomeChart = await captureChart("income");
+            const advisorSavingsChart = await captureChart("advisor-savings");
+            const advisorGaugeChart = await captureChart("advisor-gauge");
+            const advisorDiscretionaryChart = await captureChart("advisor-discretionary");
+            const advisorMoMChart = await captureChart("advisor-mom");
 
             const twoColW = (fullWidth - gap) / 2;
             const row2Y = topY + statH + gap;
@@ -763,6 +871,34 @@ export default function AnalyticsPage() {
                 pieIncome,
                 incomeColors
             );
+
+            pdf.addPage();
+
+            pdf.setTextColor(15, 15, 15);
+            pdf.setFontSize(18);
+            pdf.text("Advisor Analytics", margin, 14);
+            pdf.setFontSize(10);
+            pdf.setTextColor(80, 80, 80);
+            pdf.text("Behavior-focused indicators for spending pressure, growth patterns, and savings momentum.", margin, 20);
+
+            const advisorTopY = 25;
+            const advisorGap = 4;
+            const advisorRowH = 54;
+            const advisorRow1Y = advisorTopY;
+            const advisorRow2Y = advisorRow1Y + advisorRowH + advisorGap;
+            const advisorRow3Y = advisorRow2Y + advisorRowH + advisorGap;
+
+            placeChartCard(margin, advisorRow1Y, fullWidth, advisorRowH, "Savings Rate Trend", advisorSavingsChart);
+            placeChartCard(margin, advisorRow2Y, twoColW, advisorRowH, "Expense-to-Income Ratio", advisorGaugeChart);
+            placeChartCard(
+                margin + twoColW + gap,
+                advisorRow2Y,
+                twoColW,
+                advisorRowH,
+                "Discretionary vs Non-Discretionary",
+                advisorDiscretionaryChart
+            );
+            placeChartCard(margin, advisorRow3Y, fullWidth, advisorRowH, "Month-over-Month Growth", advisorMoMChart);
 
             const fileSuffix = selectedYear === "all" ? "all-years" : String(selectedYear);
             const fileName = `analytics-${fileSuffix}-${selectedPreset}-${dayjs().format("YYYYMMDD-HHmm")}.pdf`;
@@ -1148,6 +1284,138 @@ export default function AnalyticsPage() {
                                         <div className="text-sm">{formatRupees(Number(p.value || 0), 0)}</div>
                                     </button>
                                 ))}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-3 mt-4">
+                    <div>
+                        <h3 className="text-2xl font-semibold">Advisor Analytics</h3>
+                        <p className="text-lg text-textsecondary mt-1">
+                            Behavior-focused indicators for spending pressure, growth patterns, budget flexibility, and savings momentum.
+                        </p>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-2 min-w-0 overflow-hidden">
+                            <h4 className="text-lg font-medium">1. Savings Rate Trend</h4>
+                            <p className="text-sm text-textsecondary pb-2">
+                                {api.savingsRateTrend?.advisorInsight ?? "Savings insight appears when trend points are available."}
+                            </p>
+                            {savingsTrendSeries[0]?.data?.length ? (
+                                <div data-export-chart="advisor-savings" className="h-[300px] min-w-0 overflow-hidden">
+                                    <ResponsiveLine
+                                        data={savingsTrendSeries}
+                                        margin={{ top: 20, right: 20, bottom: 45, left: 45 }}
+                                        xScale={{ type: "point" }}
+                                        yScale={{ type: "linear", min: "auto", max: "auto" }}
+                                        curve="monotoneX"
+                                        axisTop={null}
+                                        axisRight={null}
+                                        axisBottom={{ tickSize: 0, tickPadding: 10, tickRotation: 0 }}
+                                        axisLeft={{ tickSize: 0, tickPadding: 8, tickRotation: 0 }}
+                                        colors={["#34d399"]}
+                                        enablePoints={true}
+                                        pointSize={6}
+                                        pointColor="#34d399"
+                                        pointBorderWidth={0}
+                                        enableArea={true}
+                                        areaOpacity={0.15}
+                                        useMesh={true}
+                                        theme={{
+                                            grid: { line: { stroke: "rgba(255,255,255,0.08)" } },
+                                            axis: { ticks: { text: { fill: "#8b8b8b", fontSize: 11 } } },
+                                        }}
+                                    />
+
+                                </div>
+
+                            ) : (
+                                <p className="text-sm text-textsecondary">No savings trend points available.</p>
+                            )}
+
+                        </div>
+
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
+                            <div className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-4 min-w-0 overflow-hidden">
+                                <h4 className="text-lg font-medium">2. Expense-to-Income Ratio</h4>
+                                <div data-export-chart="advisor-gauge" className="flex flex-col sm:flex-row sm:items-center gap-5">
+                                    <svg width="250" height="250" viewBox="0 0 140 140" aria-label="Expense to income ratio gauge">
+                                        <circle cx="70" cy="70" r="52" stroke="rgba(255,255,255,0.12)" strokeWidth="12" fill="none" />
+                                        <circle
+                                            cx="70"
+                                            cy="70"
+                                            r="52"
+                                            stroke={gaugeStrokeColor}
+                                            strokeWidth="12"
+                                            fill="none"
+                                            strokeLinecap="round"
+                                            strokeDasharray={`${2 * Math.PI * 52}`}
+                                            strokeDashoffset={`${2 * Math.PI * 52 * (1 - gaugeRatioPct / 100)}`}
+                                            transform="rotate(-90 70 70)"
+                                        />
+                                        <text x="70" y="68" textAnchor="middle" className="fill-white text-lg font-semibold">
+                                            {gaugeRatioPct.toFixed(1)}%
+                                        </text>
+                                        <text x="70" y="86" textAnchor="middle" className="fill-gray-400 text-xs">
+                                            {gaugeData?.zone ?? "unknown"}
+                                        </text>
+                                    </svg>
+
+                                    <div className="space-y-1 text-md min-w-0">
+                                        <p>Income: <span className="text-white">{formatRupees(parseAmount(gaugeData?.totalIncome))}</span></p>
+                                        <p>Expense: <span className="text-white">{formatRupees(parseAmount(gaugeData?.totalExpenses))}</span></p>
+                                        <p className="text-sm text-textsecondary mt-2">
+                                            {gaugeData?.advisorInsight ?? "Expense pressure insight will appear when synced."}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-2 min-w-0 overflow-hidden">
+                                <h4 className="text-lg font-medium">3. Discretionary vs Non-Discretionary</h4>
+                                <p className="text-sm text-textsecondary pb-2">
+                                    {api.discretionarySplit?.advisorInsight ?? "Advisor insight appears when discretionary split is available."}
+                                </p>
+                                {discretionaryData.some((segment) => segment.value > 0) ? (
+                                    <div data-export-chart="advisor-discretionary" className="grid grid-cols-1 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-4 items-center min-w-0">
+                                        <div className="h-[220px] min-w-0 overflow-hidden">
+                                            <PieChart
+                                                data={discretionaryData}
+                                                colors={["#f97316", "#38bdf8", "#84cc16", "#e879f9", "#facc15"]}
+                                                width="100%"
+                                                height={220}
+                                            />
+                                        </div>
+                                        <div className="space-y-2 min-w-0">
+                                            {discretionaryData.slice(0, 5).map((segment) => (
+                                                <div key={segment.id} className="flex items-center gap-8 text-lg min-w-0">
+                                                    <span className="text-textsecondary truncate" title={segment.label}>{segment.label}</span>
+                                                    <span className="shrink-0">{formatRupees(segment.value, 0)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-textsecondary">No discretionary split available.</p>
+                                )}
+
+                            </div>
+                        </div>
+
+                        <div className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-2 min-w-0 overflow-hidden">
+                            <h4 className="text-lg font-medium">4. Month-over-Month Growth</h4>
+                            <p className="text-sm text-textsecondary pb-2">
+                                Tracks spending and income drift to catch lifestyle creep early.
+                            </p>
+                            {momSeries.some((series) => series.data.length > 0) ? (
+                                <div data-export-chart="advisor-mom" className="h-[300px] min-w-0 overflow-hidden">
+                                    <LineChart series={momSeries} />
+                                </div>
+                            ) : (
+                                <p className="text-sm text-textsecondary">No MoM data available.</p>
+                            )}
+
                         </div>
                     </div>
                 </div>

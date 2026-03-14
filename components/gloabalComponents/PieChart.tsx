@@ -7,13 +7,16 @@ interface PieChartProps {
   data: { id: string; value: number; label?: string }[];
   colors?: string[];
   onSliceClick?: (payload: { id: string; value: number; label?: string }) => void;
+  width?: number | string;
+  height?: number | string;
 }
 
-export default function PieChart({ data, colors, onSliceClick }: PieChartProps) {
+export default function PieChart({ data, colors, onSliceClick, width = "100%", height = 300 }: PieChartProps) {
   return (
     <div
       style={{
-        height: 300,
+        width,
+        height,
         fontSize: 16,
       }}
     >
