@@ -8,6 +8,7 @@ import {
     useBudgetGoalPeriodReview,
     useBudgetGoalStatuses,
     useBudgetGoalSuggestions,
+    useDeleteBudget,
     useBudgetPredictionExplanation,
     useSimulateBudgetGoal,
     useSingleBudgetGoalStatus,
@@ -64,6 +65,7 @@ export default function BudgetGoals() {
     const { isCreateBudgetOpen, openCreateBudget } = useCreateBudgetOverlay();
     const { mutate: runSimulation, isPending: isSimulationRunning } =
         useSimulateBudgetGoal();
+    const { mutate: deleteBudget, isPending: isDeletingBudget } = useDeleteBudget();
     const rightPanelRef = useRef<HTMLElement | null>(null);
     const leftHeaderRef = useRef<HTMLDivElement | null>(null);
 
@@ -256,18 +258,50 @@ export default function BudgetGoals() {
                                 const isActive = status.budget_id === selectedBudgetId;
 
                                 return (
-                                    <button
-                                        type="button"
+                                    <div
                                         key={status.budget_id}
                                         onClick={() => setSelectedBudgetId(status.budget_id)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Enter" || event.key === " ") {
+                                                event.preventDefault();
+                                                setSelectedBudgetId(status.budget_id);
+                                            }
+                                        }}
                                         className={`w-full rounded-2xl p-4 text-left transition duration-75 cursor-pointer bg-secondaryBG ${isActive
                                             ? "border-primary border "
                                             : "  hover:border-accent hover:border"
                                             }`}
                                     >
-                                        <h3 className="text-2xl font-semibold text-white mb-3">
-                                            {status.category}
-                                        </h3>
+                                        <div className="mb-3 flex items-center justify-between gap-3">
+                                            <h3 className="text-2xl font-semibold text-white">
+                                                {status.category}
+                                            </h3>
+                                            <button
+                                                type="button"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+
+                                                    const shouldDelete = window.confirm(
+                                                        `Delete budget goal for ${status.category}?`
+                                                    );
+                                                    if (!shouldDelete) return;
+
+                                                    deleteBudget(status.budget_id, {
+                                                        onSuccess: () => {
+                                                            setSelectedBudgetId((currentId) =>
+                                                                currentId === status.budget_id ? null : currentId
+                                                            );
+                                                        },
+                                                    });
+                                                }}
+                                                disabled={isDeletingBudget}
+                                                className="rounded-lg border border-red-500 px-3 py-1 text-sm font-medium text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
 
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="rounded-xl bg-tableBG p-2">
@@ -325,7 +359,7 @@ export default function BudgetGoals() {
                                                 </span>
                                             )}
                                         </div>
-                                    </button>
+                                    </div>
                                 );
                             })}
                     </div>

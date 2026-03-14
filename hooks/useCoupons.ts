@@ -54,10 +54,12 @@ export const useRedeemVoucher = () => {
   return useMutation<RedeemResponse, unknown, string>({
     mutationFn: (voucherId: string) => redeemVoucherAPI(voucherId),
 
-    onSuccess: () => {
+    onSuccess: (_result, voucherId) => {
       // refresh voucher lists after redeem
       queryClient.invalidateQueries({ queryKey: ["my-vouchers"] });
       queryClient.invalidateQueries({ queryKey: ["voucher-history"] });
+      queryClient.invalidateQueries({ queryKey: ["voucher-templates"] });
+      queryClient.invalidateQueries({ queryKey: ["voucher", voucherId] });
     },
   });
 };

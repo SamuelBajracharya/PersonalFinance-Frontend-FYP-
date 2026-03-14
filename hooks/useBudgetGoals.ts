@@ -40,6 +40,7 @@ export const useCreateBudget = () => {
     mutationFn: (payload: BudgetCreate) => createBudgetAPI(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["budgets", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
     },
   });
 };
@@ -58,6 +59,12 @@ export const useUpdateBudget = () => {
     }) => updateBudgetAPI(budgetId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["budgets", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-status"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-prediction-explanation"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-adaptive-adjustment"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-period-review"] });
     },
   });
 };
@@ -70,6 +77,12 @@ export const useDeleteBudget = () => {
     mutationFn: (budgetId: string) => deleteBudgetAPI(budgetId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["budgets", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-status"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-prediction-explanation"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-adaptive-adjustment"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-period-review"] });
     },
   });
 };
@@ -105,6 +118,8 @@ export const useBudgetPredictionExplanation = (budgetId: string) => {
 
 // Simulate budget goal outcome
 export const useSimulateBudgetGoal = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({
       budgetId,
@@ -114,6 +129,14 @@ export const useSimulateBudgetGoal = () => {
       payload: BudgetGoalSimulationRequest;
     }) =>
       simulateBudgetGoalAPI(budgetId, payload),
+    onSuccess: (_result, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-status", variables.budgetId] });
+      queryClient.invalidateQueries({ queryKey: ["budget-prediction-explanation", variables.budgetId] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-suggestions", variables.budgetId] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-adaptive-adjustment", variables.budgetId] });
+      queryClient.invalidateQueries({ queryKey: ["budget-goal-period-review", variables.budgetId] });
+    },
   });
 };
 
