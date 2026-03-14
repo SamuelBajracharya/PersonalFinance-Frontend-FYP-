@@ -75,21 +75,26 @@ const isTokenExpired = (token?: string): boolean => {
 };
 
 const refreshAccessToken = async (refreshToken: string) => {
-  const response = await fetch(`${AUTH_API_BASE}/refresh`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh_token: refreshToken }),
-  });
+  try {
+    const response = await fetch(`${AUTH_API_BASE}/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
 
-  if (!response.ok) return null;
+    if (!response.ok) return null;
 
-  const data = (await response.json()) as {
-    access_token?: string;
-    refresh_token?: string;
-  };
+    const data = (await response.json()) as {
+      access_token?: string;
+      refresh_token?: string;
+    };
 
-  if (!data.access_token) return null;
-  return data;
+    if (!data.access_token) return null;
+    return data;
+  } catch {
+    // Avoid hard failures when auth API is temporarily unavailable.
+    return null;
+  }
 };
 
 export async function middleware(req: NextRequest) {

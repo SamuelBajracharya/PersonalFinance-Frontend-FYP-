@@ -222,7 +222,7 @@ export default function AIAssistant() {
   };
 
   return (
-    <div className="min-h-screen text-gray-100 font-sans flex flex-col items-center">
+    <div className="w-full min-h-[calc(100vh-64px)] md:min-h-[calc(100vh-130px)] text-gray-100 font-sans flex flex-col items-center">
       <div className="w-full max-w-4xl flex-1 flex flex-col px-4 pt-10 pb-40">
         {/* Empty state */}
         {messages.length === 0 && (
@@ -242,9 +242,8 @@ export default function AIAssistant() {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex w-full mb-8 ${
-              msg.role === "user" ? "justify-end" : "justify-start"
-            }`}
+            className={`flex w-full mb-8 ${msg.role === "user" ? "justify-end" : "justify-start"
+              }`}
           >
             {msg.role === "user" ? (
               <div className="bg-accent text-white px-5 py-3 rounded-2xl max-w-[85%] md:max-w-[70%] text-lg leading-relaxed whitespace-pre-wrap">

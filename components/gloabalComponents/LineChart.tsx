@@ -26,7 +26,10 @@ export default function LineChart({
   series = [],
   onPointClick,
 }: LineChartProps) {
-  const incomeIds = ["weekly_income", "monthly_income", "yearly_income"];
+  const getSeriesColor = (rawId: string | number) => {
+    const id = String(rawId).toLowerCase();
+    return id.includes("income") ? "#40DCA3" : "#FF5A5A";
+  };
 
   return (
     <div style={{ height: 350 }}>
@@ -47,27 +50,33 @@ export default function LineChart({
           grid: { line: { stroke: "rgba(255,255,255,0.08)" } },
           axis: { ticks: { text: { fill: "#888" } } },
         }}
-        colors={(d) => (incomeIds.includes(d.id) ? "#40DCA3" : "#FF5A5A")}
+        colors={(d) => getSeriesColor(d.id)}
         useMesh={true}
         animate
         motionConfig="gentle"
         enableSlices={false}
         enablePoints={Boolean(onPointClick)}
         pointSize={8}
-        pointColor={{ from: "color" }}
-        pointBorderWidth={2}
-        pointBorderColor={{ from: "background" }}
-        onClick={(point) => {
+        pointColor={(point: any) =>
+          getSeriesColor(point?.seriesId ?? point?.serieId ?? point?.id ?? "")
+        }
+        pointBorderWidth={0}
+        pointBorderColor={(point: any) =>
+          getSeriesColor(point?.seriesId ?? point?.serieId ?? point?.id ?? "")
+        }
+        onClick={(point: any) => {
           if (!onPointClick) return;
 
+          const pointData = point?.data ?? {};
+          const rawSeriesId = point?.seriesId ?? point?.serieId ?? "";
           const y =
-            typeof point.data.y === "number"
-              ? point.data.y
-              : Number(point.data.y);
+            typeof pointData.y === "number"
+              ? pointData.y
+              : Number(pointData.y);
 
           onPointClick({
-            seriesId: String(point.serieId),
-            x: point.data.x,
+            seriesId: String(rawSeriesId),
+            x: pointData.x,
             y,
           });
         }}
