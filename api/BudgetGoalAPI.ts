@@ -1,4 +1,5 @@
 import { baseInstance } from "./axiosInstance";
+import { AxiosRequestConfig } from "axios";
 
 // Types
 export interface Budget {
@@ -93,8 +94,8 @@ export const createBudgetAPI = async (payload: BudgetCreate) => {
 };
 
 // Get user budgets
-export const fetchMyBudgetsAPI = async () => {
-  const response = await baseInstance.get<Budget[]>("/budgets");
+export const fetchMyBudgetsAPI = async (config?: AxiosRequestConfig) => {
+  const response = await baseInstance.get<Budget[]>("/budgets", config);
   return response.data;
 };
 
@@ -117,20 +118,35 @@ export const deleteBudgetAPI = async (budgetId: string) => {
 
 
 // Get all budget goal statuses
-export const fetchBudgetGoalStatusesAPI = async () => {
-  const response = await baseInstance.get<BudgetGoalStatus[]>("/budgets/goal-status");
+export const fetchBudgetGoalStatusesAPI = async (config?: AxiosRequestConfig) => {
+  const response = await baseInstance.get<BudgetGoalStatus[]>(
+    "/budgets/goal-status",
+    config
+  );
   return response.data;
 };
 
 // Get single budget goal status
-export const fetchSingleBudgetGoalStatusAPI = async (budgetId: string) => {
-  const response = await baseInstance.get<BudgetGoalStatus>(`/budgets/${budgetId}/goal-status`);
+export const fetchSingleBudgetGoalStatusAPI = async (
+  budgetId: string,
+  config?: AxiosRequestConfig
+) => {
+  const response = await baseInstance.get<BudgetGoalStatus>(
+    `/budgets/${budgetId}/goal-status`,
+    config
+  );
   return response.data;
 };
 
 // Get prediction explanation
-export const fetchBudgetPredictionExplanationAPI = async (budgetId: string) => {
-  const response = await baseInstance.get<BudgetGoalPredictionExplanation>(`/budgets/${budgetId}/prediction-explanation`);
+export const fetchBudgetPredictionExplanationAPI = async (
+  budgetId: string,
+  config?: AxiosRequestConfig
+) => {
+  const response = await baseInstance.get<BudgetGoalPredictionExplanation>(
+    `/budgets/${budgetId}/prediction-explanation`,
+    config
+  );
   return response.data;
 };
 
@@ -144,19 +160,37 @@ export const simulateBudgetGoalAPI = async (
 };
 
 // Get goal suggestions
-export const fetchBudgetGoalSuggestionsAPI = async (budgetId: string) => {
-  const response = await baseInstance.get<BudgetGoalSuggestionsResponse>(`/budgets/${budgetId}/suggestions`);
+export const fetchBudgetGoalSuggestionsAPI = async (
+  budgetId: string,
+  config?: AxiosRequestConfig
+) => {
+  const response = await baseInstance.get<BudgetGoalSuggestionsResponse>(
+    `/budgets/${budgetId}/suggestions`,
+    config
+  );
   return response.data;
 };
 
 // Get adaptive adjustment
-export const fetchBudgetGoalAdaptiveAdjustmentAPI = async (budgetId: string) => {
-  const response = await baseInstance.get<BudgetGoalAdaptiveAdjustment>(`/budgets/${budgetId}/adaptive-adjustment`);
+export const fetchBudgetGoalAdaptiveAdjustmentAPI = async (
+  budgetId: string,
+  config?: AxiosRequestConfig
+) => {
+  const response = await baseInstance.get<BudgetGoalAdaptiveAdjustment>(
+    `/budgets/${budgetId}/adaptive-adjustment`,
+    config
+  );
   return response.data;
 };
 
 // Get period review
-export const fetchBudgetGoalPeriodReviewAPI = async (budgetId: string) => {
-  const response = await baseInstance.get<BudgetGoalPeriodReview>(`/budgets/${budgetId}/review`);
+export const fetchBudgetGoalPeriodReviewAPI = async (
+  budgetId: string,
+  config?: AxiosRequestConfig
+) => {
+  const response = await baseInstance.get<BudgetGoalPeriodReview>(
+    `/budgets/${budgetId}/review`,
+    config
+  );
   return response.data;
 };

@@ -3,7 +3,6 @@ import {
   BudgetGoalPeriodReview,
   BudgetGoalPredictionExplanation,
   BudgetGoalSimulationRequest,
-  BudgetGoalSimulationResult,
   BudgetGoalStatus,
   BudgetGoalSuggestionsResponse,
   createBudgetAPI,
@@ -22,13 +21,15 @@ import {
   BudgetUpdate,
 } from "@/api/BudgetGoalAPI";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
 
 // Get user budgets
 export const useMyBudgets = () => {
   return useQuery<Budget[], unknown>({
-    queryKey: ["budgets", "me"],
+    queryKey: queryKeys.budgets.my,
     queryFn: () => fetchMyBudgetsAPI(),
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 5,
   });
 };
 
@@ -39,8 +40,8 @@ export const useCreateBudget = () => {
   return useMutation({
     mutationFn: (payload: BudgetCreate) => createBudgetAPI(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["budgets", "me"] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.my });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
     },
   });
 };
@@ -58,8 +59,8 @@ export const useUpdateBudget = () => {
       payload: BudgetUpdate;
     }) => updateBudgetAPI(budgetId, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["budgets", "me"] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.my });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
       queryClient.invalidateQueries({ queryKey: ["budget-goal-status"] });
       queryClient.invalidateQueries({ queryKey: ["budget-prediction-explanation"] });
       queryClient.invalidateQueries({ queryKey: ["budget-goal-suggestions"] });
@@ -76,8 +77,8 @@ export const useDeleteBudget = () => {
   return useMutation({
     mutationFn: (budgetId: string) => deleteBudgetAPI(budgetId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["budgets", "me"] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.my });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
       queryClient.invalidateQueries({ queryKey: ["budget-goal-status"] });
       queryClient.invalidateQueries({ queryKey: ["budget-prediction-explanation"] });
       queryClient.invalidateQueries({ queryKey: ["budget-goal-suggestions"] });
@@ -90,29 +91,32 @@ export const useDeleteBudget = () => {
 // Get all budget goal statuses
 export const useBudgetGoalStatuses = () => {
   return useQuery<BudgetGoalStatus[], unknown>({
-    queryKey: ["budget-goal-statuses"],
+    queryKey: queryKeys.budgets.goalStatuses,
     queryFn: fetchBudgetGoalStatusesAPI,
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 5,
   });
 };
 
 // Get single budget goal status
 export const useSingleBudgetGoalStatus = (budgetId: string) => {
   return useQuery<BudgetGoalStatus, unknown>({
-    queryKey: ["budget-goal-status", budgetId],
+    queryKey: queryKeys.budgets.goalStatus(budgetId),
     queryFn: () => fetchSingleBudgetGoalStatusAPI(budgetId),
     enabled: !!budgetId,
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 3,
   });
 };
 
 // Get prediction explanation
 export const useBudgetPredictionExplanation = (budgetId: string) => {
   return useQuery<BudgetGoalPredictionExplanation, unknown>({
-    queryKey: ["budget-prediction-explanation", budgetId],
+    queryKey: queryKeys.budgets.predictionExplanation(budgetId),
     queryFn: () => fetchBudgetPredictionExplanationAPI(budgetId),
     enabled: !!budgetId,
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 3,
   });
 };
 
@@ -130,12 +134,22 @@ export const useSimulateBudgetGoal = () => {
     }) =>
       simulateBudgetGoalAPI(budgetId, payload),
     onSuccess: (_result, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-status", variables.budgetId] });
-      queryClient.invalidateQueries({ queryKey: ["budget-prediction-explanation", variables.budgetId] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-suggestions", variables.budgetId] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-adaptive-adjustment", variables.budgetId] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-period-review", variables.budgetId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.budgets.goalStatus(variables.budgetId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.budgets.predictionExplanation(variables.budgetId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.budgets.suggestions(variables.budgetId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.budgets.adaptiveAdjustment(variables.budgetId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.budgets.periodReview(variables.budgetId),
+      });
     },
   });
 };
@@ -143,29 +157,32 @@ export const useSimulateBudgetGoal = () => {
 // Get goal suggestions
 export const useBudgetGoalSuggestions = (budgetId: string) => {
   return useQuery<BudgetGoalSuggestionsResponse, unknown>({
-    queryKey: ["budget-goal-suggestions", budgetId],
+    queryKey: queryKeys.budgets.suggestions(budgetId),
     queryFn: () => fetchBudgetGoalSuggestionsAPI(budgetId),
     enabled: !!budgetId,
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 3,
   });
 };
 
 // Get adaptive adjustment
 export const useBudgetGoalAdaptiveAdjustment = (budgetId: string) => {
   return useQuery<BudgetGoalAdaptiveAdjustment, unknown>({
-    queryKey: ["budget-goal-adaptive-adjustment", budgetId],
+    queryKey: queryKeys.budgets.adaptiveAdjustment(budgetId),
     queryFn: () => fetchBudgetGoalAdaptiveAdjustmentAPI(budgetId),
     enabled: !!budgetId,
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 3,
   });
 };
 
 // Get period review
 export const useBudgetGoalPeriodReview = (budgetId: string) => {
   return useQuery<BudgetGoalPeriodReview, unknown>({
-    queryKey: ["budget-goal-period-review", budgetId],
+    queryKey: queryKeys.budgets.periodReview(budgetId),
     queryFn: () => fetchBudgetGoalPeriodReviewAPI(budgetId),
     enabled: !!budgetId,
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 3,
   });
 };

@@ -1,7 +1,8 @@
+"use client";
+
 import { useState, useCallback, useEffect } from "react";
-import Cookies from "js-cookie";
-import { AxiosInstance } from "axios";
 import { authInstance } from "@/api/axiosInstance"; // Assuming authInstance is exported from axiosInstance.ts
+import { performTokenRefresh } from "@/lib/tokenRefresh";
 
 interface RefreshTokenResult {
   isLoading: boolean;
@@ -9,57 +10,6 @@ interface RefreshTokenResult {
   isSuccess: boolean;
   refresh: () => Promise<string | undefined>;
 }
-
-/**
- * Utility function to perform the token refresh logic.
- * Can be called by both the `useRefreshToken` hook and the Axios interceptor.
- * @param axiosInstance The Axios instance configured for authentication requests.
- * @returns A promise that resolves with the new access token, or rejects if refresh fails.
- */
-export const performTokenRefresh = async (
-  axiosAuthInstance: AxiosInstance
-): Promise<string> => {
-  const refreshToken = Cookies.get("refreshToken");
-  if (!refreshToken) {
-    throw new Error("No refresh token available. User must re-authenticate.");
-  }
-
-  try {
-    const response = await axiosAuthInstance.post("/refresh", {
-      refresh_token: refreshToken,
-    });
-
-    const { access_token, refresh_token: new_refresh_token } = response.data;
-
-    if (access_token) {
-      Cookies.set("accessToken", access_token, {
-        expires: 1 / 24, // Example: expires in 1 hour (adjust as per backend token expiry)
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Lax",
-      });
-    }
-    if (new_refresh_token) {
-      // Assuming backend handles HttpOnly refresh token via Set-Cookie header.
-      // If the backend returns refresh_token in body and client sets it, it cannot be HttpOnly.
-      // Adjust expires and other options as per backend token expiry.
-      Cookies.set("refreshToken", new_refresh_token, {
-        expires: 7,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Lax",
-      });
-    }
-
-    return access_token;
-  } catch (refreshError) {
-    console.error("Token refresh failed:", refreshError);
-    // Clear tokens and potentially redirect to login on refresh failure
-    Cookies.remove("accessToken");
-    Cookies.remove("refreshToken");
-    // In a real application, you might want to dispatch an event or redirect to login.
-    // For now, re-throwing the error to be handled by the caller (interceptor or hook user).
-    throw refreshError;
-  }
-};
 
 /**
  * A reusable React hook for refreshing authentication tokens.

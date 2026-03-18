@@ -1,5 +1,6 @@
 
 import { baseInstance } from "./axiosInstance";
+import { AxiosRequestConfig } from "axios";
 
 export interface VoucherTemplate {
   id: string;
@@ -33,28 +34,40 @@ export interface RedeemResponse {
 }
 
 // GET /vouchers/{voucher_id}
-export const fetchVoucherByIdAPI = async (voucherId: string) => {
-  const response = await baseInstance.get<UserVoucher>(`/vouchers/${voucherId}`);
+export const fetchVoucherByIdAPI = async (
+  voucherId: string,
+  config?: AxiosRequestConfig
+) => {
+  const response = await baseInstance.get<UserVoucher>(
+    `/vouchers/${voucherId}`,
+    config
+  );
   return response.data;
 };
 
 // GET /vouchers/available
-export const fetchAvailableVoucherTemplatesAPI = async () => {
+export const fetchAvailableVoucherTemplatesAPI = async (
+  config?: AxiosRequestConfig
+) => {
   const response = await baseInstance.get<VoucherTemplate[]>(
     "/vouchers/available",
+    config
   );
   return response.data;
 };
 
 // GET /vouchers/me
-export const fetchMyActiveVouchersAPI = async () => {
-  const response = await baseInstance.get<UserVoucher[]>("/vouchers/me");
+export const fetchMyActiveVouchersAPI = async (config?: AxiosRequestConfig) => {
+  const response = await baseInstance.get<UserVoucher[]>("/vouchers/me", config);
   return response.data;
 };
 
 // GET /vouchers/history
-export const fetchVoucherHistoryAPI = async () => {
-  const response = await baseInstance.get<UserVoucher[]>("/vouchers/history");
+export const fetchVoucherHistoryAPI = async (config?: AxiosRequestConfig) => {
+  const response = await baseInstance.get<UserVoucher[]>(
+    "/vouchers/history",
+    config
+  );
   return response.data;
 };
 

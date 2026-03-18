@@ -1,4 +1,5 @@
 import { bankInstance } from "./axiosInstance";
+import { AxiosRequestConfig } from "axios";
 
 export interface BankAccount {
   id: string;
@@ -58,8 +59,10 @@ export const loginToBank = async (
 };
 
 // get all bank accounts
-export const getBankAccounts = async (): Promise<BankAccount[]> => {
-  const response = await bankInstance.get("/accounts");
+export const getBankAccounts = async (
+  config?: AxiosRequestConfig
+): Promise<BankAccount[]> => {
+  const response = await bankInstance.get("/accounts", config);
   return response.data;
 };
 
@@ -72,14 +75,18 @@ export const createTransaction = async (
 };
 
 // Get Nabil Bank account for current user
-export const getNabilBankAccount = async (): Promise<BankAccount> => {
-  const response = await bankInstance.get("/accounts/nabil");
+export const getNabilBankAccount = async (
+  config?: AxiosRequestConfig
+): Promise<BankAccount> => {
+  const response = await bankInstance.get("/accounts/nabil", config);
   return response.data;
 };
 
 // Get transactions for Nabil Bank account (current user)
-export const getNabilBankTransactions = async (): Promise<Transaction[]> => {
-  const response = await bankInstance.get("/accounts/nabil/transactions");
+export const getNabilBankTransactions = async (
+  config?: AxiosRequestConfig
+): Promise<Transaction[]> => {
+  const response = await bankInstance.get("/accounts/nabil/transactions", config);
   return response.data;
 };
 

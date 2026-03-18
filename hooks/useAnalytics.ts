@@ -1,6 +1,7 @@
 import { fetchAnalyticsAPI } from "@/api/analyticsAPI";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { AnalyticsResponse } from "@/types/analytics";
+import { queryKeys } from "@/lib/queryKeys";
 
 type AnalyticsPayload = {
   accountId: string;
@@ -22,7 +23,7 @@ export const useFetchAnalytics = ({
   enabled = true,
 }: UseFetchAnalyticsParams) => {
   return useQuery<AnalyticsResponse>({
-    queryKey: ["analytics", accountId, startDate ?? null, endDate ?? null],
+    queryKey: queryKeys.analytics(accountId, startDate, endDate),
     queryFn: () =>
       fetchAnalyticsAPI({
         accountId: accountId as string,
@@ -31,5 +32,6 @@ export const useFetchAnalytics = ({
       } as AnalyticsPayload),
     enabled: Boolean(accountId) && enabled,
     placeholderData: keepPreviousData,
+    staleTime: 1000 * 60 * 3,
   });
 };

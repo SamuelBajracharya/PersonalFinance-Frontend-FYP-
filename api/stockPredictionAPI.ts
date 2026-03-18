@@ -1,4 +1,5 @@
 import { baseInstance } from "./axiosInstance";
+import { AxiosRequestConfig } from "axios";
 
 export interface PastPricePoint {
     date: string;
@@ -41,8 +42,10 @@ export interface FetchStockPredictionsParams {
 
 export const fetchStockPredictionsAPI = async (
     params: FetchStockPredictionsParams = {},
+    config?: AxiosRequestConfig
 ) => {
     const response = await baseInstance.get<StockPrediction[]>("/ai/predict/stocks/", {
+        ...config,
         params,
     });
     return response.data;

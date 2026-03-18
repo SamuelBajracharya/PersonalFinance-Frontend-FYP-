@@ -14,6 +14,7 @@ import {
   getNabilBankAccount,
 } from "@/api/transactionAPI";
 import { useNabilAccountStore } from "@/stores/useNabilAccountStore";
+import { queryKeys } from "@/lib/queryKeys";
 
 // login to bank
 export const useLoginToBank = () => {
@@ -35,12 +36,12 @@ export const useLoginToBank = () => {
 
       setNabilAccountId(nabilAccount?.account_id ?? null);
 
-      queryClient.invalidateQueries({ queryKey: ["bank-accounts"] });
-      queryClient.invalidateQueries({ queryKey: ["nabil-bank-account"] });
-      queryClient.invalidateQueries({ queryKey: ["nabil-bank-transactions"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.accounts });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilAccount });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilTransactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
     },
   });
 };
@@ -58,12 +59,12 @@ export const useUnlinkBankAccounts = () => {
       localStorage.setItem("isBankLinked", "false");
       clearNabilAccountId();
 
-      queryClient.invalidateQueries({ queryKey: ["bank-accounts"] });
-      queryClient.invalidateQueries({ queryKey: ["nabil-bank-account"] });
-      queryClient.invalidateQueries({ queryKey: ["nabil-bank-transactions"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.accounts });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilAccount });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilTransactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
     },
   });
 };
@@ -80,10 +81,10 @@ export const useDeleteUserTransactionData = () => {
     onSuccess: () => {
       clearNabilAccountId();
 
-      queryClient.invalidateQueries({ queryKey: ["nabil-bank-transactions"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilTransactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
     },
   });
 };
@@ -91,28 +92,31 @@ export const useDeleteUserTransactionData = () => {
 // get all bank accounts
 export const useBankAccounts = () => {
   return useQuery<BankAccount[]>({
-    queryKey: ["bank-accounts"],
+    queryKey: queryKeys.bank.accounts,
     queryFn: getBankAccounts,
+    staleTime: 1000 * 60 * 5,
   });
 };
 
 // get Nabil Bank account (current user)
 export const useNabilBankAccount = (enabled: boolean) => {
   return useQuery<BankAccount>({
-    queryKey: ["nabil-bank-account"],
+    queryKey: queryKeys.bank.nabilAccount,
     queryFn: getNabilBankAccount,
     enabled,
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 3,
   });
 };
 
 // get Nabil Bank transactions (current user)
 export const useNabilBankTransactions = (enabled: boolean) => {
   return useQuery<Transaction[]>({
-    queryKey: ["nabil-bank-transactions"],
+    queryKey: queryKeys.bank.nabilTransactions,
     queryFn: getNabilBankTransactions,
     enabled,
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60,
   });
 };
 // create a transaction
@@ -122,10 +126,10 @@ export const useCreateTransaction = () => {
   return useMutation({
     mutationFn: (data: Partial<Transaction>) => createTransaction(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["nabil-bank-transactions"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilTransactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
-      queryClient.invalidateQueries({ queryKey: ["budget-goal-statuses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
     },
   });
 };

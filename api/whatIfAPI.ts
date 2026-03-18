@@ -1,4 +1,5 @@
 import { baseInstance } from "./axiosInstance";
+import { AxiosRequestConfig } from "axios";
 
 export interface WhatIfScenario {
   category: string;
@@ -9,9 +10,10 @@ export interface WhatIfScenario {
   message: string;
 }
 
-export const fetchWhatIfScenariosAPI = async () => {
+export const fetchWhatIfScenariosAPI = async (config?: AxiosRequestConfig) => {
   const response = await baseInstance.get<WhatIfScenario[]>(
-    "/what-if-scenarios"
+    "/what-if-scenarios",
+    config
   );
   return response.data;
 };

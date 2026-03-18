@@ -24,6 +24,28 @@ export default function StockInstrumentCard({
     onClick,
 }: StockInstrumentCardProps) {
     const isPositive = changePercent >= 0;
+    const holdingValueText = `${currencySymbol}${holdingValue.toFixed(2)}`;
+    const holdingAmountText = Number(holdingAmount).toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+    });
+
+    const getFitFontSize = (
+        textLength: number,
+        maxPx: number,
+        minPx: number,
+        availableWidthPx: number,
+    ) => {
+        if (textLength <= 0) return maxPx;
+
+        // Approximate average glyph width for this semi-bold numeric text.
+        const estimatedCharWidthEm = 0.62;
+        const fitPx = availableWidthPx / (textLength * estimatedCharWidthEm);
+
+        return Math.max(minPx, Math.min(maxPx, fitPx));
+    };
+
+    const valueFontSizePx = getFitFontSize(holdingValueText.length, 24, 12, 112);
+    const amountFontSizePx = getFitFontSize(holdingAmountText.length, 22, 12, 104);
 
     return (
         <div
@@ -55,14 +77,24 @@ export default function StockInstrumentCard({
                 </p>
             </div>
 
-            <div className="mt-8 rounded-xl bg-highlight px-4 py-3 grid grid-cols-2 gap-4">
-                <div>
+            <div className="mt-8 rounded-xl bg-highlight px-4 py-3 grid grid-cols-2 gap-4 items-end">
+                <div className="min-w-0 h-[52px] flex flex-col">
                     <p className="text-xs text-textsecondary">value</p>
-                    <p className="text-primary text-2xl font-medium">{currencySymbol}{holdingValue.toFixed(2)}</p>
+                    <p
+                        className="text-primary font-medium leading-none whitespace-nowrap mt-auto"
+                        style={{ fontSize: `${valueFontSizePx}px` }}
+                    >
+                        {holdingValueText}
+                    </p>
                 </div>
-                <div className="text-right">
+                <div className="min-w-0 h-[52px] flex flex-col text-right">
                     <p className="text-xs text-textsecondary">amount</p>
-                    <p className="text-accent text-[22px] font-medium">{holdingAmount}</p>
+                    <p
+                        className="text-accent font-medium leading-none whitespace-nowrap mt-auto"
+                        style={{ fontSize: `${amountFontSizePx}px` }}
+                    >
+                        {holdingAmountText}
+                    </p>
                 </div>
             </div>
         </div>

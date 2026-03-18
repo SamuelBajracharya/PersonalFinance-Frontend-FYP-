@@ -10,40 +10,45 @@ import {
 } from "@/api/couponsAPI";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
 
 // GET /vouchers/{voucher_id}
 export const useVoucherById = (voucherId: string) => {
   return useQuery<UserVoucher, unknown>({
-    queryKey: ["voucher", voucherId],
+    queryKey: queryKeys.vouchers.byId(voucherId),
     queryFn: () => fetchVoucherByIdAPI(voucherId),
     enabled: !!voucherId,
+    staleTime: 1000 * 60 * 5,
   });
 };
 
 // GET /vouchers/available
 export const useAvailableVoucherTemplates = () => {
   return useQuery<VoucherTemplate[], unknown>({
-    queryKey: ["voucher-templates"],
+    queryKey: queryKeys.vouchers.templates,
     queryFn: () => fetchAvailableVoucherTemplatesAPI(),
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 10,
   });
 };
 
 // GET /vouchers/me
 export const useMyActiveVouchers = () => {
   return useQuery<UserVoucher[], unknown>({
-    queryKey: ["my-vouchers"],
+    queryKey: queryKeys.vouchers.mine,
     queryFn: () => fetchMyActiveVouchersAPI(),
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 30,
   });
 };
 
 // GET /vouchers/history
 export const useVoucherHistory = () => {
   return useQuery<UserVoucher[], unknown>({
-    queryKey: ["voucher-history"],
+    queryKey: queryKeys.vouchers.history,
     queryFn: () => fetchVoucherHistoryAPI(),
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 10,
   });
 };
 
@@ -56,10 +61,10 @@ export const useRedeemVoucher = () => {
 
     onSuccess: (_result, voucherId) => {
       // refresh voucher lists after redeem
-      queryClient.invalidateQueries({ queryKey: ["my-vouchers"] });
-      queryClient.invalidateQueries({ queryKey: ["voucher-history"] });
-      queryClient.invalidateQueries({ queryKey: ["voucher-templates"] });
-      queryClient.invalidateQueries({ queryKey: ["voucher", voucherId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.vouchers.mine });
+      queryClient.invalidateQueries({ queryKey: queryKeys.vouchers.history });
+      queryClient.invalidateQueries({ queryKey: queryKeys.vouchers.templates });
+      queryClient.invalidateQueries({ queryKey: queryKeys.vouchers.byId(voucherId) });
     },
   });
 };

@@ -1,4 +1,5 @@
 import { baseInstance } from "./axiosInstance";
+import { AxiosRequestConfig } from "axios";
 
 export type RewardType = "XP" | "BADGE" | "OTHER";
 
@@ -34,21 +35,29 @@ export interface RecentReward {
   unlocked_at: string;
 }
 
-export const fetchRecentRewardActivityAPI = async () => {
+export const fetchRecentRewardActivityAPI = async (
+  config?: AxiosRequestConfig
+) => {
   const response = await baseInstance.get<RecentReward[]>(
-    "/rewards/recent-activity"
+    "/rewards/recent-activity",
+    config
   );
   return response.data;
 };
 
 
-export const fetchAllRewardsWithStatusAPI = async () => {
-  const response = await baseInstance.get<RewardWithUnlockStatus[]>("/rewards");
+export const fetchAllRewardsWithStatusAPI = async (
+  config?: AxiosRequestConfig
+) => {
+  const response = await baseInstance.get<RewardWithUnlockStatus[]>(
+    "/rewards",
+    config
+  );
   return response.data;
 };
 
 
-export const fetchMyUnlockedRewardsAPI = async () => {
-  const response = await baseInstance.get<UserReward[]>("/rewards/me");
+export const fetchMyUnlockedRewardsAPI = async (config?: AxiosRequestConfig) => {
+  const response = await baseInstance.get<UserReward[]>("/rewards/me", config);
   return response.data;
 };

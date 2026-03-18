@@ -5,7 +5,7 @@ import axios, {
   AxiosError,
 } from "axios";
 import Cookies from "js-cookie";
-import { performTokenRefresh } from "@/hooks/useRefreshToken"; // Import the new utility function
+import { performTokenRefresh } from "@/lib/tokenRefresh";
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
