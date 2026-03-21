@@ -9,8 +9,10 @@ import { FaPiggyBank } from "react-icons/fa6";
 import { FaChartLine } from "react-icons/fa6";
 import { IoMdHelpCircle } from "react-icons/io";
 import { PiChatCircleTextFill } from "react-icons/pi";
+
 import Image from "next/image";
 import Logo from "../gloabalComponents/Logo";
+
 
 const DesktopSidebar = () => {
   const pathname = usePathname();
@@ -22,41 +24,39 @@ const DesktopSidebar = () => {
   }, [pathname]);
 
   const mainNav = [
-    { href: "/dashboard", label: "Home", icon: <GoHomeFill size={20} /> },
+    { href: "/dashboard", label: "Home", icon: (isActive: boolean) => <GoHomeFill size={20} className={isActive ? "text-white" : "text-textmain]"} /> },
     {
       href: "/analytics",
       label: "Analytics",
-      icon: <AiFillPieChart size={20} />,
+      icon: (isActive: boolean) => <AiFillPieChart size={20} className={isActive ? "text-white" : "text-textmain]"} />,
     },
     {
       href: "/transactions",
       label: "Transactions",
-      icon: (
-        <Image
-          src="/transactionHistory.svg"
-          alt="Transaction History"
-          width={20}
-          height={20}
-          className="w-5 h-5"
-        />
+      icon: (isActive: boolean) => (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10" stroke={isActive ? "#fff" : "#0f1724"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M16 21v-4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4" stroke={isActive ? "#fff" : "#0f1724"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="18" cy="18" r="3" fill={isActive ? "#fff" : "#0f1724"} />
+        </svg>
       ),
     },
     {
       href: "/budgetgoals",
       label: "Budget Goals",
-      icon: <FaPiggyBank size={20} />,
+      icon: (isActive: boolean) => <FaPiggyBank size={20} className={isActive ? "text-white" : "text-textmain]"} />,
     },
     {
       href: "/mystocks",
       label: "My Stocks",
-      icon: <FaChartLine size={18} />,
+      icon: (isActive: boolean) => <FaChartLine size={18} className={isActive ? "text-white" : "text-textmain]"} />,
     },
     {
       href: "/ai-assistant",
       label: "AI Assistant",
-      icon: <PiChatCircleTextFill size={22} />,
+      icon: (isActive: boolean) => <PiChatCircleTextFill size={22} className={isActive ? "text-white" : "text-textmain]"} />,
     },
-    { href: "/rewards", label: "Rewards", icon: <IoTrophy size={18} /> },
+    { href: "/rewards", label: "Rewards", icon: (isActive: boolean) => <IoTrophy size={18} className={isActive ? "text-white" : "text-textmain]"} /> },
   ];
 
   const supportNav = [
@@ -83,7 +83,8 @@ const DesktopSidebar = () => {
       {/* Main navigation */}
       <nav className="flex-1 mt-4 space-y-2">
         {mainNav.map((item) => {
-          const isActive = active === item.href;
+          // Robust active check: exact match or pathname starts with href and next char is / or end
+          const isActive = pathname === item.href || (pathname.startsWith(item.href) && (pathname[item.href.length] === "/" || pathname.length === item.href.length));
           return (
             <button
               key={item.href}
@@ -91,18 +92,21 @@ const DesktopSidebar = () => {
               className={`flex items-center gap-3 w-full p-2 rounded-full transition-colors cursor-pointer
                 ${isActive
                   ? "bg-accent font-semibold"
-                  : "hover:bg-accent/60 hover:text-textmain"
+                  : "hover:bg-accent/60"
                 }
               `}
             >
               {/* Icon wrapper */}
               <div
-                className={`flex items-center justify-center w-8 h-8 ${isActive ? "bg-yellow-400" : ""
-                  } rounded-full`}
+                className={`flex items-center justify-center w-8 h-8 ${isActive ? "bg-yellow-400" : ""} rounded-full`}
               >
-                {item.icon}
+                {item.icon(isActive)}
               </div>
-              <div className="truncate font-normal">{item.label}</div>
+              <div
+                className={`truncate font-normal ${isActive ? "text-white" : "text-textmain"}`}
+              >
+                {item.label}
+              </div>
             </button>
           );
         })}
@@ -111,25 +115,25 @@ const DesktopSidebar = () => {
       {/* Bottom navigation */}
       <nav className="mt-auto pt-4 border-t border-textmain/20 space-y-2 ">
         {supportNav.map((item) => {
-          const isActive = active === item.href;
+          // Robust active check for support nav as well
+          const isActive = pathname === item.href || (pathname.startsWith(item.href) && (pathname[item.href.length] === "/" || pathname.length === item.href.length));
           return (
             <button
               key={item.href}
               onClick={() => router.push(item.href)}
               className={`flex items-center gap-3 w-full p-2 rounded-full transition-colors cursor-pointer
                 ${isActive
-                  ? "bg-accent font-normal"
-                  : "hover:bg-accent/60 hover:text-textmain"
+                  ? "bg-accent"
+                  : "hover:bg-accent/60"
                 }
               `}
             >
               <div
-                className={`flex items-center justify-center size-8 ${isActive ? "bg-yellow-400" : ""
-                  } rounded-full`}
+                className={`flex items-center justify-center size-8 ${isActive ? "bg-yellow-400" : ""} rounded-full`}
               >
                 {item.icon}
               </div>
-              <div className="truncate">{item.label}</div>
+              <div className={`truncate ${isActive ? "text-white" : "text-textmain"}`}>{item.label}</div>
             </button>
           );
         })}

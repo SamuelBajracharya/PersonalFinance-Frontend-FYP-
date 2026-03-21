@@ -240,7 +240,7 @@ export default function Rewards() {
               <div className="text-5xl font-bold text-primary mb-1">
                 {totalXp}
               </div>
-              <div className="text-gray-200 text-[16px] mb-8">
+              <div className="text-textsecondary text-[16px] mb-8">
                 Experience Points
               </div>
 
@@ -253,11 +253,11 @@ export default function Rewards() {
                 </div>
 
                 {currentRank?.next ? (
-                  <p className="text-gray-200 text-[16px]">
+                  <p className="text-textsecondary text-[16px]">
                     {xpToNext} XP more to {currentRank.next}
                   </p>
                 ) : (
-                  <p className="text-gray-200 text-[16px]">
+                  <p className="text-textsecondary text-[16px]">
                     Max rank achieved 🎉
                   </p>
                 )}

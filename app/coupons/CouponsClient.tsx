@@ -39,7 +39,7 @@ export default function CouponsPage() {
     showAvailableSkeleton || showActiveSkeleton || showHistorySkeleton;
 
   return (
-    <div className="min-h-screen p-8 text-white space-y-12">
+    <div className="min-h-screen p-8 text-textmain space-y-12">
       <section>
         <h2 className="text-2xl font-semibold mb-6">Available Coupons</h2>
 

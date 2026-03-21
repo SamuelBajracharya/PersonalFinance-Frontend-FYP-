@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google";
 import "../styles/globals.css";
 import QueryProvider from "@/components/providers/QueryProvider";
 import AuthProvider from "@/components/providers/AuthProvider";
+import ThemeProvider from "@/components/providers/ThemeProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -34,11 +35,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
 
       <body className={`${poppins.className} bg-mainBG text-textmain`}>
-        <AuthProvider>
-          <QueryProvider>
-            <ResponsiveLayoutWrapper>{children}</ResponsiveLayoutWrapper>
-          </QueryProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <QueryProvider>
+              <ResponsiveLayoutWrapper>{children}</ResponsiveLayoutWrapper>
+            </QueryProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

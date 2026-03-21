@@ -48,7 +48,7 @@ export default function FAQSection() {
       </button>
 
       {/* Heading */}
-      <h2 className="text-white text-3xl font-semibold mt-6 tracking-wides">
+      <h2 className="text-textmain text-3xl font-semibold mt-6 tracking-wides">
         Frequently Asked Questions
       </h2>
 

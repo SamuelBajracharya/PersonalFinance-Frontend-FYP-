@@ -49,69 +49,69 @@ const formatAssistantText = (text: string) => {
         {lines.map((line, j) => {
           const trimmed = line.trim();
 
-          /* #### → biggest heading */
+          // #### → biggest heading
           if (/^####\s+/.test(trimmed)) {
             return (
               <h1
                 key={j}
-                className="text-4xl md:text-5xl font-semibold mt-6 mb-4"
+                className="text-4xl md:text-5xl font-semibold mt-6 mb-4 text-textmain"
               >
                 {trimmed.replace(/^####\s+|#+\s*$/g, "")}
               </h1>
             );
           }
 
-          /* ### → large heading */
+          // ### → large heading
           if (/^###\s+/.test(trimmed)) {
             return (
               <h2
                 key={j}
-                className="text-2xl md:text-3xl font-semibold mt-5 mb-3"
+                className="text-2xl md:text-3xl font-semibold mt-5 mb-3 text-textmain"
               >
                 {trimmed.replace(/^###\s+|#+\s*$/g, "")}
               </h2>
             );
           }
 
-          /* ## → medium heading */
+          // ## → medium heading
           if (/^##\s+/.test(trimmed)) {
             return (
               <h3
                 key={j}
-                className="text-xl md:text-2xl font-semibold mt-4 mb-2"
+                className="text-xl md:text-2xl font-semibold mt-4 mb-2 text-textmain"
               >
                 {trimmed.replace(/^##\s+|#+\s*$/g, "")}
               </h3>
             );
           }
 
-          /* Bullet points */
+          // Bullet points
           if (trimmed.startsWith("•")) {
             return (
-              <li key={j} className="ml-6 list-disc">
+              <li key={j} className="ml-6 list-disc text-textsecondary">
                 {trimmed.replace(/^•\s*/, "")}
               </li>
             );
           }
 
-          /* Numbered section titles */
+          // Numbered section titles
           if (/^\d+\./.test(trimmed)) {
             return (
-              <p key={j} className="font-semibold mt-3 mb-1">
+              <p key={j} className="font-semibold mt-3 mb-1 text-textmain">
                 {line}
               </p>
             );
           }
 
-          /* Normal paragraph */
+          // Normal paragraph
           return (
-            <p key={j} className="leading-relaxed">
+            <p key={j} className="leading-relaxed text-textmain">
               {line}
             </p>
           );
         })}
 
-        {i < sections.length - 1 && <div className="h-px bg-gray-600 my-4" />}
+        {i < sections.length - 1 && <div className="h-px bg-textsecondary/40 my-4" />}
       </div>
     );
   });
@@ -222,16 +222,16 @@ export default function AIAssistant() {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-64px)] md:min-h-[calc(100vh-130px)] text-gray-100 font-sans flex flex-col items-center">
+    <div className="w-full min-h-[calc(100vh-64px)] md:min-h-[calc(100vh-130px)] text-textmain font-sans flex flex-col items-center">
       <div className="w-full max-w-4xl flex-1 flex flex-col px-4 pt-10 pb-40">
         {/* Empty state */}
         {messages.length === 0 && (
           <div className="flex flex-1 items-center justify-center text-center">
-            <div className="text-gray-200">
-              <h1 className="text-5xl font-semibold mb-2">
+            <div>
+              <h1 className="text-5xl font-semibold mb-2 text-textmain">
                 How can I help you?
               </h1>
-              <p className="text-base text-gray-300">
+              <p className="text-base text-textsecondary">
                 Ask anything! I’m here to assist.
               </p>
             </div>
@@ -250,7 +250,7 @@ export default function AIAssistant() {
                 {msg.content}
               </div>
             ) : (
-              <div className="w-full max-w-[90%] text-lg leading-relaxed">
+              <div className="w-full max-w-[90%] text-lg leading-relaxed text-textmain">
                 {msg.content ? (
                   formatAssistantText(msg.content)
                 ) : (
@@ -274,7 +274,7 @@ export default function AIAssistant() {
               disabled={isLocked}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full resize-none overflow-hidden bg-transparent text-gray-200 placeholder-gray-400 py-3 pl-3 pr-10 focus:outline-none disabled:cursor-not-allowed"
+              className="w-full resize-none overflow-hidden bg-transparent text-textmain placeholder-textsecondary py-3 pl-3 pr-10 focus:outline-none disabled:cursor-not-allowed"
             />
 
             <button
@@ -286,7 +286,7 @@ export default function AIAssistant() {
             </button>
           </div>
 
-          <p className="w-full text-center pt-2 text-gray-300 text-sm">
+          <p className="w-full text-center pt-2 text-textsecondary text-sm">
             This assistant may make mistakes and is not a substitute for
             professional advice.
           </p>

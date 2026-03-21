@@ -50,14 +50,14 @@ export default function AchievementCard({
     <div className="bg-tableBG px-6 py-6 rounded-4xl flex flex-col justify-center items-center aspect-[3/2]">
       <div className="mb-3">{getRewardIcon(reward_type)}</div>
 
-      <p className="font-semibold text-white text-lg mb-1 text-center">
+      <p className="font-semibold text-textmain text-lg mb-1 text-center">
         {title}
       </p>
 
-      <p className="text-gray-300 text-sm text-center">
+      <p className="text-textsecondary text-sm text-center">
         {subtitle}
         {getRewardUnit(reward_type) && (
-          <span className="ml-1 text-gray-400">
+          <span className="ml-1 text-textsecondary">
             {getRewardUnit(reward_type)}
           </span>
         )}

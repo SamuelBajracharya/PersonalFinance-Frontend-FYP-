@@ -120,7 +120,7 @@ export default function Profile() {
             className="bg-transparent outline-none w-full text-xl"
           />
           <VscEyeClosed
-            className="size-8 text-white cursor-pointer"
+            className="size-8 text-textmain cursor-pointer"
             onClick={() => setShowPassword(!showPassword)}
           />
           <div className="rounded-full bg-accent flex items-center justify-center w-12 h-12 px-3 cursor-pointer">
@@ -131,7 +131,7 @@ export default function Profile() {
 
       {/* Linked Account + Stats */}
       <div className="grid grid-cols-7 gap-6 mt-10">
-        <div className="bg-linear-to-br from-[#1b1b1b] to-[#0e0e0e] p-6 rounded-2xl col-span-3 relative">
+        <div className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] p-6 rounded-2xl col-span-3 relative">
           {showInitialSkeletons ? (
             <>
               <SkeletonBlock className="h-6 w-36" />

@@ -63,7 +63,7 @@ const TextConfirmationOverlay: React.FC<TextConfirmationOverlayProps> = ({
           placeholder={`Type "${confirmationText}" to confirm`}
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          className="w-full rounded-full bg-transparent border-1 border-primary px-6 py-3 text-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full rounded-full bg-transparent border-1 border-primary px-6 py-3 text-lg text-primary focus:outline-none focus:ring-2 focus:ring-primary"
         />
 
         {/* Actions */}

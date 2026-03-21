@@ -96,7 +96,7 @@ const CreateBudgetOverlay: React.FC = () => {
             value={category || undefined}
             onChange={(value: string) => setCategory(value)}
             placeholder="Select category"
-            className="custom-select !py-6 w-full !text-gray-200 !bg-transparent border-1 border-primary rounded-full"
+            className="custom-select !py-6 w-full !text-primary !bg-transparent border-1 border-primary rounded-full"
           >
             {CATEGORY_OPTIONS.map((cat) => (
               <Option key={cat} value={cat}>
@@ -113,7 +113,7 @@ const CreateBudgetOverlay: React.FC = () => {
             onChange={(e) =>
               setAmount(e.target.value === "" ? "" : Number(e.target.value))
             }
-            className="w-full rounded-full bg-transparent border-1 border-primary px-6 py-3 text-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-full bg-transparent border-1 border-primary px-6 py-3 text-lg text-primary focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 

@@ -19,7 +19,7 @@ export default function Accordion({ question, answer }: AccordionProps) {
     >
       {/* Question Section */}
       <div className="flex items-center justify-between px-8 py-2 pt-4">
-        <h4 className="text-white font-medium text-lg md:text-2xl py-2">
+        <h4 className="text-textmain font-medium text-lg md:text-2xl py-2">
           {question}
         </h4>
         {isOpen ? (
@@ -31,7 +31,7 @@ export default function Accordion({ question, answer }: AccordionProps) {
 
       {/* Answer Section */}
       {isOpen && (
-        <div className="px-12 py-6 pt-2 text-gray-300 text-sm md:text-xl">
+        <div className="px-12 py-6 pt-2 text-textsecondary text-sm md:text-xl">
           {answer}
         </div>
       )}

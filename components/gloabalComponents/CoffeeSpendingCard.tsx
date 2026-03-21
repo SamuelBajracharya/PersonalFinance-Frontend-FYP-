@@ -23,10 +23,9 @@ export const CoffeeSpendingCard = ({
       onClick={onClick}
       className={`
         p-5 rounded-2xl border transition-all cursor-pointer mb-4
-        ${
-          isActive
-            ? "bg-secondaryBG border-accent"
-            : "bg-secondaryBG border-transparent hover:border-gray-700"
+        ${isActive
+          ? "bg-secondaryBG border-accent"
+          : "bg-secondaryBG border-transparent hover:border-gray-700"
         }
       `}
     >
@@ -57,7 +56,7 @@ export const CoffeeSpendingCard = ({
           </p>
 
           <div className="flex justify-end mt-2">
-            <button className="text-primary text-sm font-medium border border-primary px-5 py-2 rounded-full hover:bg-[#E69938]/10 transition-colors">
+            <button className="text-primary text-sm font-medium border border-primary px-5 py-2 rounded-full hover:bg-primary/10 transition-colors">
               View More
             </button>
           </div>

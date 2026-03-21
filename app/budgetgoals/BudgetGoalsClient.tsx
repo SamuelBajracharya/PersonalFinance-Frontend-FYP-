@@ -200,7 +200,7 @@ export default function BudgetGoals() {
     };
 
     return (
-        <div className="min-h-screen p-6 font-sans text-gray-200">
+        <div className="min-h-screen p-6 font-sans text-textmain">
             <div className="flex justify-end mb-6">
                 <button
                     onClick={openCreateBudget}
@@ -214,7 +214,7 @@ export default function BudgetGoals() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 <aside className="lg:col-span-4 self-start flex flex-col h-full min-h-0">
                     <div ref={leftHeaderRef} className="flex items-center justify-between mb-3">
-                        <h2 className="text-3xl font-semibold">Your Budgets</h2>
+                        <h2 className="text-3xl font-semibold text-textmain">Your Budgets</h2>
                         <span className="h-8 min-w-8 px-2 rounded-full bg-tableBG text-primary text-md flex items-center justify-center">
                             {statuses.length}
                         </span>
@@ -242,7 +242,7 @@ export default function BudgetGoals() {
                             ))}
 
                         {!showInitialSkeletons && statuses.length === 0 && (
-                            <p className="rounded-2xl border border-primary bg-secondaryBG p-5 text-center text-gray-400">
+                            <p className="rounded-2xl border border-primary bg-secondaryBG p-5 text-center text-textsecondary">
                                 No budget statuses found.
                             </p>
                         )}
@@ -270,7 +270,7 @@ export default function BudgetGoals() {
                                             }`}
                                     >
                                         <div className="mb-3 flex items-center justify-between gap-3">
-                                            <h3 className="text-2xl font-semibold text-white">
+                                            <h3 className="text-2xl font-semibold text-textmain">
                                                 {status.category}
                                             </h3>
                                             <button
@@ -300,25 +300,25 @@ export default function BudgetGoals() {
 
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textmain">Current Spend</p>
+                                                <p className="text-xs uppercase text-textsecondary">Current Spend</p>
                                                 <p className="font-semibold">{currency(status.current_spend)}</p>
                                             </div>
                                             <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textmain">Budget</p>
+                                                <p className="text-xs uppercase text-textsecondary">Budget</p>
                                                 <p className="font-semibold">{currency(status.budget_amount)}</p>
                                             </div>
                                             <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textmain">Remaining</p>
+                                                <p className="text-xs uppercase text-textsecondary">Remaining</p>
                                                 <p className="font-semibold">{currency(status.remaining_budget)}</p>
                                             </div>
                                             <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textmain">Projected Spend</p>
+                                                <p className="text-xs uppercase text-textsecondary">Projected Spend</p>
                                                 <p className="font-semibold">{currency(status.projected_period_spend)}</p>
                                             </div>
                                         </div>
 
                                         <div className="mt-3">
-                                            <p className="text-textmain">Progress {percent(progress)}</p>
+                                            <p className="text-textsecondary">Progress {percent(progress)}</p>
                                             <div className="h-3 rounded-full bg-tableBG mt-1 overflow-hidden">
                                                 <div
                                                     className="h-full rounded-full bg-primary"
@@ -329,11 +329,11 @@ export default function BudgetGoals() {
 
                                         <div className="grid grid-cols-2 gap-2 mt-3">
                                             <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textmain">Burn Rate / Day</p>
+                                                <p className="text-xs uppercase text-textsecondary">Burn Rate / Day</p>
                                                 <p className="font-semibold">{currency(status.burn_rate_per_day)}</p>
                                             </div>
                                             <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textmain">Days Left</p>
+                                                <p className="text-xs uppercase text-textsecondary">Days Left</p>
                                                 <p className="font-semibold">{status.days_left}</p>
                                             </div>
                                         </div>
@@ -365,7 +365,7 @@ export default function BudgetGoals() {
                         <div className="p-2 bg-accent rounded-xl text-white">
                             <BsFileText size={22} />
                         </div>
-                        <h2 className="text-3xl font-semibold text-white">Budget Details</h2>
+                        <h2 className="text-3xl font-semibold text-textmain">Budget Details</h2>
                     </div>
 
                     {showInitialSkeletons ? (
@@ -414,7 +414,7 @@ export default function BudgetGoals() {
                     ) : (
                         <>
                             <section className="rounded-2xl bg-secondaryBG p-4 space-y-3 mt-4">
-                                <h3 className="text-2xl font-semibold">Smart Suggestions</h3>
+                                <h3 className="text-2xl font-semibold text-textmain">Smart Suggestions</h3>
                                 {suggestions?.suggestions?.length ? (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                         {suggestions.suggestions.map((item, idx) => (
@@ -422,10 +422,10 @@ export default function BudgetGoals() {
                                                 key={idx}
                                                 className="rounded-xl  bg-tableBG p-3"
                                             >
-                                                <p className="font-semibold text-lg mb-2">
+                                                <p className="font-semibold text-lg mb-2 text-textmain">
                                                     {item.title} <span className="text-accent">({item.priority})</span>
                                                 </p>
-                                                <p>{item.message}</p>
+                                                <p className="text-textsecondary">{item.message}</p>
                                                 <p className="text-accent text-lg mt-2">
                                                     Estimated savings: {currency(item.estimated_savings)}
                                                 </p>
@@ -433,13 +433,13 @@ export default function BudgetGoals() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-white">No suggestions right now.</p>
+                                    <p className="text-textsecondary">No suggestions right now.</p>
                                 )}
                             </section>
 
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                                 <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
-                                    <h3 className="text-2xl font-semibold">Pace & Prediction</h3>
+                                    <h3 className="text-2xl font-semibold text-textmain">Pace & Prediction</h3>
                                     {selectedStatus ? (
                                         <>
                                             <div className="space-y-1">
@@ -483,12 +483,12 @@ export default function BudgetGoals() {
                                             </div>
                                         </>
                                     ) : (
-                                        <p className="text-textmain">Select a budget to see pace and prediction.</p>
+                                        <p className="text-textsecondary">Select a budget to see pace and prediction.</p>
                                     )}
                                 </section>
 
                                 <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
-                                    <h3 className="text-2xl font-semibold">Adaptive Goal</h3>
+                                    <h3 className="text-2xl font-semibold text-textmain">Adaptive Goal</h3>
                                     {adaptive ? (
                                         <div className="space-y-1">
                                             <div className="flex justify-between border-b border-dashed border-textsecondary py-2">
@@ -509,17 +509,17 @@ export default function BudgetGoals() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <p className="text-textmain">Select a budget to see adaptive target.</p>
+                                        <p className="text-textsecondary">Select a budget to see adaptive target.</p>
                                     )}
                                 </section>
                             </div>
 
                             <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
-                                <h3 className="text-2xl font-semibold">What-if Simulator</h3>
+                                <h3 className="text-2xl font-semibold text-textmain">What-if Simulator</h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-2 items-end">
                                     <div>
-                                        <p className="text-textmain text-sm mb-1">Reduction %</p>
+                                        <p className="text-textsecondary text-sm mb-1">Reduction %</p>
                                         <input
                                             type="number"
                                             value={reductionPercent}
@@ -529,7 +529,7 @@ export default function BudgetGoals() {
                                     </div>
 
                                     <div>
-                                        <p className="text-textmain text-sm mb-1">Absolute Cut (Rs)</p>
+                                        <p className="text-textsecondary text-sm mb-1">Absolute Cut (Rs)</p>
                                         <input
                                             type="number"
                                             value={absoluteCut}
@@ -581,7 +581,7 @@ export default function BudgetGoals() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <p className="text-textmain text-center">
+                                        <p className="text-textsecondary text-center">
                                             Run a simulation to compare outcomes.
                                         </p>
                                     )}
@@ -589,7 +589,7 @@ export default function BudgetGoals() {
                             </section>
 
                             <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
-                                <h3 className="text-2xl font-semibold">Spending Chart</h3>
+                                <h3 className="text-2xl font-semibold text-textmain">Spending Chart</h3>
                                 <div className="rounded-2xl p-3">
                                     <BarChart
                                         data={weeklySpendingData}
@@ -600,7 +600,7 @@ export default function BudgetGoals() {
                             </section>
 
                             <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
-                                <h3 className="text-2xl font-semibold">Period Review</h3>
+                                <h3 className="text-2xl font-semibold text-textmain">Period Review</h3>
                                 {review ? (
                                     <div className="space-y-1">
                                         <div className="flex justify-between border-b border-dashed border-textsecondary py-2">
@@ -645,7 +645,7 @@ export default function BudgetGoals() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <p className="text-textmain">Select a budget to see period review.</p>
+                                    <p className="text-textsecondary">Select a budget to see period review.</p>
                                 )}
                             </section>
                         </>

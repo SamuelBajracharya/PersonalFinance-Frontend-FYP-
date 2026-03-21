@@ -68,7 +68,7 @@ const LinkAccountOverlay: React.FC = () => {
             placeholder="Phone number"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full rounded-full bg-transparent px-8 py-3 text-lg border-1 border-primary text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-full bg-transparent px-8 py-3 text-lg border-1 border-primary text-primary focus:outline-none focus:ring-2 focus:ring-primary"
           />
 
           <input
@@ -76,7 +76,7 @@ const LinkAccountOverlay: React.FC = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-full bg-transparent px-8 py-3 text-lg border-1 border-primary text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-full bg-transparent px-8 py-3 text-lg border-1 border-primary text-primary focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 

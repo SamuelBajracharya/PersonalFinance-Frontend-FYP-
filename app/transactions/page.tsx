@@ -59,7 +59,7 @@ const Transactions: React.FC = () => {
           <div className="bg-gradient-to-br from-orange-400 to-yellow-500 rounded-full size-10 flex items-center justify-center text-white font-bold shadow-md">
             T
           </div>
-          <span className="text-gray-200">{text}</span>
+          <span className="text-textmain">{text}</span>
         </div>
       ),
     },
@@ -67,7 +67,7 @@ const Transactions: React.FC = () => {
       title: "From/To",
       dataIndex: "merchant",
       key: "merchant",
-      render: (text) => <span className="text-gray-300">{text}</span>,
+      render: (text) => <span className="text-textsecondary">{text}</span>,
     },
     {
       title: "Transaction",
@@ -100,14 +100,14 @@ const Transactions: React.FC = () => {
       dataIndex: "date",
       key: "date",
       render: (text) => (
-        <span className="text-gray-300">{new Date(text).toLocaleString()}</span>
+        <span className="text-textsecondary">{new Date(text).toLocaleString()}</span>
       ),
     },
     {
       title: "Category",
       dataIndex: "category",
       key: "category",
-      render: (text) => <span className="text-gray-300">{text}</span>,
+      render: (text) => <span className="text-textsecondary">{text}</span>,
     },
   ];
 
@@ -127,7 +127,7 @@ const Transactions: React.FC = () => {
     <div className="min-h-screen px-6 py-6 font-sans relative">
       <div className="flex w-full gap-6 mb-6">
         {showInitialSkeletons ? (
-          <div className="bg-gradient-to-br from-[#161616] to-[#414040] rounded-2xl p-6 flex flex-col flex-grow justify-between animate-pulse">
+          <div className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col flex-grow justify-between animate-pulse">
             <div>
               <SkeletonBlock className="h-7 w-52 mb-3" />
               <SkeletonBlock className="h-6 w-64" />
@@ -142,7 +142,7 @@ const Transactions: React.FC = () => {
             </div>
           </div>
         ) : !isInitialized ? (
-          <div className="flex-grow bg-gradient-to-br from-[#1c1c1c] to-[#3a3a3a] rounded-2xl p-6 flex flex-col justify-between">
+          <div className="flex-grow bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col justify-between">
             <div>
               <p className="text-[#f39c12] text-3xl font-semibold mb-2">
                 Account Status
@@ -161,7 +161,7 @@ const Transactions: React.FC = () => {
             </div>
           </div>
         ) : !isBankLinked ? (
-          <div className="flex-grow bg-gradient-to-br from-[#1c1c1c] to-[#3a3a3a] rounded-2xl p-6 flex flex-col justify-between">
+          <div className="flex-grow bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col justify-between">
             <div>
               <p className="text-[#f39c12] text-3xl font-semibold mb-2">
                 Link Account
@@ -180,19 +180,19 @@ const Transactions: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-gradient-to-br from-[#161616] to-[#414040] rounded-2xl p-6 flex flex-col flex-grow justify-between">
+          <div className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col flex-grow justify-between">
             <div>
-              <p className="text-[#d1d0d0] text-2xl tracking-widest mb-1">
+              <p className="text-textsecondary text-2xl tracking-widest mb-1">
                 {account?.account_number_masked}
               </p>
-              <p className="text-primary font-semibold text-xl">
+              <p className="text-textmain font-semibold text-xl">
                 {account?.bank_name} ({account?.account_type})
               </p>
             </div>
 
             <div className="flex justify-between items-center mt-5">
               <div className="flex gap-2">
-                <p className="text-[#d1d0d0] text-xl">Balance:</p>
+                <p className="text-textsecondary text-xl">Balance:</p>
                 <p className="text-primary text-xl flex items-center gap-2">
                   ${Number(account?.balance).toFixed(2)}
                   <FaEyeSlash />
@@ -229,7 +229,7 @@ const Transactions: React.FC = () => {
                 />
               </div>
 
-              <button className="bg-[#f39c12] hover:bg-[#e68a00] transition font-medium text-lg py-3 rounded-full flex items-center justify-center gap-2">
+              <button className="bg-[#f39c12] hover:bg-[#e68a00] transition font-medium text-lg py-3 rounded-full flex items-center justify-center gap-2 !text-white">
                 <AiOutlinePlus /> Create New Transaction
               </button>
             </>

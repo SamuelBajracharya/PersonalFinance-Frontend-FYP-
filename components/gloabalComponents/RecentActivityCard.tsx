@@ -18,10 +18,10 @@ export const RecentActivityItem = ({
         <div className="size-12 bg-accent rounded-xl shrink-0"></div>
 
         <div>
-          <h4 className="text-white text-[16px] font-medium tracking-wide mb-1">
+          <h4 className="text-textmain text-[16px] font-medium tracking-wide mb-1">
             {title}
           </h4>
-          <p className="text-gray-200 text-sm">{time}</p>
+          <p className="text-textsecondary text-sm">{time}</p>
         </div>
       </div>
 

@@ -26,6 +26,59 @@
   --text-32: 32px;
 }
 
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-mainBG: #0c0c0c;
+  --color-secondaryBG: #1d1d1d;
+  --color-tableBG: #242424;
+  --color-highlight: #212121;
+  --color-accentBG: #424242;
+  --color-textmain: #ffffff;
+  --color-textsecondary: #b5aeae;
+
+  --color-bankCardFrom: #161616;
+  --color-bankCardTo: #414040;
+
+  /* Backward-compatible token used in select.css */
+  --bg-secondaryBG: var(--color-secondaryBG);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Keep background depth: darker at back, lighter at front surfaces */
+  --color-mainBG: #e3e8ef;
+  --color-secondaryBG: #f4f7fb;
+  --color-tableBG: #ffffff;
+  --color-highlight: #ffffff;
+  --color-accentBG: #d6deea;
+  --color-textmain: #0f1724;
+  --color-textsecondary: #2f3f56;
+
+  --color-bankCardFrom: #f3d399;
+  --color-bankCardTo: #e9e5c7;
+
+  --bg-secondaryBG: var(--color-secondaryBG);
+}
+
+/* Light mode button/readability rules */
+[data-theme="light"]
+  :is(button, a, [role="button"], .ant-btn)[class*="bg-primary"],
+[data-theme="light"]
+  :is(button, a, [role="button"], .ant-btn)[class*="bg-accent"] {
+  color: #ffffff !important;
+}
+
+[data-theme="light"]
+  :is(button, a, [role="button"], .ant-btn):not([class*="bg-primary"]):not(
+    [class*="bg-accent"]
+  ):not([class*="text-"]) {
+  color: var(--color-textmain) !important;
+}
+
 /* globals.css */
 body,
 .ant-layout,
@@ -36,7 +89,7 @@ body,
 /* Ant Design dark table overrides */
 .custom-table .ant-table {
   background-color: transparent !important;
-  color: white !important;
+  color: var(--color-textmain) !important;
   border-radius: 12px !important;
   overflow: hidden;
   z-index: 0;
@@ -50,8 +103,8 @@ body,
 }
 
 .custom-table .ant-table-thead > tr > th {
-  background: #2a2a2d !important;
-  color: #ccc !important;
+  background: var(--color-tableBG) !important;
+  color: var(--color-textsecondary) !important;
   font-weight: 500;
   padding: 14px 16px !important;
   font-size: large;
@@ -59,14 +112,14 @@ body,
 }
 
 .custom-table .ant-table-tbody > tr > td {
-  background: #1e1e20 !important;
-  border-bottom: 1px solid #333 !important;
-  color: #e0e0e0 !important;
+  background: var(--color-secondaryBG) !important;
+  border-bottom: 1px solid var(--color-accentBG) !important;
+  color: var(--color-textmain) !important;
   padding: 14px 16px !important;
 }
 
 .custom-table .ant-table-tbody > tr:hover > td {
-  background: #2a2a2d !important;
+  background: var(--color-highlight) !important;
   transition: background 0.2s ease-in-out;
 }
 
@@ -82,7 +135,7 @@ body,
 }
 
 .custom-table .ant-pagination-item a {
-  color: #ccc !important;
+  color: var(--color-textsecondary) !important;
 }
 
 .custom-table .ant-pagination-item-active {
@@ -91,7 +144,7 @@ body,
 }
 
 .custom-table .ant-pagination-item-active a {
-  color: #fff !important;
+  color: var(--color-textmain) !important;
 }
 
 .custom-table .ant-pagination-prev .ant-pagination-item-link,
@@ -108,7 +161,7 @@ body,
 }
 
 .custom-table .ant-table-body::-webkit-scrollbar-thumb {
-  background-color: #444;
+  background-color: var(--color-accentBG);
   border-radius: 6px;
 }
 

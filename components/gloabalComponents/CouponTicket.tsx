@@ -50,7 +50,7 @@ export default function CouponTicket({
         <div className="pointer-events-none absolute inset-0 opacity-40 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.75),transparent)] animate-[flow_5s_linear_infinite] " />
 
         {/* ===== LEFT CUTOUT ===== */}
-        <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#020617] rounded-full" />
+        <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full" style={{ background: 'var(--color-mainBG)' }} />
 
         <div
           className="absolute -left-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border-5"
@@ -58,7 +58,7 @@ export default function CouponTicket({
         />
 
         {/* ===== RIGHT CUTOUT ===== */}
-        <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#020617] rounded-full" />
+        <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full" style={{ background: 'var(--color-mainBG)' }} />
         <div
           className="absolute -right-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full border-5"
           style={{ borderColor }}
