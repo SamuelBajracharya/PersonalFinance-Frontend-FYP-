@@ -237,7 +237,7 @@ export default function BudgetGoals() {
                             Array.from({ length: 4 }).map((_, index) => (
                                 <SkeletonBlock
                                     key={index}
-                                    className="h-[220px] rounded-2xl bg-secondaryBG"
+                                    className="h-[220px] rounded-2xl"
                                 />
                             ))}
 
@@ -373,32 +373,32 @@ export default function BudgetGoals() {
                             <section className="rounded-2xl bg-secondaryBG p-4 space-y-3 mt-4">
                                 <SkeletonBlock className="h-7 w-52 rounded-lg" />
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <SkeletonBlock className="h-32 rounded-xl bg-tableBG" />
-                                    <SkeletonBlock className="h-32 rounded-xl bg-tableBG" />
+                                    <SkeletonBlock className="h-32 rounded-xl" />
+                                    <SkeletonBlock className="h-32 rounded-xl" />
                                 </div>
                             </section>
 
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                                 <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
                                     <SkeletonBlock className="h-7 w-48 rounded-lg" />
-                                    <SkeletonBlock className="h-5 w-full rounded-lg bg-tableBG" />
-                                    <SkeletonBlock className="h-3 w-full rounded-full bg-tableBG" />
-                                    <SkeletonBlock className="h-5 w-full rounded-lg bg-tableBG" />
-                                    <SkeletonBlock className="h-3 w-full rounded-full bg-tableBG" />
+                                    <SkeletonBlock className="h-5 w-full rounded-lg" />
+                                    <SkeletonBlock className="h-3 w-full rounded-full" />
+                                    <SkeletonBlock className="h-5 w-full rounded-lg" />
+                                    <SkeletonBlock className="h-3 w-full rounded-full" />
                                 </section>
 
                                 <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
                                     <SkeletonBlock className="h-7 w-40 rounded-lg" />
-                                    <SkeletonBlock className="h-5 w-full rounded-lg bg-tableBG" />
-                                    <SkeletonBlock className="h-5 w-full rounded-lg bg-tableBG" />
-                                    <SkeletonBlock className="h-10 w-full rounded-lg bg-tableBG" />
+                                    <SkeletonBlock className="h-5 w-full rounded-lg" />
+                                    <SkeletonBlock className="h-5 w-full rounded-lg" />
+                                    <SkeletonBlock className="h-10 w-full rounded-lg" />
                                 </section>
                             </div>
 
                             <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
                                 <SkeletonBlock className="h-7 w-44 rounded-lg" />
-                                <SkeletonBlock className="h-12 w-full rounded-full bg-tableBG" />
-                                <SkeletonBlock className="h-24 w-full rounded-xl bg-tableBG" />
+                                <SkeletonBlock className="h-12 w-full rounded-full" />
+                                <SkeletonBlock className="h-24 w-full rounded-xl" />
                             </section>
 
                             <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
@@ -408,7 +408,7 @@ export default function BudgetGoals() {
 
                             <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
                                 <SkeletonBlock className="h-7 w-36 rounded-lg" />
-                                <SkeletonBlock className="h-40 w-full rounded-xl bg-tableBG" />
+                                <SkeletonBlock className="h-40 w-full rounded-xl" />
                             </section>
                         </>
                     ) : (

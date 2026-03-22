@@ -126,7 +126,7 @@ export default function MyStocksPage() {
                 {showInitialSkeletons ? (
                     <div className="grid grid-cols-4 gap-4">
                         {Array.from({ length: 4 }).map((_, index) => (
-                            <SkeletonBlock key={index} className="h-[250px] rounded-2xl bg-secondaryBG" />
+                            <SkeletonBlock key={index} className="h-[250px] rounded-2xl" />
                         ))}
                     </div>
                 ) : (
@@ -215,7 +215,7 @@ export default function MyStocksPage() {
 
                     <div className="mt-6 flex-1 rounded-xl bg-highlight border border-accentBG p-2">
                         {showInitialSkeletons ? (
-                            <SkeletonBlock className="h-full w-full rounded-xl bg-accentBG/40" />
+                            <SkeletonBlock className="h-full w-full rounded-xl" />
                         ) : (
                             <StockPredictionChart
                                 history={selectedPrediction?.past_price_history ?? []}
@@ -229,7 +229,7 @@ export default function MyStocksPage() {
             <aside className="col-span-3 space-y-4">
                 {showInitialSkeletons ? (
                     Array.from({ length: 4 }).map((_, index) => (
-                        <SkeletonBlock key={index} className="h-[156px] rounded-3xl bg-secondaryBG" />
+                        <SkeletonBlock key={index} className="h-[156px] rounded-3xl" />
                     ))
                 ) : (
                     <>

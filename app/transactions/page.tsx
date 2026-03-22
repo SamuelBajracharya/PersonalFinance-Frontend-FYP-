@@ -209,8 +209,8 @@ const Transactions: React.FC = () => {
           {showInitialSkeletons ? (
             <>
               <div className="flex gap-6 animate-pulse">
-                <SkeletonBlock className="bg-secondaryBG rounded-2xl h-[144px] flex-1" />
-                <SkeletonBlock className="bg-secondaryBG rounded-2xl h-[144px] flex-1" />
+                <SkeletonBlock className="rounded-2xl h-[144px] flex-1" />
+                <SkeletonBlock className="rounded-2xl h-[144px] flex-1" />
               </div>
               <SkeletonBlock className="h-[52px] rounded-full" />
             </>
@@ -243,13 +243,13 @@ const Transactions: React.FC = () => {
         )}
         {showInitialSkeletons ? (
           <div className="animate-pulse">
-            <SkeletonBlock className="h-[56px] bg-tableBG rounded-t-xl mb-[1px]" />
+            <SkeletonBlock className="h-[56px] rounded-t-xl mb-[1px]" />
             <div className="space-y-[1px]">
               {Array.from({ length: 5 }).map((_, index) => (
-                <SkeletonBlock key={index} className="h-[64px] bg-highlight" />
+                <SkeletonBlock key={index} className="h-[64px]" />
               ))}
             </div>
-            <SkeletonBlock className="h-10 mt-4 rounded-lg bg-highlight/80" />
+            <SkeletonBlock className="h-10 mt-4 rounded-lg" />
           </div>
         ) : (
           <Table

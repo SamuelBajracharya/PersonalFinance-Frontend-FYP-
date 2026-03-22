@@ -27,7 +27,7 @@ export default function AchievementsPage() {
           ? Array.from({ length: 12 }).map((_, index) => (
             <SkeletonBlock
               key={index}
-              className="w-full aspect-[3/2] rounded-4xl bg-tableBG"
+              className="w-full aspect-[3/2] rounded-4xl"
             />
           ))
           : sortedRewards.map((reward) => (

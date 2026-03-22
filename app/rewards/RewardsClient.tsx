@@ -186,7 +186,7 @@ export default function Rewards() {
                 {Array.from({ length: 4 }).map((_, index) => (
                   <SkeletonBlock
                     key={index}
-                    className="h-[220px] rounded-3xl bg-secondaryBG"
+                    className="h-[220px] rounded-3xl"
                   />
                 ))}
               </div>

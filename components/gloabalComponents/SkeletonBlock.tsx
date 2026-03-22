@@ -3,5 +3,8 @@ interface SkeletonBlockProps {
 }
 
 export default function SkeletonBlock({ className = "" }: SkeletonBlockProps) {
-    return <div className={`animate-pulse rounded bg-white/10 ${className}`} />;
+    // Always use a visible neutral background for skeletons, SSR-safe
+    return (
+        <div className={`animate-pulse rounded bg-neutral-200 dark:bg-neutral-700 ${className}`} />
+    );
 }

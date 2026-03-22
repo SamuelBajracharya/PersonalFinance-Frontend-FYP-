@@ -20,6 +20,22 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <head>
+        {/* Prevent theme flicker: set data-theme before CSS loads */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var t = window.localStorage.getItem('theme-mode');
+                if (t) {
+                  var parsed = JSON.parse(t);
+                  if (parsed === 'dark' || parsed === 'light') {
+                    document.documentElement.dataset.theme = parsed;
+                  }
+                }
+              } catch(e) {}
+            `,
+          }}
+        />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#1f2937" />
         <meta name="application-name" content="SaveMarga" />

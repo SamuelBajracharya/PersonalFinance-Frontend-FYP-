@@ -9,6 +9,8 @@ import { FaPiggyBank } from "react-icons/fa6";
 import { FaChartLine } from "react-icons/fa6";
 import { IoMdHelpCircle } from "react-icons/io";
 import { PiChatCircleTextFill } from "react-icons/pi";
+import { useSidebarIconColor } from "./useSidebarIconColor";
+// import Image from "next/image"; // Duplicate import removed
 
 import Image from "next/image";
 import Logo from "../gloabalComponents/Logo";
@@ -24,39 +26,42 @@ const DesktopSidebar = () => {
   }, [pathname]);
 
   const mainNav = [
-    { href: "/dashboard", label: "Home", icon: (isActive: boolean) => <GoHomeFill size={20} className={isActive ? "text-white" : "text-textmain]"} /> },
+    { href: "/dashboard", label: "Home", icon: (isActive: boolean, color: string) => <GoHomeFill size={20} color={color} /> },
     {
       href: "/analytics",
       label: "Analytics",
-      icon: (isActive: boolean) => <AiFillPieChart size={20} className={isActive ? "text-white" : "text-textmain]"} />,
+      icon: (isActive: boolean, color: string) => <AiFillPieChart size={20} color={color} />,
     },
     {
       href: "/transactions",
       label: "Transactions",
-      icon: (isActive: boolean) => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10" stroke={isActive ? "#fff" : "#0f1724"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M16 21v-4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4" stroke={isActive ? "#fff" : "#0f1724"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="18" cy="18" r="3" fill={isActive ? "#fff" : "#0f1724"} />
-        </svg>
+      icon: (isActive: boolean, color: string) => (
+        <Image
+          src={color === "#0f1724" ? "/transactionHistory.svg" : "/transactionHistoryWhite.svg"}
+          alt="Transaction History"
+          width={20}
+          height={20}
+          className="w-5 h-5"
+          priority
+        />
       ),
     },
     {
       href: "/budgetgoals",
       label: "Budget Goals",
-      icon: (isActive: boolean) => <FaPiggyBank size={20} className={isActive ? "text-white" : "text-textmain]"} />,
+      icon: (isActive: boolean, color: string) => <FaPiggyBank size={20} color={color} />,
     },
     {
       href: "/mystocks",
       label: "My Stocks",
-      icon: (isActive: boolean) => <FaChartLine size={18} className={isActive ? "text-white" : "text-textmain]"} />,
+      icon: (isActive: boolean, color: string) => <FaChartLine size={18} color={color} />,
     },
     {
       href: "/ai-assistant",
       label: "AI Assistant",
-      icon: (isActive: boolean) => <PiChatCircleTextFill size={22} className={isActive ? "text-white" : "text-textmain]"} />,
+      icon: (isActive: boolean, color: string) => <PiChatCircleTextFill size={22} color={color} />,
     },
-    { href: "/rewards", label: "Rewards", icon: (isActive: boolean) => <IoTrophy size={18} className={isActive ? "text-white" : "text-textmain]"} /> },
+    { href: "/rewards", label: "Rewards", icon: (isActive: boolean, color: string) => <IoTrophy size={18} color={color} /> },
   ];
 
   const supportNav = [
@@ -85,6 +90,7 @@ const DesktopSidebar = () => {
         {mainNav.map((item) => {
           // Robust active check: exact match or pathname starts with href and next char is / or end
           const isActive = pathname === item.href || (pathname.startsWith(item.href) && (pathname[item.href.length] === "/" || pathname.length === item.href.length));
+          const color = useSidebarIconColor(isActive);
           return (
             <button
               key={item.href}
@@ -100,7 +106,7 @@ const DesktopSidebar = () => {
               <div
                 className={`flex items-center justify-center w-8 h-8 ${isActive ? "bg-yellow-400" : ""} rounded-full`}
               >
-                {item.icon(isActive)}
+                {item.icon(isActive, color)}
               </div>
               <div
                 className={`truncate font-normal ${isActive ? "text-white" : "text-textmain"}`}

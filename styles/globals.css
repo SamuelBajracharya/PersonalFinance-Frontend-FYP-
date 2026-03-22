@@ -126,7 +126,7 @@ body,
 /* Pagination styling */
 .custom-table .ant-pagination {
   margin-top: 20px !important;
-  justify-content: center;
+  justify-content: end;
 }
 
 .custom-table .ant-pagination-item {
@@ -139,8 +139,9 @@ body,
 }
 
 .custom-table .ant-pagination-item-active {
-  background-color: #f39c12 !important;
-  border-radius: 6px !important;
+  background-color: #2b74f5 !important;
+  border-radius: 100% !important;
+  color: #ffffff !important;
 }
 
 .custom-table .ant-pagination-item-active a {

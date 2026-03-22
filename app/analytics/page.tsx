@@ -53,12 +53,15 @@ const emptyAnalytics: AnalyticsResponse = {
     pieIncome: [],
 };
 
-const presetLabels: Record<PresetKey, string> = {
-    "7d": "7D",
-    "1m": "1M",
-    "3m": "3M",
-    "1y": "1Y",
-};
+// Dynamic time horizon options
+const timeHorizonOptions: { key: PresetKey; label: string }[] = [
+    { key: "7d", label: "7D" },
+    { key: "1m", label: "1M" },
+    { key: "3m", label: "3M" },
+    { key: "1y", label: "1Y" },
+];
+
+const presetLabels: Record<PresetKey, string> = Object.fromEntries(timeHorizonOptions.map(opt => [opt.key, opt.label])) as Record<PresetKey, string>;
 
 const getPresetRangeForYear = (
     preset: PresetKey,
@@ -985,17 +988,17 @@ export default function AnalyticsPage() {
             <div className="rounded-2xl bg-secondaryBG border border-white/10 p-4 md:p-5">
                 <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
                     <div className="flex flex-wrap items-center gap-2">
-                        <div className="inline-flex items-center gap-1 rounded-xl bg-[#1A1A1A] p-1 border border-white/10 w-fit">
-                            {(Object.keys(presetLabels) as PresetKey[]).map((preset) => (
+                        <div className="inline-flex items-center gap-1 rounded-xl bg-tableBG p-1 border border-accentBG w-fit">
+                            {timeHorizonOptions.map((option) => (
                                 <button
-                                    key={preset}
-                                    onClick={() => setSelectedPreset(preset)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-semibold tracking-wide transition cursor-pointer ${selectedPreset === preset
+                                    key={option.key}
+                                    onClick={() => setSelectedPreset(option.key)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-semibold tracking-wide transition cursor-pointer ${selectedPreset === option.key
                                         ? "bg-[#F5AD30] text-[#151515]"
-                                        : "text-[#A8A8A8] hover:text-white"
+                                        : "text-textsecondary hover:text-textmain"
                                         }`}
                                 >
-                                    {presetLabels[preset]}
+                                    {option.label}
                                 </button>
                             ))}
                         </div>
@@ -1015,7 +1018,7 @@ export default function AnalyticsPage() {
                         <button onClick={() => void handleDownloadPdf()} className={pdfButtonClass}>
                             Download PDF
                         </button>
-                        <button onClick={() => void analyticsQuery.refetch()} className={refreshButtonClass}>
+                        <button onClick={() => void analyticsQuery.refetch()} className={"" + actionButtonBaseClass + " !text-primary border border-primary hover:bg-primary/10"}>
                             Refresh
                         </button>
                         <button onClick={handleResetFilters} className={resetButtonClass}>

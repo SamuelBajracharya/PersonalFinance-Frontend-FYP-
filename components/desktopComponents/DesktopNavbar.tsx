@@ -34,22 +34,19 @@ const DesktopNavbar = () => {
       {/* Dynamic title */}
       <h1 className="text-2xl font-medium tracking-wide">{title}</h1>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <button
           type="button"
           onClick={toggleTheme}
-          className="flex items-center gap-2 border border-accent px-4 py-2 rounded-xl transition-colors duration-200 hover:bg-accent/20"
+          className="transition-colors duration-200 p-1 rounded-full hover:bg-accent/20 cursor-pointer"
           aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
           title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
         >
           {theme === "dark" ? (
-            <MdLightMode className="size-5 text-primary" />
+            <MdLightMode className="size-7 text-primary" />
           ) : (
-            <MdDarkMode className="size-5 text-primary" />
+            <MdDarkMode className="size-7 text-primary" />
           )}
-          <span className="text-sm font-medium text-textmain">
-            {theme === "dark" ? "Light" : "Dark"}
-          </span>
         </button>
 
         <div

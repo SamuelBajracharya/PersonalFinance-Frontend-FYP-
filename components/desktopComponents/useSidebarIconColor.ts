@@ -1,10 +1,8 @@
 import { useThemeStore } from "../../stores/useThemeStore";
 
 export function useSidebarIconColor(isActive: boolean) {
-    // Get current theme from store
-    const theme = typeof window !== "undefined" && window.localStorage.getItem("theme-mode")
-        ? JSON.parse(window.localStorage.getItem("theme-mode")!)
-        : "dark";
+    // Use Zustand store for reactivity
+    const theme = useThemeStore((state) => state.theme);
 
     if (theme === "light") {
         // Light mode: active icon is white, inactive is black

@@ -77,7 +77,7 @@ export default function Profile() {
       {/* Top Section */}
       <div className="flex gap-8 items-center">
         {showInitialSkeletons ? (
-          <SkeletonBlock className="size-48 rounded-full bg-tableBG" />
+          <SkeletonBlock className="size-48 rounded-full" />
         ) : (
           <div className="size-48 overflow-hidden rounded-full bg-white" />
         )}
@@ -167,7 +167,7 @@ export default function Profile() {
 
         <div className="col-span-2">
           {showInitialSkeletons ? (
-            <SkeletonBlock className="h-[152px] rounded-2xl bg-secondaryBG" />
+            <SkeletonBlock className="h-[152px] rounded-2xl" />
           ) : (
             <StatCard type="expense" value={86.85} />
           )}
@@ -175,7 +175,7 @@ export default function Profile() {
 
         <div className="col-span-2">
           {showInitialSkeletons ? (
-            <SkeletonBlock className="h-[152px] rounded-2xl bg-secondaryBG" />
+            <SkeletonBlock className="h-[152px] rounded-2xl" />
           ) : (
             <StatCard type="income" value={86.85} />
           )}
@@ -196,7 +196,7 @@ export default function Profile() {
       <div className="grid grid-cols-6 gap-6 mt-4 overflow-x-auto">
         {rewardsLoading && !myRewards &&
           Array.from({ length: 6 }).map((_, index) => (
-            <SkeletonBlock key={index} className="h-[200px] rounded-4xl bg-tableBG" />
+            <SkeletonBlock key={index} className="h-[200px] rounded-4xl" />
           ))}
 
         {!rewardsLoading && myRewards?.map((ur) => (
