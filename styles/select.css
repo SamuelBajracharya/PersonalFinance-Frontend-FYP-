@@ -1,8 +1,8 @@
 /* Main visible select box */
 .custom-select .ant-select-selector {
   background: transparent !important;
-  border: none !important;
-  padding: 0.5rem 1rem;
+  border: 2px solid #ffaa2d !important;
+  padding: 1rem !important;
   width: 120px !important;
   border-radius: 2rem !important;
   color: var(--color-textmain) !important;

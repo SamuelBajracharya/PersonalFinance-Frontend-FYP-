@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Select } from "antd";
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { FaEyeSlash, FaRedoAlt } from "react-icons/fa";
@@ -20,6 +21,11 @@ import {
 const Transactions: React.FC = () => {
   const { isOpen, isBankLinked, isInitialized, open, initialize } = useBankOverlay();
 
+  // Year and category selectors
+  const [selectedYear, setSelectedYear] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
   // Initialize persisted state once
   useEffect(() => {
     initialize();
@@ -36,8 +42,35 @@ const Transactions: React.FC = () => {
     data: transactions,
     isLoading: transactionLoading,
     isFetching: transactionFetching,
-  } =
-    useNabilBankTransactions(isBankLinked);
+  } = useNabilBankTransactions(isBankLinked);
+
+  // Extract unique years and categories from transactions
+  const years = useMemo(() => {
+    if (!transactions) return [];
+    const yearSet = new Set(transactions.map(t => new Date(t.date).getFullYear()));
+    return Array.from(yearSet).sort((a, b) => b - a);
+  }, [transactions]);
+
+  const categories = useMemo(() => {
+    if (!transactions) return [];
+    const catSet = new Set(transactions.map(t => t.category).filter(Boolean));
+    return Array.from(catSet);
+  }, [transactions]);
+
+  // Filter transactions by year, category, and search
+  const filteredTransactions = useMemo(() => {
+    if (!transactions) return [];
+    return transactions.filter(t => {
+      const matchYear = selectedYear === "all" || new Date(t.date).getFullYear().toString() === selectedYear;
+      const matchCategory = selectedCategory === "all" || t.category === selectedCategory;
+      const matchSearch =
+        !searchTerm ||
+        (t.description && t.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (t.merchant && t.merchant.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (t.category && t.category.toLowerCase().includes(searchTerm.toLowerCase()));
+      return matchYear && matchCategory && matchSearch;
+    });
+  }, [transactions, selectedYear, selectedCategory, searchTerm]);
 
   const showLoadingOverlay =
     !isInitialized ||
@@ -54,14 +87,23 @@ const Transactions: React.FC = () => {
       title: "Name",
       dataIndex: "description",
       key: "name",
-      render: (text: string) => (
-        <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-br from-orange-400 to-yellow-500 rounded-full size-10 flex items-center justify-center text-white font-bold shadow-md">
-            T
+      render: (_: string, record: Transaction) => {
+        // Build image src from category
+        const category = record.category || "default";
+        // Use lowercase category with 'Category' suffix for file path
+        const categoryFile = `/${category ? category.toLowerCase() + 'Category' : 'defaultCategory'}.png`;
+        return (
+          <div className="flex items-center gap-3">
+            <img
+              src={categoryFile}
+              alt={category}
+              className="rounded-xl size-11 object-cover bg-accent"
+              onError={e => { e.currentTarget.src = "/notfound.png"; }}
+            />
+            <span className="text-textmain">{record.description}</span>
           </div>
-          <span className="text-textmain">{text}</span>
-        </div>
-      ),
+        );
+      },
     },
     {
       title: "From/To",
@@ -125,6 +167,8 @@ const Transactions: React.FC = () => {
 
   return (
     <div className="min-h-screen px-6 py-6 font-sans relative">
+
+
       <div className="flex w-full gap-6 mb-6">
         {showInitialSkeletons ? (
           <div className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col flex-grow justify-between animate-pulse">
@@ -144,7 +188,7 @@ const Transactions: React.FC = () => {
         ) : !isInitialized ? (
           <div className="flex-grow bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col justify-between">
             <div>
-              <p className="text-[#f39c12] text-3xl font-semibold mb-2">
+              <p className="text-primary text-3xl font-semibold mb-2">
                 Account Status
               </p>
               <p className="text-gray-300 text-lg max-w-md">
@@ -163,7 +207,7 @@ const Transactions: React.FC = () => {
         ) : !isBankLinked ? (
           <div className="flex-grow bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col justify-between">
             <div>
-              <p className="text-[#f39c12] text-3xl font-semibold mb-2">
+              <p className="text-primary text-3xl font-semibold mb-2">
                 Link Account
               </p>
               <p className="text-gray-300 text-lg max-w-md">
@@ -194,7 +238,7 @@ const Transactions: React.FC = () => {
               <div className="flex gap-2">
                 <p className="text-textsecondary text-xl">Balance:</p>
                 <p className="text-primary text-xl flex items-center gap-2">
-                  ${Number(account?.balance).toFixed(2)}
+                  Rs. {Number(account?.balance).toFixed(2)}
                   <FaEyeSlash />
                 </p>
               </div>
@@ -229,7 +273,7 @@ const Transactions: React.FC = () => {
                 />
               </div>
 
-              <button className="bg-[#f39c12] hover:bg-[#e68a00] transition font-medium text-lg py-3 rounded-full flex items-center justify-center gap-2 !text-white">
+              <button className="bg-primary hover:bg-primary transition font-medium text-lg py-3 rounded-full flex items-center justify-center gap-2 !text-white">
                 <AiOutlinePlus /> Create New Transaction
               </button>
             </>
@@ -238,34 +282,81 @@ const Transactions: React.FC = () => {
       </div>
 
       <div className="bg-secondaryBG rounded-2xl p-6">
-        {isBankLinked && isError && !account && (
-          <div className="mb-4 text-red-500">Failed to load account data.</div>
-        )}
-        {showInitialSkeletons ? (
-          <div className="animate-pulse">
-            <SkeletonBlock className="h-[56px] rounded-t-xl mb-[1px]" />
-            <div className="space-y-[1px]">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <SkeletonBlock key={index} className="h-[64px]" />
-              ))}
+        {/* Filters above the table */}
+        <div className="flex flex-col gap-8 bg-transparent rounded-xl px-4 pt-3 justify-between">
+          <div className="flex flex-row justify-between items-center">
+            <div className="flex items-center gap-8">
+              <div className="flex items-center gap-4">
+                <span className="font-medium text-xl !text-primary">Year:</span>
+                <Select
+                  value={selectedYear}
+                  onChange={v => setSelectedYear(v)}
+                  className="custom-select"
+                  popupClassName="custom-select"
+                  style={{ minWidth: 120, borderColor: '#ffaa2d' }}
+                >
+                  <Select.Option value="all">All</Select.Option>
+                  {years.map(y => (
+                    <Select.Option key={y} value={y.toString()}>{y}</Select.Option>
+                  ))}
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-xl !text-primary">Category:</span>
+                <Select
+                  value={selectedCategory}
+                  onChange={v => setSelectedCategory(v)}
+                  className="custom-select"
+                  popupClassName="custom-select"
+                  style={{ minWidth: 120, borderColor: '#ffaa2d' }}
+                >
+                  <Select.Option value="all">All</Select.Option>
+                  {categories.map(c => (
+                    <Select.Option key={c as string} value={c as string}>{c}</Select.Option>
+                  ))}
+                </Select>
+              </div>
             </div>
-            <SkeletonBlock className="h-10 mt-4 rounded-lg" />
+            <div className="flex items-center ml-auto">
+              <input
+                type="text"
+                placeholder="Search..."
+                className="rounded-full w-[400px] text-lg px-6 py-2 bg-tableBG text-textmain focus:outline-none focus:ring-2 focus:ring-primary"
+                style={{ minWidth: 180 }}
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
-        ) : (
-          <Table
-            columns={columns}
-            dataSource={
-              isBankLinked ? transactions?.map((t) => ({ key: t.id, ...t })) : []
-            }
-            pagination={{ pageSize: 5, showSizeChanger: false }}
-            className="custom-table"
-          />
-        )}
+          {isBankLinked && isError && !account && (
+            <div className="mb-4 text-red-500">Failed to load account data.</div>
+          )}
+          {showInitialSkeletons ? (
+            <div className="animate-pulse">
+              <SkeletonBlock className="h-[56px] rounded-t-xl mb-[1px]" />
+              <div className="space-y-[1px]">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <SkeletonBlock key={index} className="h-[64px]" />
+                ))}
+              </div>
+              <SkeletonBlock className="h-10 mt-4 rounded-lg" />
+            </div>
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={
+                isBankLinked ? filteredTransactions.map((t) => ({ key: t.id, ...t })) : []
+              }
+              pagination={{ pageSize: 5, showSizeChanger: false }}
+              className="custom-table"
+            />
+          )}
+        </div>
+
+        <LoadingOverlay show={showLoadingOverlay} />
+
+        {isOpen && <LinkAccountOverlay />}
       </div>
-
-      <LoadingOverlay show={showLoadingOverlay} />
-
-      {isOpen && <LinkAccountOverlay />}
     </div>
   );
 };
