@@ -29,7 +29,7 @@ export default function VoucherCongratsOverlay() {
     if (!isVoucherOverlayOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+        <div className="fixed inset-0 !z-[2147483645] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
             <div className="relative w-full max-w-2xl rounded-3xl bg-secondaryBG p-8 text-white">
                 <button
                     onClick={closeVoucherOverlay}

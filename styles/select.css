@@ -1,12 +1,13 @@
 /* Main visible select box */
 .custom-select .ant-select-selector {
   background: transparent !important;
-  border: 2px solid #ffaa2d !important;
+  border: 1px solid #ffaa2d !important;
   padding: 1rem !important;
-  width: 120px !important;
+  width: 150px !important;
   border-radius: 2rem !important;
   color: var(--color-textmain) !important;
   height: 2.5rem;
+  outline: none;
 }
 
 .custom-select .ant-select-selection-search-input,

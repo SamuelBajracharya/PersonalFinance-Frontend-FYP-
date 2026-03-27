@@ -89,7 +89,11 @@ export interface BudgetGoalPeriodReview {
 
 // Create budget
 export const createBudgetAPI = async (payload: BudgetCreate) => {
-  const response = await baseInstance.post<Budget>("/budgets", payload);
+  // Ensure budget_amount is sent as a number
+  const response = await baseInstance.post<Budget>("/budgets", {
+    ...payload,
+    budget_amount: Number(payload.budget_amount),
+  });
   return response.data;
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
 
 // react-icons
 import { MdEmail, MdLock, MdEdit } from "react-icons/md";
@@ -37,6 +38,7 @@ function getXpTitle(xp: number) {
 }
 
 export default function Profile() {
+  const messageApi = useAntdMessage();
   const [isLinked, setIsLinked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -65,7 +67,12 @@ export default function Profile() {
       onSuccess: () => {
         setIsLinked(false);
         closeUnlinkAccountConfirmation();
+        messageApi.success("Account unlinked successfully!");
       },
+      onError: () => {
+        closeUnlinkAccountConfirmation();
+        messageApi.error("Failed to unlink account. Try again.");
+      }
     });
   };
 

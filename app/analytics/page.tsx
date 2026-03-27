@@ -973,6 +973,7 @@ export default function AnalyticsPage() {
                     <button
                         onClick={open}
                         className="border border-accent text-accent px-8 py-3 rounded-full text-base md:text-lg hover:bg-accent hover:text-white transition cursor-pointer"
+                        type="button"
                     >
                         Link Account
                     </button>
@@ -997,6 +998,7 @@ export default function AnalyticsPage() {
                                         ? "bg-[#F5AD30] text-[#151515]"
                                         : "text-textsecondary hover:text-textmain"
                                         }`}
+                                    type="button"
                                 >
                                     {option.label}
                                 </button>
@@ -1012,16 +1014,16 @@ export default function AnalyticsPage() {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <button onClick={handleDownloadCsv} className={csvButtonClass}>
+                        <button onClick={handleDownloadCsv} className={csvButtonClass + " cursor-pointer"} type="button">
                             Download CSV
                         </button>
-                        <button onClick={() => void handleDownloadPdf()} className={pdfButtonClass}>
+                        <button onClick={() => void handleDownloadPdf()} className={pdfButtonClass + " cursor-pointer"} type="button">
                             Download PDF
                         </button>
-                        <button onClick={() => void analyticsQuery.refetch()} className={"" + actionButtonBaseClass + " !text-primary border border-primary hover:bg-primary/10"}>
+                        <button onClick={() => void analyticsQuery.refetch()} className={"" + actionButtonBaseClass + " !text-primary border border-primary hover:bg-primary/10 cursor-pointer"} type="button">
                             Refresh
                         </button>
-                        <button onClick={handleResetFilters} className={resetButtonClass}>
+                        <button onClick={handleResetFilters} className={resetButtonClass + " cursor-pointer"} type="button">
                             Reset
                         </button>
                     </div>

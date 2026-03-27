@@ -5,6 +5,7 @@ import "../styles/globals.css";
 import QueryProvider from "@/components/providers/QueryProvider";
 import AuthProvider from "@/components/providers/AuthProvider";
 import ThemeProvider from "@/components/providers/ThemeProvider";
+import { AntdMessageProvider } from "@/components/gloabalComponents/AntdMessageContext";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -51,13 +52,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
 
       <body className={`${poppins.className} bg-mainBG text-textmain`}>
-        <ThemeProvider>
-          <AuthProvider>
-            <QueryProvider>
-              <ResponsiveLayoutWrapper>{children}</ResponsiveLayoutWrapper>
-            </QueryProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <AntdMessageProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <QueryProvider>
+                <ResponsiveLayoutWrapper>{children}</ResponsiveLayoutWrapper>
+              </QueryProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </AntdMessageProvider>
       </body>
     </html>
   );

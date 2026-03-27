@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useCreateBudget } from "@/hooks/useBudgetGoals";
 import { useCreateBudgetOverlay } from "@/stores/useCreateBudgetOverlay";
-import { Select, message } from "antd";
+import { Select } from "antd";
+import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
 
 const { Option } = Select;
 
@@ -23,6 +24,7 @@ const CATEGORY_OPTIONS = [
 const CreateBudgetOverlay: React.FC = () => {
   const { isCreateBudgetOpen, closeCreateBudget } = useCreateBudgetOverlay();
   const { mutate, isPending } = useCreateBudget();
+  const messageApi = useAntdMessage();
 
   const [category, setCategory] = useState("");
   const [amount, setAmount] = useState<number | "">("");
@@ -38,7 +40,6 @@ const CreateBudgetOverlay: React.FC = () => {
 
   const handleCreate = () => {
     if (!category || !amount) return;
-
     mutate(
       {
         category,
@@ -46,35 +47,27 @@ const CreateBudgetOverlay: React.FC = () => {
       },
       {
         onSuccess: () => {
-          message.success({
-            content: "Budget goal created successfully!",
-            duration: 2,
-            style: { zIndex: 9999 },
-          });
-
+          messageApi.success("Budget goal created successfully!");
           setTimeout(() => {
             handleClose();
-          }, 2000); // matches the message duration
+          }, 2000);
         },
         onError: () => {
-          message.error({
-            content: "Failed to create budget goal. Try again.",
-            duration: 2,
-            style: { zIndex: 9999 },
-          });
+          messageApi.error("Failed to create budget goal. Try again.");
         },
       },
     );
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 !z-[2147483645] flex items-center justify-center bg-overlay/70 backdrop-blur-sm">
       <div className="relative w-full max-w-lg rounded-2xl bg-secondaryBG p-8">
         {/* Close */}
         <button
           onClick={handleClose}
           disabled={isPending}
-          className="absolute right-8 top-8 text-gray-300 hover:text-white transition disabled:opacity-50"
+          className={`absolute right-8 top-8 text-textsecondary hover:text-textmain transition disabled:opacity-50 ${isPending ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          type="button"
         >
           <FaTimes size={24} />
         </button>
@@ -84,7 +77,7 @@ const CreateBudgetOverlay: React.FC = () => {
           <h2 className="text-4xl font-semibold text-primary mb-4">
             Create New Budget
           </h2>
-          <p className="text-gray-300 text-lg">
+          <p className="text-textsecondary text-lg">
             Define a category and set your budget limit.
           </p>
         </div>
@@ -96,14 +89,15 @@ const CreateBudgetOverlay: React.FC = () => {
             value={category || undefined}
             onChange={(value: string) => setCategory(value)}
             placeholder="Select category"
-            className="custom-select !py-6 w-full !text-primary !bg-transparent border-1 border-primary rounded-full"
-          >
-            {CATEGORY_OPTIONS.map((cat) => (
-              <Option key={cat} value={cat}>
-                {cat}
-              </Option>
-            ))}
-          </Select>
+            className="custom-select !w-full cursor-pointer !h-[3.5rem]"
+            dropdownClassName="custom-select"
+            size="large"
+            options={CATEGORY_OPTIONS.map((cat) => ({ label: cat, value: cat }))}
+            showSearch={false}
+            allowClear={false}
+            popupMatchSelectWidth={true}
+            getPopupContainer={trigger => trigger.parentNode}
+          />
 
           {/* Budget Amount */}
           <input
@@ -113,7 +107,7 @@ const CreateBudgetOverlay: React.FC = () => {
             onChange={(e) =>
               setAmount(e.target.value === "" ? "" : Number(e.target.value))
             }
-            className="w-full rounded-full bg-transparent border-1 border-primary px-6 py-3 text-lg text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-full bg-transparent border-1 border-primary px-6 py-3 text-lg text-textmain focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-textsecondary"
           />
         </div>
 
@@ -122,7 +116,8 @@ const CreateBudgetOverlay: React.FC = () => {
           <button
             onClick={handleCreate}
             disabled={!category || !amount || isPending}
-            className="rounded-full bg-primary py-4 text-lg font-medium hover:bg-primary/80 transition disabled:opacity-70"
+            className={`rounded-full bg-primary py-4 text-lg font-medium text-textmain hover:bg-primary/80 transition disabled:opacity-70 ${(!category || !amount || isPending) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            type="button"
           >
             {isPending ? "Creating..." : "Create Budget"}
           </button>
@@ -130,7 +125,8 @@ const CreateBudgetOverlay: React.FC = () => {
           <button
             onClick={handleClose}
             disabled={isPending}
-            className="rounded-full bg-accentBG py-4 text-lg hover:bg-white/5 transition disabled:opacity-40"
+            className={`rounded-full bg-accentBG py-4 text-lg text-textmain hover:bg-accentBG/80 transition disabled:opacity-40 ${isPending ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            type="button"
           >
             Cancel
           </button>

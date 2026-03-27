@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useLoginToBank } from "@/hooks/useBankTransaction";
+import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
 import { useBankOverlay } from "@/stores/useBankOverlay";
 
 const LinkAccountOverlay: React.FC = () => {
@@ -12,6 +13,7 @@ const LinkAccountOverlay: React.FC = () => {
   const [password, setPassword] = useState("");
 
   const { mutate, isPending } = useLoginToBank();
+  const messageApi = useAntdMessage();
 
   if (!isOpen) return null;
 
@@ -30,10 +32,13 @@ const LinkAccountOverlay: React.FC = () => {
       {
         onSuccess: () => {
           setBankLinked(true);
-
           setUsername("");
           setPassword("");
           close();
+          messageApi.success("Account linked successfully!");
+        },
+        onError: () => {
+          messageApi.error("Failed to link account. Try again.");
         },
       },
     );

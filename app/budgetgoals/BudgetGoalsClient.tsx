@@ -17,6 +17,8 @@ import { useNabilBankTransactions } from "@/hooks/useBankTransaction";
 import { useBankOverlay } from "@/stores/useBankOverlay";
 import { useCreateBudgetOverlay } from "@/stores/useCreateBudgetOverlay";
 import CreateBudgetOverlay from "@/components/gloabalComponents/CreateBudgetOverlay";
+import SimpleConfirmationOverlay from "@/components/gloabalComponents/SimpleConfirmationOverlay";
+import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
 import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
 import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 
@@ -43,6 +45,8 @@ const formatMonthDay = (timestamp: number) => {
 };
 
 export default function BudgetGoals() {
+    const messageApi = useAntdMessage();
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; budgetId: string | null; category: string | null }>({ open: false, budgetId: null, category: null });
     const { isBankLinked, initialize } = useBankOverlay();
     const { data: statuses = [], isLoading: isStatusesLoading } =
         useBudgetGoalStatuses();
@@ -277,19 +281,7 @@ export default function BudgetGoals() {
                                                 type="button"
                                                 onClick={(event) => {
                                                     event.stopPropagation();
-
-                                                    const shouldDelete = window.confirm(
-                                                        `Delete budget goal for ${status.category}?`
-                                                    );
-                                                    if (!shouldDelete) return;
-
-                                                    deleteBudget(status.budget_id, {
-                                                        onSuccess: () => {
-                                                            setSelectedBudgetId((currentId) =>
-                                                                currentId === status.budget_id ? null : currentId
-                                                            );
-                                                        },
-                                                    });
+                                                    setDeleteDialog({ open: true, budgetId: status.budget_id, category: status.category });
                                                 }}
                                                 disabled={isDeletingBudget}
                                                 className="rounded-lg border border-red-500 px-3 py-1 text-sm font-medium text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
@@ -655,6 +647,31 @@ export default function BudgetGoals() {
 
             <LoadingOverlay show={showLoadingOverlay} />
             {isCreateBudgetOpen && <CreateBudgetOverlay />}
+            <SimpleConfirmationOverlay
+                title="Delete Budget Goal"
+                message={deleteDialog.category ? `Are you sure you want to delete the budget goal for \"${deleteDialog.category}\"? This action cannot be undone.` : undefined}
+                isOpen={deleteDialog.open}
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={() => {
+                    if (deleteDialog.budgetId) {
+                        deleteBudget(deleteDialog.budgetId, {
+                            onSuccess: () => {
+                                setSelectedBudgetId((currentId) =>
+                                    currentId === deleteDialog.budgetId ? null : currentId
+                                );
+                                setDeleteDialog({ open: false, budgetId: null, category: null });
+                                messageApi.success("Budget goal deleted successfully!");
+                            },
+                            onError: () => {
+                                setDeleteDialog({ open: false, budgetId: null, category: null });
+                                messageApi.error("Failed to delete budget goal. Try again.");
+                            }
+                        });
+                    }
+                }}
+                onCancel={() => setDeleteDialog({ open: false, budgetId: null, category: null })}
+            />
         </div>
     );
 }

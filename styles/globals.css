@@ -171,3 +171,9 @@ body,
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   border-radius: 12px;
 }
+
+/* Force Ant Design message to appear below navbar */
+.ant-message {
+  top: 96px !important; /* Adjust as needed for your navbar height */
+  z-index: 9999 !important;
+}

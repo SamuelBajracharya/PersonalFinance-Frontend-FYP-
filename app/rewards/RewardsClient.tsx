@@ -12,17 +12,29 @@ import VoucherCongratsOverlay from "@/components/gloabalComponents/VoucherCongra
 import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
 import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 
+
 import { useWhatIfSccenarios } from "@/hooks/useWhatIf";
 import { useRecentRewardActivity } from "@/hooks/useRewards";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useMyActiveVouchers } from "@/hooks/useCoupons";
 import { useVouchersOverlay } from "@/stores/useVouchersOverlay";
+import { useNabilBankTransactions } from "@/hooks/useBankTransaction";
+import { useCreateBudget } from "@/hooks/useBudgetGoals";
+import { useRouter } from "next/navigation";
+import { useCallback } from "react";
+import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
+import dayjs from "dayjs";
 import Link from "next/link";
 
 const SEEN_VOUCHERS_KEY = "seen_voucher_ids";
 
 export default function Rewards() {
+  const messageApi = useAntdMessage();
   const { openVoucherOverlay } = useVouchersOverlay();
+  const router = useRouter();
+  // Get all Nabil Bank transactions
+  const { data: transactions } = useNabilBankTransactions(true);
+  const { mutateAsync: createBudget } = useCreateBudget();
 
   const { data: whatIfScenarios, isLoading, isError } = useWhatIfSccenarios();
   const {
@@ -125,6 +137,41 @@ export default function Rewards() {
     return () => clearInterval(intervalId);
   }, [refetchMyVouchers]);
 
+  // Handler for "Make this a goal" (now uses scenario data directly)
+  const handleMakeGoal = useCallback(
+    async (category: string, _percentage: number, newBudget?: number) => {
+      const today = dayjs().format("YYYY-MM-DD");
+      const endDate = dayjs().add(30, "day").format("YYYY-MM-DD");
+      // Validate payload
+      if (!category || typeof category !== "string" || !newBudget || isNaN(Number(newBudget)) || Number(newBudget) <= 0) {
+        messageApi.error("Invalid budget data. Please try again or contact support.");
+        return;
+      }
+      const payload = {
+        category,
+        budget_amount: Number(newBudget),
+        start_date: today,
+        end_date: endDate,
+      };
+      try {
+        await createBudget(payload);
+        messageApi.success("Budget goal created successfully!");
+        router.push("/budgetgoals");
+      } catch (e: any) {
+        let msg = "Failed to create budget goal. Please try again.";
+        if (e?.response?.data) {
+          msg = `Backend response: ${JSON.stringify(e.response.data)}`;
+        } else if (e?.message) {
+          msg = e.message;
+        }
+        // eslint-disable-next-line no-console
+        console.error("Budget goal creation error:", e, payload);
+        messageApi.error(msg);
+      }
+    },
+    [createBudget, router, messageApi]
+  );
+
   return (
     <div className="min-h-screen p-6 font-sans text-gray-200">
       <div className="mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 ">
@@ -161,6 +208,13 @@ export default function Rewards() {
                     percentage={scenario.reduction_percentage}
                     category={scenario.category}
                     saveAmount={scenario.monthly_savings}
+                    onMakeGoal={async () => {
+                      await handleMakeGoal(
+                        scenario.category,
+                        scenario.reduction_percentage,
+                        scenario.new_budget
+                      );
+                    }}
                   />
                 ))}
               </div>
@@ -198,7 +252,7 @@ export default function Rewards() {
 
             {!showCouponsSkeleton && myVouchers && (
               <div className="grid grid-cols-2 gap-4">
-                {myVouchers.map((voucher) => (
+                {myVouchers.slice(0, 6).map((voucher) => (
                   <CouponTicket
                     key={voucher.id}
                     title={voucher.title}
@@ -293,7 +347,7 @@ export default function Rewards() {
               )}
 
               {!showRecentSkeleton &&
-                recentActivities?.map((activity, index) => (
+                recentActivities?.slice(0, 8).map((activity, index) => (
                   <RecentActivityItem
                     key={`${activity.reward_id}-${index}`}
                     title={activity.name}
