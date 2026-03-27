@@ -13,10 +13,13 @@ import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 import { Transaction } from "@/api/transactionAPI";
 import { useBankOverlay } from "@/stores/useBankOverlay";
 import LinkAccountOverlay from "@/components/gloabalComponents/LinkAccountOverlay";
+
 import {
   useNabilBankAccount,
   useNabilBankTransactions,
 } from "@/hooks/useBankTransaction";
+import { useBankSync } from "@/hooks/useBankSync";
+import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
 
 const Transactions: React.FC = () => {
   const { isOpen, isBankLinked, isInitialized, open, initialize } = useBankOverlay();
@@ -165,9 +168,11 @@ const Transactions: React.FC = () => {
       .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0)
     : 0;
 
+  const messageApi = useAntdMessage();
+  const bankSync = useBankSync();
+
   return (
     <div className="min-h-screen px-6 py-6 font-sans relative">
-
 
       <div className="flex w-full gap-6 mb-6">
         {showInitialSkeletons ? (
@@ -242,9 +247,24 @@ const Transactions: React.FC = () => {
                   <FaEyeSlash />
                 </p>
               </div>
-              <div className="bg-primary p-3 rounded-full cursor-pointer">
-                <FaRedoAlt className="text-white text-2xl animate-spin" />
-              </div>
+              <button
+                className="bg-primary p-3 rounded-full cursor-pointer flex items-center justify-center"
+                onClick={() => {
+                  bankSync.mutate(undefined, {
+                    onSuccess: (data) => {
+                      messageApi.success(data.message || "Bank synced successfully");
+                    },
+                    onError: (error) => {
+                      messageApi.error("Failed to sync bank account");
+                    },
+                  });
+                }}
+                disabled={bankSync.isPending}
+                title="Sync Bank Account"
+                type="button"
+              >
+                <FaRedoAlt className={`text-white text-2xl transition ${bankSync.isPending ? "animate-spin" : ""}`} />
+              </button>
             </div>
           </div>
         )}

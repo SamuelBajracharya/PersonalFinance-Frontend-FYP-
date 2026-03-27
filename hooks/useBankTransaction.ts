@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Cookies from "js-cookie";
 import {
   loginToBank,
   getBankAccounts,
@@ -29,6 +30,11 @@ export const useLoginToBank = () => {
 
     onSuccess: (response: BankLoginSyncResponse) => {
       localStorage.setItem("isBankLinked", "true");
+
+      // Store bank_token in cookie
+      if (response.bank_token) {
+        Cookies.set("bank_token", response.bank_token, { expires: 7, secure: true, sameSite: "strict" });
+      }
 
       const nabilAccount = response.synced_accounts?.find((account) =>
         account.bank_name.toLowerCase().includes("nabil"),
