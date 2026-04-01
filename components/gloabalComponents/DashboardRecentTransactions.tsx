@@ -1,5 +1,4 @@
 import React from "react";
-import { PiReceiptFill } from "react-icons/pi";
 
 interface RecentTransaction {
     id: string;
@@ -35,6 +34,8 @@ const DashboardRecentTransactions = ({
                 ) : (
                     transactions.map((transaction) => {
                         const isExpense = transaction.type?.toUpperCase() === "DEBIT";
+                        const category = transaction.category || "default";
+                        const categoryFile = `/${category ? category.toLowerCase() + "Category" : "defaultCategory"}.png`;
 
                         return (
                             <div
@@ -42,9 +43,14 @@ const DashboardRecentTransactions = ({
                                 className="flex items-center justify-between rounded-xl bg-tableBG px-4 py-3"
                             >
                                 <div className="flex items-center gap-3 min-w-0">
-                                    <div className="size-10 rounded-full bg-accent flex items-center justify-center shrink-0">
-                                        <PiReceiptFill className="text-primary size-5" />
-                                    </div>
+                                    <img
+                                        src={categoryFile}
+                                        alt={category}
+                                        className="rounded-xl size-10 object-cover bg-accent shrink-0"
+                                        onError={(e) => {
+                                            e.currentTarget.src = "/notfound.png";
+                                        }}
+                                    />
 
                                     <div className="min-w-0">
                                         <p className="text-sm font-medium truncate">
