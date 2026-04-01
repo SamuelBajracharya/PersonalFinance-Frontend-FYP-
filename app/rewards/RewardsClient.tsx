@@ -160,7 +160,20 @@ export default function Rewards() {
       } catch (e: any) {
         let msg = "Failed to create budget goal. Please try again.";
         if (e?.response?.data) {
-          msg = `Backend response: ${JSON.stringify(e.response.data)}`;
+          // If backend sends { detail: "..." } or similar, show only the message
+          const data = e.response.data;
+          if (typeof data === "object" && data !== null) {
+            if (typeof data.detail === "string") {
+              msg = data.detail;
+            } else if (typeof data.message === "string") {
+              msg = data.message;
+            } else {
+              // fallback: join all string values
+              msg = Object.values(data).filter(v => typeof v === "string").join(" ") || msg;
+            }
+          } else if (typeof data === "string") {
+            msg = data;
+          }
         } else if (e?.message) {
           msg = e.message;
         }

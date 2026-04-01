@@ -208,7 +208,7 @@ export default function BudgetGoals() {
             <div className="flex justify-end mb-6">
                 <button
                     onClick={openCreateBudget}
-                    className="flex items-center gap-2 bg-primary px-6 py-3 rounded-full text-lg font-medium hover:bg-primary/80 transition"
+                    className="flex items-center gap-2 bg-primary px-6 py-3 rounded-full text-lg font-medium hover:bg-primary/80 transition cursor-pointer"
                 >
                     <BsPlus size={20} />
                     Create New Budget

@@ -6,20 +6,7 @@ import { useCreateBudget } from "@/hooks/useBudgetGoals";
 import { useCreateBudgetOverlay } from "@/stores/useCreateBudgetOverlay";
 import { Select } from "antd";
 import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
-
-const { Option } = Select;
-
-const CATEGORY_OPTIONS = [
-  "Groceries",
-  "Coffee",
-  "Shopping",
-  "Transport",
-  "Entertainment",
-  "Utilities",
-  "Food",
-  "Clothing",
-  "Travel",
-];
+import { TRANSACTION_CATEGORIES } from "@/types/transactionCategories";
 
 const CreateBudgetOverlay: React.FC = () => {
   const { isCreateBudgetOpen, closeCreateBudget } = useCreateBudgetOverlay();
@@ -92,7 +79,7 @@ const CreateBudgetOverlay: React.FC = () => {
             className="custom-select !w-full cursor-pointer !h-[3.5rem]"
             dropdownClassName="custom-select"
             size="large"
-            options={CATEGORY_OPTIONS.map((cat) => ({ label: cat, value: cat }))}
+            options={TRANSACTION_CATEGORIES.map((cat) => ({ label: cat, value: cat }))}
             showSearch={false}
             allowClear={false}
             popupMatchSelectWidth={true}

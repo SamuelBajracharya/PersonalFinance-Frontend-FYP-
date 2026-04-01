@@ -53,7 +53,7 @@ export default function StatCard({
       color: "text-blue-500",
       bg: "bg-blue-600",
       icon: <FaBalanceScale className="size-8" />,
-      prefix: "$",
+      prefix: "Rs.",
     },
   }[type];
 

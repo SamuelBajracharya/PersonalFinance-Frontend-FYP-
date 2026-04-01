@@ -13,6 +13,8 @@ import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 import { Transaction } from "@/api/transactionAPI";
 import { useBankOverlay } from "@/stores/useBankOverlay";
 import LinkAccountOverlay from "@/components/gloabalComponents/LinkAccountOverlay";
+import ManualTransactionCreateOverlay from "@/components/gloabalComponents/ManualTransactionCreateOverlay";
+import { useCreateManualTransactionsOverlay } from "@/stores/useCreateManualTransactionsOverlay";
 
 import {
   useNabilBankAccount,
@@ -170,6 +172,7 @@ const Transactions: React.FC = () => {
 
   const messageApi = useAntdMessage();
   const bankSync = useBankSync();
+  const { openCreateManualTransactions, createManualTransactions } = useCreateManualTransactionsOverlay();
 
   return (
     <div className="min-h-screen px-6 py-6 font-sans relative">
@@ -293,7 +296,10 @@ const Transactions: React.FC = () => {
                 />
               </div>
 
-              <button className="bg-primary hover:bg-primary transition font-medium text-lg py-3 rounded-full flex items-center justify-center gap-2 !text-white">
+              <button
+                className="bg-primary hover:bg-primary transition font-medium text-lg py-3 rounded-full flex items-center justify-center gap-2 !text-white cursor-pointer"
+                onClick={openCreateManualTransactions}
+              >
                 <AiOutlinePlus /> Create New Transaction
               </button>
             </>
@@ -376,6 +382,7 @@ const Transactions: React.FC = () => {
         <LoadingOverlay show={showLoadingOverlay} />
 
         {isOpen && <LinkAccountOverlay />}
+        {createManualTransactions && <ManualTransactionCreateOverlay />}
       </div>
     </div>
   );

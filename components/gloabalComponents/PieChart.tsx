@@ -18,11 +18,13 @@ export default function PieChart({ data, colors, onSliceClick, width = "100%", h
         width,
         height,
         fontSize: 16,
+        padding: 8,
+        boxSizing: "border-box",
       }}
     >
       <ResponsivePie
         data={data}
-        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+        margin={{ top: 28, right: 28, bottom: 28, left: 28 }}
         padAngle={0}
         activeOuterRadiusOffset={10}
         colors={colors || { scheme: "nivo" }}
