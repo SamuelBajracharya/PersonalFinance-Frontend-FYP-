@@ -7,15 +7,15 @@ const MobileLayout = ({ children }: LayoutPropsType) => {
   return (
     <>
       {/* Navbar Section */}
-      <div className='fixed top-0 left-0 w-full z-50'>
+      <div className='fixed top-0 left-0 w-full z-50 theme-transition'>
         <MobileNavbar />
       </div>
       {/* main Section */}
-      <main className='pt-[64px] pb-[60px] bg-mainBG'>
+      <main className='pt-[64px] pb-[60px] bg-mainBG theme-transition'>
         {children}
-        </main>
+      </main>
       {/* Bottombar Section */}
-      <div className='fixed bottom-3 left-0 w-full px-3 z-50'>
+      <div className='fixed bottom-3 left-0 w-full px-3 z-50 theme-transition'>
         <MobileBottomBar />
       </div>
     </>

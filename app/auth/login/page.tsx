@@ -51,7 +51,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center w-full text-white px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center w-full text-textmain px-6 theme-transition">
       {/* This makes the fucking toasts show */}
       {contextHolder}
 
@@ -59,7 +59,7 @@ const Login = () => {
         <Logo width={220} />
       </div>
 
-      <h2 className="text-xl font-semibold mb-12">Welcome Back!</h2>
+      <h2 className="text-xl font-semibold mb-12 text-textmain theme-transition">Welcome Back!</h2>
 
       <Form
         name="login"
@@ -74,7 +74,7 @@ const Login = () => {
         >
           <Input
             placeholder="email"
-            className="!bg-accentBG !text-textmain !placeholder-gray-300 
+            className="!bg-accentBG !text-textmain !placeholder-textsecondary 
             !rounded-full !py-3 !px-5 !border-none !focus:ring-2 !focus:ring-yellow-400 !text-lg"
           />
         </Form.Item>
@@ -87,13 +87,13 @@ const Login = () => {
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="password"
-              className="!bg-accentBG !text-textmain !placeholder-gray-300 
+              className="!bg-accentBG !text-textmain !placeholder-textsecondary 
               !rounded-full !py-3 !px-5 !border-none !focus:ring-2 !focus:ring-yellow-400 !text-lg"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 !text-xl cursor-pointer"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-textsecondary !text-xl cursor-pointer theme-transition"
             >
               {showPassword ? <AiOutlineEye /> : <AiOutlineEyeInvisible />}
             </button>
@@ -103,8 +103,8 @@ const Login = () => {
         <div className="flex items-center justify-between">
           <Form.Item name="remember" valuePropName="checked" noStyle>
             <div className="flex items-center space-x-2">
-              <Checkbox className="!accent-primary bg-accentBG !text-gray-300" />
-              <label className="text-gray-300 ml-2 !text-[1.1rem]">
+              <Checkbox className="!accent-primary bg-accentBG !text-textsecondary" />
+              <label className="text-textsecondary ml-2 !text-[1.1rem] theme-transition">
                 Remember Me
               </label>
             </div>
@@ -129,7 +129,7 @@ const Login = () => {
           </Button>
         </Form.Item>
 
-        <p className="text-center text-lg text-gray-300">
+        <p className="text-center text-lg text-textsecondary theme-transition">
           Don’t have an account?{" "}
           <Link
             href="/auth/register"
@@ -140,9 +140,9 @@ const Login = () => {
         </p>
 
         <div className="flex items-center my-2">
-          <hr className="flex-grow border-gray-600" />
-          <span className="mx-2 text-gray-400 text-lg">or</span>
-          <hr className="flex-grow border-gray-600" />
+          <hr className="flex-grow border-accentBG theme-transition" />
+          <span className="mx-2 text-textsecondary text-lg theme-transition">or</span>
+          <hr className="flex-grow border-accentBG theme-transition" />
         </div>
 
         <Button

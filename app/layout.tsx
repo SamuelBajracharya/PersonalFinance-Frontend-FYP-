@@ -51,7 +51,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <title>SaveMarga</title>
       </head>
 
-      <body className={`${poppins.className} bg-mainBG text-textmain`}>
+      <body className={`${poppins.className} bg-mainBG text-textmain theme-transition`}>
         <AntdMessageProvider>
           <ThemeProvider>
             <AuthProvider>

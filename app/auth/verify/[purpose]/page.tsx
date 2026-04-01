@@ -170,7 +170,7 @@ export default function VerificationPage({
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-textmain px-6 w-full max-w-xl mx-auto">
+    <div className="min-h-screen flex flex-col items-center justify-center text-textmain px-6 w-full max-w-xl mx-auto theme-transition">
       <div className="mb-12">
         <Logo width={240} />
       </div>
@@ -178,7 +178,7 @@ export default function VerificationPage({
       <h1 className="text-4xl font-semibold text-primary mb-4 text-center">
         {title}
       </h1>
-      <p className="text-lg text-gray-300 text-center mb-8">{subtitle}</p>
+      <p className="text-lg text-textsecondary text-center mb-8 theme-transition">{subtitle}</p>
 
       <div className="flex space-x-3 mb-6">
         {code.map((num, i) => (
@@ -192,17 +192,17 @@ export default function VerificationPage({
             onChange={(e) => handleChange(e.target.value, i)}
             onPaste={handlePaste}
             onKeyDown={(e) => handleKeyDown(e, i)}
-            className="size-16 text-center text-lg rounded-lg bg-accentBG focus:border-primary focus:outline-none"
+            className="size-16 text-center text-lg rounded-lg bg-accentBG border border-accentBG text-textmain focus:border-primary focus:outline-none theme-transition"
           />
         ))}
       </div>
 
-      <p className="text-md text-gray-400 mb-8">
+      <p className="text-md text-textsecondary mb-8 theme-transition">
         Didn’t receive any code?{" "}
         <button
           onClick={handleResend}
           disabled={resending || cooldown > 0}
-          className="text-accent hover:underline disabled:opacity-50"
+          className="text-accent hover:underline disabled:opacity-50 theme-transition"
         >
           {cooldown > 0
             ? `Resend in ${cooldown}s`
@@ -215,7 +215,7 @@ export default function VerificationPage({
       <button
         onClick={handleVerify}
         disabled={verifying}
-        className="bg-primary hover:bg-primary/80 text-white w-[80%] font-semibold py-3 px-20 rounded-full transition-colors duration-200 disabled:opacity-50"
+        className="bg-primary hover:bg-primary/80 text-white w-[80%] font-semibold py-3 px-20 rounded-full theme-transition disabled:opacity-50"
       >
         {verifying ? "Verifying..." : "Verify"}
       </button>

@@ -14,10 +14,10 @@ const NAVBAR_HEIGHT = 80; // px
 
 const DesktopLayout = ({ children }: LayoutPropsType) => {
   return (
-    <Layout className="!min-h-screen !bg-mainBG">
+    <Layout className="!min-h-screen !bg-mainBG theme-transition">
       {/* Sidebar section */}
       <div
-        className="!bg-mainBG fixed top-0 left-0 h-full "
+        className="!bg-mainBG fixed top-0 left-0 h-full theme-transition"
         style={{ width: SIDEBAR_WIDTH }}
       >
         <DesktopSidebar />
@@ -25,7 +25,7 @@ const DesktopLayout = ({ children }: LayoutPropsType) => {
 
       {/* Navbar section */}
       <div
-        className="!bg-mainBG/60 backdrop-blur-sm fixed top-0 left-[300px] right-0 border-b border-b-textsecondary !z-[2147483645]"
+        className="!bg-mainBG/60 backdrop-blur-sm fixed top-0 left-[300px] right-0 border-b border-b-textsecondary !z-[2147483645] theme-transition"
         style={{ height: NAVBAR_HEIGHT, lineHeight: `${NAVBAR_HEIGHT}px` }}
       >
         <DesktopNavbar />
@@ -33,7 +33,7 @@ const DesktopLayout = ({ children }: LayoutPropsType) => {
 
       {/* Main content section */}
       <Content
-        className="!bg-mainBG p-6 !text-textmain"
+        className="!bg-mainBG p-6 !text-textmain theme-transition"
         style={{
           marginLeft: SIDEBAR_WIDTH,
           marginTop: NAVBAR_HEIGHT,

@@ -48,7 +48,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center w-full text-white px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center w-full text-textmain px-6 theme-transition">
       {contextHolder}
 
       {/* Logo */}
@@ -113,10 +113,10 @@ const SignUp = () => {
         {/* Remember Me */}
         <Form.Item name="remember" valuePropName="checked" noStyle>
           <div className="flex items-center space-x-2 ">
-            <Checkbox className="!accent-primary bg-accentBG !text-gray-300" />
+            <Checkbox className="!accent-primary bg-accentBG !text-textsecondary" />
             <label
               htmlFor="remember"
-              className="text-gray-300 ml-2 !text-[1.1rem]"
+              className="text-textsecondary ml-2 !text-[1.1rem] theme-transition"
             >
               Remember Me
             </label>
@@ -136,7 +136,7 @@ const SignUp = () => {
         </Form.Item>
 
         {/* Sign In Link */}
-        <p className="text-center text-lg text-gray-300">
+        <p className="text-center text-lg text-textsecondary theme-transition">
           Already have an account?{" "}
           <Link
             href="/auth/login"
@@ -148,9 +148,9 @@ const SignUp = () => {
 
         {/* Divider */}
         <div className="flex items-center my-2">
-          <hr className="flex-grow border-gray-600" />
-          <span className="mx-2 text-gray-400 text-lg">or</span>
-          <hr className="flex-grow border-gray-600" />
+          <hr className="flex-grow border-accentBG theme-transition" />
+          <span className="mx-2 text-textsecondary text-lg theme-transition">or</span>
+          <hr className="flex-grow border-accentBG theme-transition" />
         </div>
 
         <Button

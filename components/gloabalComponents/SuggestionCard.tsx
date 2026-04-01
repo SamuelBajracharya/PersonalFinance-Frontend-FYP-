@@ -15,7 +15,7 @@ export function SuggestionCard({ title, message }: SuggestionProps) {
             {title}
           </p>
         </div>
-        <p className="text-gray-300 text-md leading-snug">{message}</p>
+        <p className="text-textsecondary text-md leading-snug">{message}</p>
       </div>
     </div>
   );

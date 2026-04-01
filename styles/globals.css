@@ -64,6 +64,39 @@
   --bg-secondaryBG: var(--color-secondaryBG);
 }
 
+:root {
+  --theme-transition-duration: 180ms;
+  --theme-transition-easing: ease-in-out;
+}
+
+.theme-transition {
+  transition:
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing),
+    border-color var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+/* Keep core shells smooth during dark/light switch */
+body,
+.ant-layout,
+.ant-layout-content,
+.ant-layout-sider {
+  transition:
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing),
+    border-color var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-transition,
+  body,
+  .ant-layout,
+  .ant-layout-content,
+  .ant-layout-sider {
+    transition: none !important;
+  }
+}
+
 /* Light mode button/readability rules */
 [data-theme="light"]
   :is(button, a, [role="button"], .ant-btn)[class*="bg-primary"],
@@ -84,6 +117,11 @@ body,
 .ant-layout,
 .ant-menu {
   font-family: "Poppins", sans-serif;
+}
+
+button,
+.ant-btn {
+  cursor: pointer;
 }
 
 /* Ant Design dark table overrides */

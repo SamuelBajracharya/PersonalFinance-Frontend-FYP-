@@ -44,36 +44,38 @@ export default function VerificationSuccessPage({ params }: PageProps) {
   const content = successMap[purpose] ?? successMap.account_verification;
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-4 text-center relative pt-20">
+    <main className="min-h-screen flex flex-col items-center px-4 text-center relative pt-20 bg-mainBG text-textmain theme-transition">
       {/* Logo */}
       <div className="absolute top-6 left-6">
         <Logo width={240} />
       </div>
 
-      {/* Success Icon */}
-      <div className="mb-6">
-        <div className="size-28 rounded-full bg-emerald-500 flex items-center justify-center">
-          <FaCheck className="text-7xl text-white" />
+      <div className="w-full max-w-2xl mt-14 rounded-3xl bg-secondaryBG border border-accentBG shadow-2xl px-6 py-12 md:px-10 theme-transition">
+        {/* Success Icon */}
+        <div className="mb-6 flex justify-center">
+          <div className="size-28 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg theme-transition">
+            <FaCheck className="text-7xl text-white" />
+          </div>
         </div>
+
+        {/* Heading */}
+        <h1 className="text-3xl md:text-4xl font-semibold text-amber-400 mb-4 tracking-wide">
+          {content.title}
+        </h1>
+
+        {/* Description */}
+        <p className="text-textsecondary max-w-lg mx-auto mb-14 leading-relaxed text-xl theme-transition">
+          {content.description}
+        </p>
+
+        {/* CTA */}
+        <button
+          onClick={() => router.push(content.redirect)}
+          className="bg-primary hover:bg-primary/80 text-white font-medium text-xl px-30 py-3 rounded-full theme-transition shadow-md cursor-pointer"
+        >
+          Continue
+        </button>
       </div>
-
-      {/* Heading */}
-      <h1 className="text-3xl md:text-4xl font-semibold text-amber-400 mb-4 tracking-wide">
-        {content.title}
-      </h1>
-
-      {/* Description */}
-      <p className="text-gray-300 max-w-lg mb-14 leading-relaxed text-xl">
-        {content.description}
-      </p>
-
-      {/* CTA */}
-      <button
-        onClick={() => router.push(content.redirect)}
-        className="bg-primary hover:bg-primary/80 font-medium text-xl px-30 py-3 rounded-full transition-all duration-200 shadow-md cursor-pointer"
-      >
-        Continue
-      </button>
     </main>
   );
 }

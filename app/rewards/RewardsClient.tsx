@@ -28,6 +28,31 @@ import Link from "next/link";
 
 const SEEN_VOUCHERS_KEY = "seen_voucher_ids";
 
+const formatRecentActivityTime = (rawDate?: string) => {
+  if (!rawDate) return "-";
+
+  // Try native Date parse first (covers ISO strings with timezone).
+  let parsed = new Date(rawDate);
+
+  // Fallback to dayjs for non-ISO backend formats.
+  if (Number.isNaN(parsed.getTime())) {
+    const dayjsDate = dayjs(rawDate);
+    if (dayjsDate.isValid()) {
+      parsed = dayjsDate.toDate();
+    }
+  }
+
+  if (Number.isNaN(parsed.getTime())) return rawDate;
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(parsed);
+};
+
 export default function Rewards() {
   const messageApi = useAntdMessage();
   const { openVoucherOverlay } = useVouchersOverlay();
@@ -364,7 +389,9 @@ export default function Rewards() {
                   <RecentActivityItem
                     key={`${activity.reward_id}-${index}`}
                     title={activity.name}
-                    time={new Date(activity.unlocked_at).toLocaleString()}
+                    time={formatRecentActivityTime(
+                      activity.occurred_at ?? activity.unlocked_at,
+                    )}
                     xp={activity.xp_gained}
                   />
                 ))}

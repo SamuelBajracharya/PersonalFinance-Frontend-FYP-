@@ -32,7 +32,8 @@ export interface RecentReward {
   reward_id: string;
   name: string;
   xp_gained: number;
-  unlocked_at: string;
+  occurred_at?: string;
+  unlocked_at?: string;
 }
 
 export const fetchRecentRewardActivityAPI = async (
