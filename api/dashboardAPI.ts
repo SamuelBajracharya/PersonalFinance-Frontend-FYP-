@@ -1,6 +1,6 @@
 import { baseInstance } from "./axiosInstance";
 
-export const fetchDashboardAPI = async (externalAccountId: string) => {
-  const response = await baseInstance.get(`/dashboard/${externalAccountId}`);
+export const fetchDashboardAPI = async () => {
+  const response = await baseInstance.get("/dashboard");
   return response.data;
 };

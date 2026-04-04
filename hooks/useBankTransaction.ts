@@ -6,7 +6,6 @@ import {
   loginToBank,
   getBankAccounts,
   createTransaction,
-  BankLoginSyncResponse,
   BankAccount,
   Transaction,
   unlinkBankAccounts,
@@ -14,33 +13,23 @@ import {
   getNabilBankTransactions,
   getNabilBankAccount,
 } from "@/api/transactionAPI";
-import { useNabilAccountStore } from "@/stores/useNabilAccountStore";
 import { queryKeys } from "@/lib/queryKeys";
 
 // login to bank
 export const useLoginToBank = () => {
   const queryClient = useQueryClient();
-  const setNabilAccountId = useNabilAccountStore(
-    (state) => state.setNabilAccountId,
-  );
 
   return useMutation({
     mutationFn: (data: { username: string; password: string }) =>
       loginToBank(data.username, data.password),
 
-    onSuccess: (response: BankLoginSyncResponse) => {
+    onSuccess: (response) => {
       localStorage.setItem("isBankLinked", "true");
 
       // Store bank_token in cookie
       if (response.bank_token) {
         Cookies.set("bank_token", response.bank_token, { expires: 7, secure: true, sameSite: "strict" });
       }
-
-      const nabilAccount = response.synced_accounts?.find((account) =>
-        account.bank_name.toLowerCase().includes("nabil"),
-      );
-
-      setNabilAccountId(nabilAccount?.account_id ?? null);
 
       queryClient.invalidateQueries({ queryKey: queryKeys.bank.accounts });
       queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilAccount });
@@ -55,15 +44,11 @@ export const useLoginToBank = () => {
 // unlinks bank account
 export const useUnlinkBankAccounts = () => {
   const queryClient = useQueryClient();
-  const clearNabilAccountId = useNabilAccountStore(
-    (state) => state.clearNabilAccountId,
-  );
 
   return useMutation({
     mutationFn: unlinkBankAccounts,
     onSuccess: () => {
       localStorage.setItem("isBankLinked", "false");
-      clearNabilAccountId();
 
       queryClient.invalidateQueries({ queryKey: queryKeys.bank.accounts });
       queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilAccount });
@@ -78,15 +63,10 @@ export const useUnlinkBankAccounts = () => {
 // deletes all the users bank data
 export const useDeleteUserTransactionData = () => {
   const queryClient = useQueryClient();
-  const clearNabilAccountId = useNabilAccountStore(
-    (state) => state.clearNabilAccountId,
-  );
 
   return useMutation({
     mutationFn: deleteUserTransactionData,
     onSuccess: () => {
-      clearNabilAccountId();
-
       queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilTransactions });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });

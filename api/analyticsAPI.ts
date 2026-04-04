@@ -3,7 +3,6 @@ import { AnalyticsResponse } from "@/types/analytics";
 import { AxiosRequestConfig } from "axios";
 
 type AnalyticsPayload = {
-  accountId: string;
   startDate?: string;
   endDate?: string;
 };
@@ -12,9 +11,9 @@ export const fetchAnalyticsAPI = async (
   payload: AnalyticsPayload,
   config?: AxiosRequestConfig
 ) => {
-  const { accountId, startDate, endDate } = payload;
+  const { startDate, endDate } = payload;
   const response = await baseInstance.get<AnalyticsResponse>(
-    `/analytics/${accountId}`,
+    "/analytics",
     {
       ...config,
       params: {

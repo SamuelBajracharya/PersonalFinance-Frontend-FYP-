@@ -1,9 +1,8 @@
 export const queryKeys = {
     analytics: (
-        accountId?: string | null,
         startDate?: string,
         endDate?: string,
-    ) => ["analytics", accountId ?? null, startDate ?? null, endDate ?? null] as const,
+    ) => ["analytics", startDate ?? null, endDate ?? null] as const,
     stockPredictions: (params: {
         instrument?: string;
         horizon_days?: number;

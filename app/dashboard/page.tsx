@@ -18,7 +18,6 @@ import DashboardStockPrediction from "@/components/gloabalComponents/DashboardSt
 import DashboardAIAssistant from "@/components/gloabalComponents/DashboardAIAssistant";
 import { useFetchDashboard } from "@/hooks/useDashboard";
 import { useBankOverlay } from "@/stores/useBankOverlay";
-import { useNabilAccountStore } from "@/stores/useNabilAccountStore";
 import { useTourStore } from "@/stores/useTour";
 
 type Period = "weekly" | "monthly" | "yearly";
@@ -104,7 +103,6 @@ export default function Dashboard() {
     initialize: initializeTour,
     setDashboardTour,
   } = useTourStore();
-  const nabilAccountId = useNabilAccountStore((state) => state.nabilAccountId);
 
   const statsRef = useRef<HTMLDivElement>(null);
   const recentTransactionsRef = useRef<HTMLDivElement>(null);
@@ -128,10 +126,10 @@ export default function Dashboard() {
   }, [initializeTour]);
 
   useEffect(() => {
-    if (isBankLinked && nabilAccountId) {
-      fetchDashboard(nabilAccountId);
+    if (isBankLinked) {
+      fetchDashboard();
     }
-  }, [isBankLinked, nabilAccountId, fetchDashboard]);
+  }, [isBankLinked, fetchDashboard]);
 
   const summary = dashboardData.summary;
   const yearlySeries = dashboardData.yearlyLineSeries ?? [];

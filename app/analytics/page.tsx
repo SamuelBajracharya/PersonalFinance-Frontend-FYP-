@@ -17,7 +17,6 @@ import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 import LinkAccountOverlay from "@/components/gloabalComponents/LinkAccountOverlay";
 import { useFetchAnalytics } from "@/hooks/useAnalytics";
 import { useBankOverlay } from "@/stores/useBankOverlay";
-import { useNabilAccountStore } from "@/stores/useNabilAccountStore";
 import { useTourStore } from "@/stores/useTour";
 import {
     AnalyticsPiePoint,
@@ -308,7 +307,6 @@ export default function AnalyticsPage() {
         initialize: initializeTour,
         setAnalyticsTour,
     } = useTourStore();
-    const nabilAccountId = useNabilAccountStore((state) => state.nabilAccountId);
 
     useEffect(() => {
         initialize();
@@ -341,7 +339,6 @@ export default function AnalyticsPage() {
     }, []);
 
     const analyticsQuery = useFetchAnalytics({
-        accountId: nabilAccountId,
         startDate: currentRange?.startDate,
         endDate: currentRange?.endDate,
         enabled: isBankLinked,
@@ -948,7 +945,6 @@ export default function AnalyticsPage() {
         isAnalyticsTour &&
         isInitialized &&
         isBankLinked &&
-        Boolean(nabilAccountId) &&
         !showInitialSkeletons;
 
     const resolveTarget = (element: HTMLElement | null): HTMLElement =>
@@ -1059,7 +1055,7 @@ export default function AnalyticsPage() {
         );
     }
 
-    if (!isBankLinked || !nabilAccountId) {
+    if (!isBankLinked) {
         return (
             <div className="min-h-screen p-4 md:p-6">
                 <div className="rounded-2xl bg-secondaryBG p-6 md:p-8 border border-white/10">
