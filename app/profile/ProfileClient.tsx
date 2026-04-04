@@ -12,7 +12,7 @@ import StatCard from "@/components/gloabalComponents/StatCards";
 import AchievementCard from "@/components/gloabalComponents/AchievementCard";
 import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
 import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
-import { useCurrentUser } from "@/hooks/useAuth";
+import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 import { useMyUnlockedRewards } from "@/hooks/useRewards";
 
 import Link from "next/link";
@@ -49,6 +49,7 @@ export default function Profile() {
 
   const unlinkMutation = useUnlinkBankAccounts();
   const deleteDataMutation = useDeleteUserTransactionData();
+  const logoutMutation = useLogout();
 
   const {
     isUnlinkAccountConfirmationOpen,
@@ -224,6 +225,15 @@ export default function Profile() {
 
       {/* Delete Data */}
       <div className="mt-20">
+        <Button
+          type="link"
+          loading={logoutMutation.isPending}
+          onClick={() => logoutMutation.mutate()}
+          className="!text-primary no-underline !text-2xl !flex !flex-row !items-center !justify-center"
+        >
+          Logout
+        </Button>
+
         <Button
           type="link"
           loading={deleteDataMutation.isPending}

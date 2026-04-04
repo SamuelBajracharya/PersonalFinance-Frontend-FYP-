@@ -81,6 +81,7 @@ export default function BudgetGoals() {
     const leftHeaderRef = useRef<HTMLDivElement | null>(null);
     const createBudgetButtonRef = useRef<HTMLButtonElement | null>(null);
     const budgetListRef = useRef<HTMLDivElement | null>(null);
+    const firstBudgetCardRef = useRef<HTMLDivElement | null>(null);
     const smartSuggestionsRef = useRef<HTMLElement | null>(null);
     const pacePredictionRef = useRef<HTMLElement | null>(null);
     const adaptiveGoalRef = useRef<HTMLElement | null>(null);
@@ -204,54 +205,57 @@ export default function BudgetGoals() {
     const showInitialSkeletons = isStatusesLoading && statuses.length === 0;
     const shouldOpenBudgetGoalsTour = isBudgetGoalsTour && !showInitialSkeletons;
 
+    const resolveTarget = (element: HTMLElement | null): HTMLElement =>
+        element ?? document.body;
+
     const budgetGoalsTourSteps = [
         {
             title: "Create New Budget Goal",
             description:
                 "Start here to create a category budget goal and begin tracking spending progress.",
-            target: createBudgetButtonRef.current ?? undefined,
+            target: () => resolveTarget(createBudgetButtonRef.current),
         },
         {
             title: "Your Budget Goals",
             description:
                 "This list shows all your goals. Select one to load its details, status, and AI insights.",
-            target: budgetListRef.current ?? undefined,
+            target: () => resolveTarget(firstBudgetCardRef.current || budgetListRef.current),
         },
         {
             title: "Smart Suggestions",
             description:
                 "AI-generated recommendations for your selected goal, including estimated savings opportunities.",
-            target: smartSuggestionsRef.current ?? undefined,
+            target: () => resolveTarget(smartSuggestionsRef.current),
         },
         {
             title: "Pace & Prediction",
             description:
                 "Compare your current pace with projected spend to understand if you might exceed the budget.",
-            target: pacePredictionRef.current ?? undefined,
+            target: () => resolveTarget(pacePredictionRef.current),
         },
         {
             title: "Adaptive Goal",
             description:
                 "See AI-recommended budget adjustments and the reason behind each suggestion.",
-            target: adaptiveGoalRef.current ?? undefined,
+            target: () => resolveTarget(adaptiveGoalRef.current),
         },
         {
             title: "What-if Simulator",
             description:
                 "Test possible reductions and cuts before committing, then compare projected outcomes.",
-            target: simulatorRef.current ?? undefined,
+            target: () => resolveTarget(simulatorRef.current),
         },
         {
             title: "Spending Chart",
             description:
                 "Track weekly spending behavior for the selected category to spot recurring patterns.",
-            target: spendingChartRef.current ?? undefined,
+            target: () => resolveTarget(spendingChartRef.current),
         },
         {
             title: "Period Review",
             description:
                 "Review final period performance, achievement status, and recommended next budget.",
-            target: periodReviewRef.current ?? undefined,
+            target: () => resolveTarget(periodReviewRef.current),
         },
     ];
 
@@ -325,13 +329,14 @@ export default function BudgetGoals() {
                         )}
 
                         {!showInitialSkeletons &&
-                            statuses.map((status) => {
+                            statuses.map((status, index) => {
                                 const progress = clamp(Number(status.progress_percent || 0), 0, 100);
                                 const isActive = status.budget_id === selectedBudgetId;
 
                                 return (
                                     <div
                                         key={status.budget_id}
+                                        ref={index === 0 ? firstBudgetCardRef : null}
                                         onClick={() => setSelectedBudgetId(status.budget_id)}
                                         role="button"
                                         tabIndex={0}

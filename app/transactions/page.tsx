@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { Select } from "antd";
-import { Table } from "antd";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Select, Table, Tour } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { FaEyeSlash, FaRedoAlt } from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -22,9 +21,22 @@ import {
 } from "@/hooks/useBankTransaction";
 import { useBankSync } from "@/hooks/useBankSync";
 import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
+import { useTourStore } from "@/stores/useTour";
 
 const Transactions: React.FC = () => {
   const { isOpen, isBankLinked, isInitialized, open, initialize } = useBankOverlay();
+  const {
+    isTransactionsLinkTour,
+    isTransactionsFeatureTour,
+    initialize: initializeTour,
+    setTransactionsLinkTour,
+    setTransactionsFeatureTour,
+  } = useTourStore();
+
+  const bankCardRef = useRef<HTMLDivElement>(null);
+  const createTransactionRef = useRef<HTMLButtonElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   // Year and category selectors
   const [selectedYear, setSelectedYear] = useState<string>("all");
@@ -35,6 +47,21 @@ const Transactions: React.FC = () => {
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  useEffect(() => {
+    initializeTour();
+  }, [initializeTour]);
+
+  useEffect(() => {
+    if (isInitialized && isBankLinked && isTransactionsLinkTour) {
+      setTransactionsLinkTour(false);
+    }
+  }, [
+    isInitialized,
+    isBankLinked,
+    isTransactionsLinkTour,
+    setTransactionsLinkTour,
+  ]);
 
   const {
     data: account,
@@ -86,6 +113,44 @@ const Transactions: React.FC = () => {
     showLoadingOverlay &&
     !isError &&
     (!account || !transactions);
+
+  const shouldOpenLinkTour =
+    isInitialized && isTransactionsLinkTour && !isBankLinked && !isOpen;
+  const shouldOpenFeatureTour =
+    isTransactionsFeatureTour && isBankLinked && !showInitialSkeletons;
+
+  const resolveTarget = (element: HTMLElement | null): HTMLElement =>
+    element ?? document.body;
+
+  const mandatoryLinkStep = [
+    {
+      title: "Link Your Bank Account (Required)",
+      description:
+        "Before using transactions features, you must link your bank account from this card.",
+      target: () => resolveTarget(bankCardRef.current),
+    },
+  ];
+
+  const transactionsFeatureSteps = [
+    {
+      title: "Create New Transaction",
+      description:
+        "Use this button to add a manual transaction to your records.",
+      target: () => resolveTarget(createTransactionRef.current),
+    },
+    {
+      title: "Table Filters",
+      description:
+        "Filter transactions by year, category, and search terms to find entries quickly.",
+      target: () => resolveTarget(filtersRef.current),
+    },
+    {
+      title: "Transaction Table",
+      description:
+        "Review your transactions with details like merchant, amount, date, type, and category.",
+      target: () => resolveTarget(tableRef.current),
+    },
+  ];
 
   const columns: ColumnsType<Transaction> = [
     {
@@ -179,7 +244,7 @@ const Transactions: React.FC = () => {
 
       <div className="flex w-full gap-6 mb-6">
         {showInitialSkeletons ? (
-          <div className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col flex-grow justify-between animate-pulse">
+          <div ref={bankCardRef} className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col flex-grow justify-between animate-pulse">
             <div>
               <SkeletonBlock className="h-7 w-52 mb-3" />
               <SkeletonBlock className="h-6 w-64" />
@@ -194,7 +259,7 @@ const Transactions: React.FC = () => {
             </div>
           </div>
         ) : !isInitialized ? (
-          <div className="flex-grow bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col justify-between">
+          <div ref={bankCardRef} className="flex-grow bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col justify-between">
             <div>
               <p className="text-primary text-3xl font-semibold mb-2">
                 Account Status
@@ -213,7 +278,7 @@ const Transactions: React.FC = () => {
             </div>
           </div>
         ) : !isBankLinked ? (
-          <div className="flex-grow bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col justify-between">
+          <div ref={bankCardRef} className="flex-grow bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col justify-between">
             <div>
               <p className="text-primary text-3xl font-semibold mb-2">
                 Link Account
@@ -232,7 +297,7 @@ const Transactions: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col flex-grow justify-between">
+          <div ref={bankCardRef} className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col flex-grow justify-between">
             <div>
               <p className="text-textsecondary text-2xl tracking-widest mb-1">
                 {account?.account_number_masked}
@@ -297,6 +362,7 @@ const Transactions: React.FC = () => {
               </div>
 
               <button
+                ref={createTransactionRef}
                 className="bg-primary hover:bg-primary transition font-medium text-lg py-3 rounded-full flex items-center justify-center gap-2 !text-white cursor-pointer"
                 onClick={openCreateManualTransactions}
               >
@@ -309,7 +375,7 @@ const Transactions: React.FC = () => {
 
       <div className="bg-secondaryBG rounded-2xl p-6">
         {/* Filters above the table */}
-        <div className="flex flex-col gap-8 bg-transparent rounded-xl px-4 pt-3 justify-between">
+        <div ref={filtersRef} className="flex flex-col gap-8 bg-transparent rounded-xl px-4 pt-3 justify-between">
           <div className="flex flex-row justify-between items-center">
             <div className="flex items-center gap-8">
               <div className="flex items-center gap-4">
@@ -368,18 +434,47 @@ const Transactions: React.FC = () => {
               <SkeletonBlock className="h-10 mt-4 rounded-lg" />
             </div>
           ) : (
-            <Table
-              columns={columns}
-              dataSource={
-                isBankLinked ? filteredTransactions.map((t) => ({ key: t.id, ...t })) : []
-              }
-              pagination={{ pageSize: 5, showSizeChanger: false }}
-              className="custom-table"
-            />
+            <div ref={tableRef}>
+              <Table
+                columns={columns}
+                dataSource={
+                  isBankLinked ? filteredTransactions.map((t) => ({ key: t.id, ...t })) : []
+                }
+                pagination={{ pageSize: 5, showSizeChanger: false }}
+                className="custom-table"
+              />
+            </div>
           )}
         </div>
 
         <LoadingOverlay show={showLoadingOverlay} />
+
+        <Tour
+          open={shouldOpenLinkTour}
+          onClose={() => {
+            open();
+          }}
+          onFinish={() => {
+            if (!isBankLinked) {
+              open();
+              return;
+            }
+            setTransactionsLinkTour(false);
+          }}
+          steps={mandatoryLinkStep}
+          closable={false}
+          zIndex={24354654}
+          rootClassName="!z-[24354654]"
+        />
+
+        <Tour
+          open={shouldOpenFeatureTour}
+          onClose={() => setTransactionsFeatureTour(false)}
+          onFinish={() => setTransactionsFeatureTour(false)}
+          steps={transactionsFeatureSteps}
+          zIndex={24354654}
+          rootClassName="!z-[24354654]"
+        />
 
         {isOpen && <LinkAccountOverlay />}
         {createManualTransactions && <ManualTransactionCreateOverlay />}
