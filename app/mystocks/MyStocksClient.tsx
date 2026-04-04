@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AxiosError } from "axios";
+import { Tour } from "antd";
 import { HiChartBar, HiTrendingDown, HiTrendingUp } from "react-icons/hi";
 import { FaCoins } from "react-icons/fa";
 import StockInstrumentCard from "@/components/gloabalComponents/StockInstrumentCard";
@@ -10,6 +11,7 @@ import StockPredictionChart from "@/components/gloabalComponents/StockPrediction
 import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
 import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 import { useStockPredictions } from "@/hooks/useStockPrediction";
+import { useTourStore } from "@/stores/useTour";
 
 type RangeFilter = "1W" | "1M" | "3M" | "1Y";
 
@@ -28,6 +30,20 @@ const getCurrencySymbol = (currency?: string) =>
 export default function MyStocksPage() {
     const [range, setRange] = useState<RangeFilter>("1M");
     const [selectedInstrument, setSelectedInstrument] = useState<string | null>(null);
+    const {
+        isMyStocksTour,
+        initialize: initializeTour,
+        setMyStocksTour,
+    } = useTourStore();
+
+    const rangeRef = useRef<HTMLDivElement | null>(null);
+    const instrumentsRef = useRef<HTMLDivElement | null>(null);
+    const predictionHeaderRef = useRef<HTMLDivElement | null>(null);
+    const predictionChartRef = useRef<HTMLDivElement | null>(null);
+    const portfolioValueRef = useRef<HTMLDivElement | null>(null);
+    const activeStocksRef = useRef<HTMLDivElement | null>(null);
+    const gainersRef = useRef<HTMLDivElement | null>(null);
+    const losersRef = useRef<HTMLDivElement | null>(null);
 
     const { data: predictions = [], isLoading, isFetching, isError, error } = useStockPredictions({
         horizon_days: rangeToHorizon[range],
@@ -52,6 +68,10 @@ export default function MyStocksPage() {
             }),
         [predictions],
     );
+
+    useEffect(() => {
+        initializeTour();
+    }, [initializeTour]);
 
     useEffect(() => {
         if (!instruments.length) {
@@ -99,6 +119,61 @@ export default function MyStocksPage() {
                 : "Failed to load stock predictions.";
 
     const showInitialSkeletons = isFetching && !isError && instruments.length === 0;
+    const shouldOpenMyStocksTour = isMyStocksTour && !showInitialSkeletons;
+
+    const resolveTarget = (element: HTMLElement | null): HTMLElement =>
+        element ?? document.body;
+
+    const myStocksTourSteps = [
+        {
+            title: "Time Horizon",
+            description:
+                "Switch between 1W, 1M, 3M, and 1Y to change stock prediction horizon.",
+            target: () => resolveTarget(rangeRef.current),
+        },
+        {
+            title: "Instruments",
+            description:
+                "Pick any synced instrument card to update the prediction chart and metrics.",
+            target: () => resolveTarget(instrumentsRef.current),
+        },
+        {
+            title: "Prediction Overview",
+            description:
+                "This section shows the selected symbol, current price, and projected return.",
+            target: () => resolveTarget(predictionHeaderRef.current),
+        },
+        {
+            title: "Prediction Chart",
+            description:
+                "Visual comparison of historical prices and AI forecast for the selected horizon.",
+            target: () => resolveTarget(predictionChartRef.current),
+        },
+        {
+            title: "Portfolio Value",
+            description:
+                "Total current value of your tracked stock holdings.",
+            target: () => resolveTarget(portfolioValueRef.current),
+        },
+        {
+            title: "Active Stocks",
+            description:
+                "Count of instruments currently included in your stock prediction view.",
+            target: () => resolveTarget(activeStocksRef.current),
+        },
+        {
+            title: "Gainers",
+            description:
+                "Number of stocks with positive expected return.",
+            target: () => resolveTarget(gainersRef.current),
+        },
+        {
+            title: "Losers",
+            description:
+                "Number of stocks with negative expected return.",
+            target: () => resolveTarget(losersRef.current),
+        },
+    ];
 
     return (
         <div className="min-h-screen p-6 grid grid-cols-12 gap-6 relative">
@@ -106,7 +181,7 @@ export default function MyStocksPage() {
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-medium">My Instruments</h1>
 
-                    <div className="bg-secondaryBG rounded-lg p-1 flex items-center gap-1">
+                    <div ref={rangeRef} className="bg-secondaryBG rounded-lg p-1 flex items-center gap-1">
                         {rangeOptions.map((option) => (
                             <button
                                 key={option}
@@ -130,7 +205,7 @@ export default function MyStocksPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="flex gap-4 overflow-x-auto pb-2">
+                    <div ref={instrumentsRef} className="flex gap-4 overflow-x-auto pb-2">
                         {instruments.map((item, index) => (
                             <StockInstrumentCard
                                 key={item.symbol}
@@ -184,7 +259,7 @@ export default function MyStocksPage() {
                         </>
                     ) : (
                         <>
-                            <div className="flex items-center justify-between">
+                            <div ref={predictionHeaderRef} className="flex items-center justify-between">
                                 <div>
                                     <p className="text-2xl font-medium">Price Prediction</p>
                                     <p className="text-textsecondary mt-1">
@@ -213,7 +288,7 @@ export default function MyStocksPage() {
                         </>
                     )}
 
-                    <div className="mt-6 flex-1 rounded-xl bg-highlight border border-accentBG p-2">
+                    <div ref={predictionChartRef} className="mt-6 flex-1 rounded-xl bg-highlight border border-accentBG p-2">
                         {showInitialSkeletons ? (
                             <SkeletonBlock className="h-full w-full rounded-xl" />
                         ) : (
@@ -233,42 +308,58 @@ export default function MyStocksPage() {
                     ))
                 ) : (
                     <>
-                        <StockSummaryCard
-                            title="Portfolio Value"
-                            value={summary.portfolioValue}
-                            currencySymbol={portfolioCurrencySymbol}
-                            tone="primary"
-                            icon={<FaCoins className="size-6 text-primary" />}
-                        />
+                        <div ref={portfolioValueRef}>
+                            <StockSummaryCard
+                                title="Portfolio Value"
+                                value={summary.portfolioValue}
+                                currencySymbol={portfolioCurrencySymbol}
+                                tone="primary"
+                                icon={<FaCoins className="size-6 text-primary" />}
+                            />
+                        </div>
 
-                        <StockSummaryCard
-                            title="Active Stocks"
-                            value={summary.activeStocks}
-                            format="count"
-                            tone="accent"
-                            icon={<HiChartBar className="size-6 text-accent" />}
-                        />
+                        <div ref={activeStocksRef}>
+                            <StockSummaryCard
+                                title="Active Stocks"
+                                value={summary.activeStocks}
+                                format="count"
+                                tone="accent"
+                                icon={<HiChartBar className="size-6 text-accent" />}
+                            />
+                        </div>
 
-                        <StockSummaryCard
-                            title="Gainers"
-                            value={summary.gainers}
-                            format="count"
-                            tone="income"
-                            icon={<HiTrendingUp className="size-6 text-income" />}
-                        />
+                        <div ref={gainersRef}>
+                            <StockSummaryCard
+                                title="Gainers"
+                                value={summary.gainers}
+                                format="count"
+                                tone="income"
+                                icon={<HiTrendingUp className="size-6 text-income" />}
+                            />
+                        </div>
 
-                        <StockSummaryCard
-                            title="Losers"
-                            value={summary.losers}
-                            format="count"
-                            tone="expense"
-                            icon={<HiTrendingDown className="size-6 text-expense" />}
-                        />
+                        <div ref={losersRef}>
+                            <StockSummaryCard
+                                title="Losers"
+                                value={summary.losers}
+                                format="count"
+                                tone="expense"
+                                icon={<HiTrendingDown className="size-6 text-expense" />}
+                            />
+                        </div>
                     </>
                 )}
             </aside>
 
             <LoadingOverlay show={isFetching} />
+            <Tour
+                open={shouldOpenMyStocksTour}
+                onClose={() => setMyStocksTour(false)}
+                onFinish={() => setMyStocksTour(false)}
+                steps={myStocksTourSteps}
+                zIndex={24354654}
+                rootClassName="!z-[24354654]"
+            />
         </div>
     );
 }

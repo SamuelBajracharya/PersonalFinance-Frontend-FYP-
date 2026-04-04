@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Button, Select, message } from "antd";
+import { Button, Select, Tour, message } from "antd";
 import { FaExchangeAlt, FaBalanceScale } from "react-icons/fa";
 import { AiOutlineTransaction } from "react-icons/ai";
 import Image from "next/image";
@@ -18,6 +18,7 @@ import LinkAccountOverlay from "@/components/gloabalComponents/LinkAccountOverla
 import { useFetchAnalytics } from "@/hooks/useAnalytics";
 import { useBankOverlay } from "@/stores/useBankOverlay";
 import { useNabilAccountStore } from "@/stores/useNabilAccountStore";
+import { useTourStore } from "@/stores/useTour";
 import {
     AnalyticsPiePoint,
     AnalyticsBarPoint,
@@ -286,16 +287,36 @@ type PdfDoc = {
 export default function AnalyticsPage() {
     const router = useRouter();
     const chartsExportRef = useRef<HTMLDivElement | null>(null);
+    const timeHorizonRef = useRef<HTMLDivElement | null>(null);
+    const downloadActionsRef = useRef<HTMLDivElement | null>(null);
+    const transactionChartRef = useRef<HTMLDivElement | null>(null);
+    const balanceChartRef = useRef<HTMLDivElement | null>(null);
+    const cashflowChartRef = useRef<HTMLDivElement | null>(null);
+    const expenseChartRef = useRef<HTMLDivElement | null>(null);
+    const incomeChartRef = useRef<HTMLDivElement | null>(null);
+    const advisorSavingsRef = useRef<HTMLDivElement | null>(null);
+    const advisorGaugeRef = useRef<HTMLDivElement | null>(null);
+    const advisorDiscretionaryRef = useRef<HTMLDivElement | null>(null);
+    const advisorMomRef = useRef<HTMLDivElement | null>(null);
     const [messageApi, contextHolder] = message.useMessage();
     const [selectedPreset, setSelectedPreset] = useState<PresetKey>("1y");
     const [selectedYear, setSelectedYear] = useState<YearFilter>("all");
 
     const { isOpen, isBankLinked, isInitialized, open, initialize } = useBankOverlay();
+    const {
+        isAnalyticsTour,
+        initialize: initializeTour,
+        setAnalyticsTour,
+    } = useTourStore();
     const nabilAccountId = useNabilAccountStore((state) => state.nabilAccountId);
 
     useEffect(() => {
         initialize();
     }, [initialize]);
+
+    useEffect(() => {
+        initializeTour();
+    }, [initializeTour]);
 
     const currentRange = useMemo(() => {
         if (selectedYear === "all") {
@@ -923,6 +944,84 @@ export default function AnalyticsPage() {
     const showLoadingOverlay = analyticsQuery.isFetching;
     const showInitialSkeletons = analyticsQuery.isLoading && !analyticsQuery.data;
     const hasAnyData = hasAnyPoints(api);
+    const shouldOpenAnalyticsTour =
+        isAnalyticsTour &&
+        isInitialized &&
+        isBankLinked &&
+        Boolean(nabilAccountId) &&
+        !showInitialSkeletons;
+
+    const resolveTarget = (element: HTMLElement | null): HTMLElement =>
+        element ?? document.body;
+
+    const analyticsTourSteps = [
+        {
+            title: "Time Horizon",
+            description:
+                "Use these controls to switch horizon presets and year filters before analyzing your charts.",
+            target: () => resolveTarget(timeHorizonRef.current),
+        },
+        {
+            title: "Download & Actions",
+            description:
+                "Export analytics as CSV/PDF, refresh data, or reset filters from this action group.",
+            target: () => resolveTarget(downloadActionsRef.current),
+        },
+        {
+            title: "Transaction Summary Chart",
+            description:
+                "This bar chart summarizes transaction volume for the selected period.",
+            target: () => resolveTarget(transactionChartRef.current),
+        },
+        {
+            title: "Balance Summary Chart",
+            description:
+                "Track balance movement over time for your active horizon.",
+            target: () => resolveTarget(balanceChartRef.current),
+        },
+        {
+            title: "Cashflow Chart",
+            description:
+                "Compare income and expense flow trends across the selected range.",
+            target: () => resolveTarget(cashflowChartRef.current),
+        },
+        {
+            title: "Expense Category Chart",
+            description:
+                "See how total spending is distributed by expense categories.",
+            target: () => resolveTarget(expenseChartRef.current),
+        },
+        {
+            title: "Income Category Chart",
+            description:
+                "See income distribution by source category.",
+            target: () => resolveTarget(incomeChartRef.current),
+        },
+        {
+            title: "Savings Rate Trend",
+            description:
+                "Advisor trend view showing how your savings rate changes over time.",
+            target: () => resolveTarget(advisorSavingsRef.current),
+        },
+        {
+            title: "Expense-to-Income Ratio",
+            description:
+                "Gauge that highlights spending pressure versus income.",
+            target: () => resolveTarget(advisorGaugeRef.current),
+        },
+        {
+            title: "Discretionary Split",
+            description:
+                "Breakdown of discretionary and non-discretionary spending behavior.",
+            target: () => resolveTarget(advisorDiscretionaryRef.current),
+        },
+        {
+            title: "Month-over-Month Growth",
+            description:
+                "Monitor monthly growth drift in income and expenses.",
+            target: () => resolveTarget(advisorMomRef.current),
+        },
+    ];
 
     const navigateToTransactions = (params: {
         sourceType: "transaction" | "balance" | "cashflow" | "category";
@@ -988,7 +1087,7 @@ export default function AnalyticsPage() {
             {contextHolder}
             <div className="rounded-2xl bg-secondaryBG border border-white/10 p-4 md:p-5">
                 <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div ref={timeHorizonRef} className="flex flex-wrap items-center gap-2">
                         <div className="inline-flex items-center gap-1 rounded-xl bg-tableBG p-1 border border-accentBG w-fit">
                             {timeHorizonOptions.map((option) => (
                                 <button
@@ -1013,7 +1112,7 @@ export default function AnalyticsPage() {
                         />
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div ref={downloadActionsRef} className="flex flex-wrap items-center gap-2">
                         <button onClick={handleDownloadCsv} className={csvButtonClass + " cursor-pointer"} type="button">
                             Download CSV
                         </button>
@@ -1060,7 +1159,7 @@ export default function AnalyticsPage() {
                 )}
 
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <div data-export-block="transactions" className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10">
+                    <div ref={transactionChartRef} data-export-block="transactions" className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="flex items-center gap-3">
                                 <div className="size-12 rounded-xl bg-primary flex items-center justify-center">
@@ -1090,7 +1189,7 @@ export default function AnalyticsPage() {
                         </div>
                     </div>
 
-                    <div data-export-block="balance" className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10">
+                    <div ref={balanceChartRef} data-export-block="balance" className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="flex items-center gap-3">
                                 <div className="size-12 rounded-xl bg-primary flex items-center justify-center">
@@ -1121,7 +1220,7 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
 
-                <div data-export-block="cashflow" className="bg-secondaryBG rounded-2xl p-5 md:p-8 border border-white/10 space-y-4">
+                <div ref={cashflowChartRef} data-export-block="cashflow" className="bg-secondaryBG rounded-2xl p-5 md:p-8 border border-white/10 space-y-4">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="flex items-center gap-3">
                             <div className="size-12 rounded-xl bg-primary flex items-center justify-center">
@@ -1162,7 +1261,7 @@ export default function AnalyticsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
-                    <div data-export-block="expense" className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 flex flex-col lg:flex-row gap-6">
+                    <div ref={expenseChartRef} data-export-block="expense" className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 flex flex-col lg:flex-row gap-6">
                         <div className="w-full lg:w-3/5">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="size-12 rounded-xl bg-primary flex items-center justify-center">
@@ -1227,7 +1326,7 @@ export default function AnalyticsPage() {
                         </div>
                     </div>
 
-                    <div data-export-block="income" className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 flex flex-col lg:flex-row gap-6">
+                    <div ref={incomeChartRef} data-export-block="income" className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 flex flex-col lg:flex-row gap-6">
                         <div className="w-full lg:w-3/5">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="size-12 rounded-xl bg-primary flex items-center justify-center">
@@ -1302,7 +1401,7 @@ export default function AnalyticsPage() {
                     </div>
 
                     <div className="space-y-6">
-                        <div className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-2 min-w-0 overflow-hidden">
+                        <div ref={advisorSavingsRef} className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-2 min-w-0 overflow-hidden">
                             <h4 className="text-lg font-medium">1. Savings Rate Trend</h4>
                             <p className="text-sm text-textsecondary pb-2">
                                 {api.savingsRateTrend?.advisorInsight ?? "Savings insight appears when trend points are available."}
@@ -1342,7 +1441,7 @@ export default function AnalyticsPage() {
                         </div>
 
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
-                            <div className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-4 min-w-0 overflow-hidden">
+                            <div ref={advisorGaugeRef} className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-4 min-w-0 overflow-hidden">
                                 <h4 className="text-lg font-medium">2. Expense-to-Income Ratio</h4>
                                 <div data-export-chart="advisor-gauge" className="flex flex-col sm:flex-row sm:items-center gap-5">
                                     <svg width="250" height="250" viewBox="0 0 140 140" aria-label="Expense to income ratio gauge">
@@ -1377,7 +1476,7 @@ export default function AnalyticsPage() {
                                 </div>
                             </div>
 
-                            <div className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-2 min-w-0 overflow-hidden">
+                            <div ref={advisorDiscretionaryRef} className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-2 min-w-0 overflow-hidden">
                                 <h4 className="text-lg font-medium">3. Discretionary vs Non-Discretionary</h4>
                                 <p className="text-sm text-textsecondary pb-2">
                                     {api.discretionarySplit?.advisorInsight ?? "Advisor insight appears when discretionary split is available."}
@@ -1408,7 +1507,7 @@ export default function AnalyticsPage() {
                             </div>
                         </div>
 
-                        <div className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-2 min-w-0 overflow-hidden">
+                        <div ref={advisorMomRef} className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-2 min-w-0 overflow-hidden">
                             <h4 className="text-lg font-medium">4. Month-over-Month Growth</h4>
                             <p className="text-sm text-textsecondary pb-2">
                                 Tracks spending and income drift to catch lifestyle creep early.
@@ -1428,6 +1527,14 @@ export default function AnalyticsPage() {
             </div>
 
             <LoadingOverlay show={showLoadingOverlay} />
+            <Tour
+                open={shouldOpenAnalyticsTour}
+                onClose={() => setAnalyticsTour(false)}
+                onFinish={() => setAnalyticsTour(false)}
+                steps={analyticsTourSteps}
+                zIndex={24354654}
+                rootClassName="!z-[24354654]"
+            />
             {isOpen && <LinkAccountOverlay />}
         </div>
     );

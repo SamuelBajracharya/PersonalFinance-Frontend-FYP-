@@ -5,11 +5,15 @@ interface TourState {
     isBudgetGoalsTour: boolean;
     isTransactionsLinkTour: boolean;
     isTransactionsFeatureTour: boolean;
+    isAnalyticsTour: boolean;
+    isMyStocksTour: boolean;
     initialize: () => void;
     setDashboardTour: (value: boolean) => void;
     setBudgetGoalsTour: (value: boolean) => void;
     setTransactionsLinkTour: (value: boolean) => void;
     setTransactionsFeatureTour: (value: boolean) => void;
+    setAnalyticsTour: (value: boolean) => void;
+    setMyStocksTour: (value: boolean) => void;
     setToursForNewUser: (value: boolean) => void;
 }
 
@@ -20,6 +24,8 @@ interface TourStorageState {
     budgetGoals: boolean;
     transactionsLink: boolean;
     transactionsFeature: boolean;
+    analytics: boolean;
+    myStocks: boolean;
 }
 
 const defaultTourState: TourStorageState = {
@@ -27,6 +33,8 @@ const defaultTourState: TourStorageState = {
     budgetGoals: false,
     transactionsLink: false,
     transactionsFeature: false,
+    analytics: false,
+    myStocks: false,
 };
 
 const readStoredTourState = (): TourStorageState => {
@@ -42,6 +50,8 @@ const readStoredTourState = (): TourStorageState => {
             budgetGoals: Boolean(parsed.budgetGoals),
             transactionsLink: Boolean(parsed.transactionsLink),
             transactionsFeature: Boolean(parsed.transactionsFeature),
+            analytics: Boolean(parsed.analytics),
+            myStocks: Boolean(parsed.myStocks),
         };
     } catch {
         return defaultTourState;
@@ -58,6 +68,8 @@ export const useTourStore = create<TourState>((set) => ({
     isBudgetGoalsTour: false,
     isTransactionsLinkTour: false,
     isTransactionsFeatureTour: false,
+    isAnalyticsTour: false,
+    isMyStocksTour: false,
 
     initialize: () => {
         const saved = readStoredTourState();
@@ -66,6 +78,8 @@ export const useTourStore = create<TourState>((set) => ({
             isBudgetGoalsTour: saved.budgetGoals,
             isTransactionsLinkTour: saved.transactionsLink,
             isTransactionsFeatureTour: saved.transactionsFeature,
+            isAnalyticsTour: saved.analytics,
+            isMyStocksTour: saved.myStocks,
         });
     },
 
@@ -76,6 +90,8 @@ export const useTourStore = create<TourState>((set) => ({
                 budgetGoals: state.isBudgetGoalsTour,
                 transactionsLink: state.isTransactionsLinkTour,
                 transactionsFeature: state.isTransactionsFeatureTour,
+                analytics: state.isAnalyticsTour,
+                myStocks: state.isMyStocksTour,
             };
             persistTourState(next);
             return { isDashboardTour: value };
@@ -89,6 +105,8 @@ export const useTourStore = create<TourState>((set) => ({
                 budgetGoals: value,
                 transactionsLink: state.isTransactionsLinkTour,
                 transactionsFeature: state.isTransactionsFeatureTour,
+                analytics: state.isAnalyticsTour,
+                myStocks: state.isMyStocksTour,
             };
             persistTourState(next);
             return { isBudgetGoalsTour: value };
@@ -102,6 +120,8 @@ export const useTourStore = create<TourState>((set) => ({
                 budgetGoals: state.isBudgetGoalsTour,
                 transactionsLink: value,
                 transactionsFeature: state.isTransactionsFeatureTour,
+                analytics: state.isAnalyticsTour,
+                myStocks: state.isMyStocksTour,
             };
             persistTourState(next);
             return { isTransactionsLinkTour: value };
@@ -115,9 +135,41 @@ export const useTourStore = create<TourState>((set) => ({
                 budgetGoals: state.isBudgetGoalsTour,
                 transactionsLink: state.isTransactionsLinkTour,
                 transactionsFeature: value,
+                analytics: state.isAnalyticsTour,
+                myStocks: state.isMyStocksTour,
             };
             persistTourState(next);
             return { isTransactionsFeatureTour: value };
+        });
+    },
+
+    setAnalyticsTour: (value: boolean) => {
+        set((state) => {
+            const next = {
+                dashboard: state.isDashboardTour,
+                budgetGoals: state.isBudgetGoalsTour,
+                transactionsLink: state.isTransactionsLinkTour,
+                transactionsFeature: state.isTransactionsFeatureTour,
+                analytics: value,
+                myStocks: state.isMyStocksTour,
+            };
+            persistTourState(next);
+            return { isAnalyticsTour: value };
+        });
+    },
+
+    setMyStocksTour: (value: boolean) => {
+        set((state) => {
+            const next = {
+                dashboard: state.isDashboardTour,
+                budgetGoals: state.isBudgetGoalsTour,
+                transactionsLink: state.isTransactionsLinkTour,
+                transactionsFeature: state.isTransactionsFeatureTour,
+                analytics: state.isAnalyticsTour,
+                myStocks: value,
+            };
+            persistTourState(next);
+            return { isMyStocksTour: value };
         });
     },
 
@@ -127,6 +179,8 @@ export const useTourStore = create<TourState>((set) => ({
             budgetGoals: value,
             transactionsLink: value,
             transactionsFeature: value,
+            analytics: value,
+            myStocks: value,
         };
         persistTourState(next);
         set({
@@ -134,6 +188,8 @@ export const useTourStore = create<TourState>((set) => ({
             isBudgetGoalsTour: value,
             isTransactionsLinkTour: value,
             isTransactionsFeatureTour: value,
+            isAnalyticsTour: value,
+            isMyStocksTour: value,
         });
     },
 }));
