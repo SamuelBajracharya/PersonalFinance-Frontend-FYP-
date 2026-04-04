@@ -56,6 +56,16 @@ export const attachAuthInterceptor = (axiosInstance: AxiosInstance) => {
     (config: InternalAxiosRequestConfig) => {
       config.headers = config.headers || ({} as AxiosRequestHeaders);
 
+      // Let the browser set multipart boundaries automatically for FormData payloads.
+      if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+        if ("Content-Type" in config.headers) {
+          delete config.headers["Content-Type"];
+        }
+        if ("content-type" in config.headers) {
+          delete config.headers["content-type"];
+        }
+      }
+
       const accessToken = Cookies.get("accessToken");
       if (accessToken) {
         config.headers["Authorization"] = `Bearer ${accessToken}`;

@@ -3,10 +3,12 @@ import { IoChevronBackOutline } from "react-icons/io5";
 import { PiChatCircleTextDuotone } from "react-icons/pi";
 import { Avatar } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';
+import { useCurrentUser } from '@/hooks/useAuth';
 
 const MobileNavbar = () => {
     const router = useRouter();
     const pathname = usePathname();
+    const { data: user } = useCurrentUser();
 
     // convert /analytics/something → Analytics Something
     const pageTitle = pathname
@@ -38,7 +40,7 @@ const MobileNavbar = () => {
                 {/* ChatBot */}
                 <PiChatCircleTextDuotone className='text-3xl text-accent cursor-pointer' />
                 {/* profile avatar */}
-                <Avatar size={32} src="https://xsgames.co/randomusers/avatar.php?g=pixel" />
+                <Avatar size={32} src={user?.profile_image_url || "https://xsgames.co/randomusers/avatar.php?g=pixel"} />
             </div>
         </div>
     )

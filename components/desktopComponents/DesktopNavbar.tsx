@@ -5,12 +5,14 @@ import { Avatar } from "antd";
 import { useRouter, usePathname } from "next/navigation";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { useThemeStore } from "@/stores/useThemeStore";
+import { useCurrentUser } from "@/hooks/useAuth";
 
 const DesktopNavbar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
+  const { data: user } = useCurrentUser();
 
   const isProfile = pathname === "/profile";
 
@@ -28,6 +30,8 @@ const DesktopNavbar = () => {
   };
 
   const title = getTitle(pathname);
+  const displayName = user?.name || "Profile";
+  const avatarSrc = user?.profile_image_url || "https://xsgames.co/randomusers/avatar.php?g=pixel";
 
   return (
     <div className="flex justify-between items-center h-full px-8 ">
@@ -54,10 +58,10 @@ const DesktopNavbar = () => {
           ${isProfile ? "bg-accent" : ""}`}
           onClick={() => router.push("/profile")}
         >
-          <h2 className="text-lg font-normal">Samuel Bajracharya</h2>
+          <h2 className="text-lg font-normal">{displayName}</h2>
           <Avatar
             size={32}
-            src="https://xsgames.co/randomusers/avatar.php?g=pixel"
+            src={avatarSrc}
           />
         </div>
       </div>

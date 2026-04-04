@@ -77,7 +77,7 @@ const CreateBudgetOverlay: React.FC = () => {
             onChange={(value: string) => setCategory(value)}
             placeholder="Select category"
             className="custom-select !w-full cursor-pointer !h-[3.5rem]"
-            dropdownClassName="custom-select"
+            classNames={{ popup: { root: "custom-select" } }}
             size="large"
             options={TRANSACTION_CATEGORIES.map((cat) => ({ label: cat, value: cat }))}
             showSearch={false}

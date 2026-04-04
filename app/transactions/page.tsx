@@ -240,7 +240,7 @@ const Transactions: React.FC = () => {
   const { openCreateManualTransactions, createManualTransactions } = useCreateManualTransactionsOverlay();
 
   return (
-    <div className="min-h-screen px-6 py-6 font-sans relative">
+    <div suppressHydrationWarning className="min-h-screen px-6 py-6 font-sans relative">
 
       <div className="flex w-full gap-6 mb-6">
         {showInitialSkeletons ? (
@@ -384,7 +384,7 @@ const Transactions: React.FC = () => {
                   value={selectedYear}
                   onChange={v => setSelectedYear(v)}
                   className="custom-select"
-                  popupClassName="custom-select"
+                  classNames={{ popup: { root: "custom-select" } }}
                   style={{ minWidth: 120, borderColor: '#ffaa2d' }}
                 >
                   <Select.Option value="all">All</Select.Option>
@@ -399,7 +399,7 @@ const Transactions: React.FC = () => {
                   value={selectedCategory}
                   onChange={v => setSelectedCategory(v)}
                   className="custom-select"
-                  popupClassName="custom-select"
+                  classNames={{ popup: { root: "custom-select" } }}
                   style={{ minWidth: 120, borderColor: '#ffaa2d' }}
                 >
                   <Select.Option value="all">All</Select.Option>

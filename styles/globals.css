@@ -215,3 +215,88 @@ button,
   top: 96px !important; /* Adjust as needed for your navbar height */
   z-index: 9999 !important;
 }
+
+/* Profile picture upload + crop modal theme alignment */
+.profile-pic-modal .ant-modal-content,
+.profile-pic-crop-modal .ant-modal-content {
+  background: var(--color-secondaryBG) !important;
+  border: 1px solid var(--color-accentBG) !important;
+  box-shadow: 0 20px 50px color-mix(in srgb, var(--color-mainBG) 55%, transparent) !important;
+}
+
+.profile-pic-modal .ant-modal-header,
+.profile-pic-crop-modal .ant-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--color-accentBG) !important;
+}
+
+.profile-pic-modal .ant-modal-title,
+.profile-pic-crop-modal .ant-modal-title,
+.profile-pic-modal .ant-modal-close,
+.profile-pic-crop-modal .ant-modal-close {
+  color: var(--color-textmain) !important;
+}
+
+.profile-pic-modal .ant-modal-footer,
+.profile-pic-crop-modal .ant-modal-footer {
+  border-top: 1px solid var(--color-accentBG) !important;
+  margin-top: 16px !important;
+  padding-top: 16px !important;
+}
+
+.profile-pic-modal .ant-btn,
+.profile-pic-crop-modal .ant-btn {
+  border-color: var(--color-accentBG) !important;
+  color: var(--color-textmain) !important;
+  background: var(--color-highlight) !important;
+}
+
+.profile-pic-modal .ant-btn-primary,
+.profile-pic-crop-modal .ant-btn-primary {
+  background: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: #ffffff !important;
+}
+
+.profile-pic-modal .ant-btn-primary span,
+.profile-pic-crop-modal .ant-btn-primary span {
+  color: #ffffff !important;
+}
+
+.profile-pic-modal .ant-btn-color-dangerous,
+.profile-pic-crop-modal .ant-btn-color-dangerous {
+  border-color: var(--color-expense) !important;
+  color: var(--color-expense) !important;
+  background: transparent !important;
+}
+
+.profile-pic-upload .ant-upload-wrapper .ant-upload-select,
+.profile-pic-upload .ant-upload-list-item-container .ant-upload-list-item {
+  background: var(--color-highlight) !important;
+  border: 1px dashed var(--color-accentBG) !important;
+  color: var(--color-textmain) !important;
+}
+
+.profile-pic-crop-modal .ant-slider-rail {
+  background: var(--color-accentBG) !important;
+}
+
+.profile-pic-crop-modal .ant-slider-track {
+  background: var(--color-accent) !important;
+}
+
+.profile-pic-crop-modal .ant-slider-handle::after {
+  box-shadow: 0 0 0 2px var(--color-accent) !important;
+}
+
+.profile-pic-modal .ant-modal-content,
+.profile-pic-modal .ant-modal-header,
+.profile-pic-modal .ant-btn,
+.profile-pic-crop-modal .ant-modal-content,
+.profile-pic-crop-modal .ant-modal-header,
+.profile-pic-crop-modal .ant-btn {
+  transition:
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing),
+    border-color var(--theme-transition-duration) var(--theme-transition-easing);
+}

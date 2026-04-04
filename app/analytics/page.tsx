@@ -1454,17 +1454,29 @@ export default function AnalyticsPage() {
                                             strokeDashoffset={`${2 * Math.PI * 52 * (1 - gaugeRatioPct / 100)}`}
                                             transform="rotate(-90 70 70)"
                                         />
-                                        <text x="70" y="68" textAnchor="middle" className="fill-white text-lg font-semibold">
+                                        <text
+                                            x="70"
+                                            y="68"
+                                            textAnchor="middle"
+                                            className="text-lg font-semibold"
+                                            style={{ fill: "var(--color-textmain)" }}
+                                        >
                                             {gaugeRatioPct.toFixed(1)}%
                                         </text>
-                                        <text x="70" y="86" textAnchor="middle" className="fill-gray-400 text-xs">
+                                        <text
+                                            x="70"
+                                            y="86"
+                                            textAnchor="middle"
+                                            className="text-xs"
+                                            style={{ fill: "var(--color-textsecondary)" }}
+                                        >
                                             {gaugeData?.zone ?? "unknown"}
                                         </text>
                                     </svg>
 
                                     <div className="space-y-1 text-md min-w-0">
-                                        <p>Income: <span className="text-white">{formatRupees(parseAmount(gaugeData?.totalIncome))}</span></p>
-                                        <p>Expense: <span className="text-white">{formatRupees(parseAmount(gaugeData?.totalExpenses))}</span></p>
+                                        <p>Income: <span className="text-textmain">{formatRupees(parseAmount(gaugeData?.totalIncome))}</span></p>
+                                        <p>Expense: <span className="text-textmain">{formatRupees(parseAmount(gaugeData?.totalExpenses))}</span></p>
                                         <p className="text-sm text-textsecondary mt-2">
                                             {gaugeData?.advisorInsight ?? "Expense pressure insight will appear when synced."}
                                         </p>

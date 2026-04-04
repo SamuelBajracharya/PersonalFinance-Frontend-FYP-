@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { message } from "antd";
+import { ConfigProvider, message } from "antd";
 
 const AntdMessageContext = React.createContext<any>(null);
 
@@ -11,10 +11,12 @@ export const AntdMessageProvider = ({ children }: { children: React.ReactNode })
         message.config({ top: 96 }); // px, adjust as needed for your navbar
     }, []);
     return (
-        <AntdMessageContext.Provider value={messageApi}>
-            {contextHolder}
-            {children}
-        </AntdMessageContext.Provider>
+        <ConfigProvider warning={{ strict: false }}>
+            <AntdMessageContext.Provider value={messageApi}>
+                {contextHolder}
+                {children}
+            </AntdMessageContext.Provider>
+        </ConfigProvider>
     );
 };
 

@@ -38,11 +38,14 @@ interface UserResponse {
   user_id: string;
   email: string;
   name: string;
+  profile_image_url?: string | null;
   is_active: boolean;
   is_verified: boolean;
   total_xp: number;
+  savings?: number;
+  goals_completed?: number;
   created_at: string;
-  rank: number;
+  rank: string | number;
 }
 
 export type {

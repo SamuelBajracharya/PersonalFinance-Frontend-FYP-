@@ -37,7 +37,7 @@ const ManualTransactionCreateOverlay: React.FC = () => {
                         className="custom-select w-full rounded-xl"
                         size="large"
                         options={TRANSACTION_CATEGORIES.map((cat) => ({ label: cat, value: cat }))}
-                        dropdownClassName="custom-select"
+                        classNames={{ popup: { root: "custom-select" } }}
                     />
                 </div>
                 <div className="flex flex-col gap-4">
@@ -60,7 +60,7 @@ const ManualTransactionCreateOverlay: React.FC = () => {
                         size="large"
                         format="MM/DD/YYYY"
                         style={{ width: '100%' }}
-                        popupClassName="custom-select"
+                        classNames={{ popup: { root: "custom-select" } }}
                     />
                 </div>
                 <button

@@ -2,11 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
+import axios from "axios";
 
 // react-icons
 import { MdEmail, MdLock, MdEdit } from "react-icons/md";
 import { VscEyeClosed } from "react-icons/vsc";
 import { PiWarningFill } from "react-icons/pi";
+import { IoLogOutOutline } from "react-icons/io5";
+import ImgCrop from "antd-img-crop";
+import type { UploadFile, UploadProps } from "antd/es/upload/interface";
 
 import StatCard from "@/components/gloabalComponents/StatCards";
 import AchievementCard from "@/components/gloabalComponents/AchievementCard";
@@ -14,9 +18,13 @@ import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
 import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
 import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 import { useMyUnlockedRewards } from "@/hooks/useRewards";
+import {
+  useChangeProfilePicture,
+  useResetProfilePicture,
+} from "@/hooks/useProfilePicture";
 
 import Link from "next/link";
-import { Button } from "antd";
+import { Button, Modal, Upload } from "antd";
 import {
   useDeleteUserTransactionData,
   useUnlinkBankAccounts,
@@ -25,6 +33,74 @@ import { useBankOverlay } from "@/stores/useBankOverlay";
 
 import { useProfileOverlays } from "@/stores/useProfileOverlays";
 import TextConfirmationOverlay from "@/components/gloabalComponents/TextConfirmationOverlay";
+
+const resolveUploadFile = (uploadFile?: UploadFile): File | null => {
+  if (!uploadFile) {
+    return null;
+  }
+
+  if (uploadFile.originFileObj instanceof File) {
+    return uploadFile.originFileObj;
+  }
+
+  const rawFile = uploadFile as unknown;
+  if (rawFile instanceof File) {
+    return rawFile;
+  }
+
+  if (rawFile instanceof Blob) {
+    return new File([rawFile], uploadFile.name || "profile-picture.png", {
+      type: rawFile.type || "image/png",
+    });
+  }
+
+  return null;
+};
+
+const toDisplayErrorMessage = (error: unknown, fallback: string): string => {
+  if (!axios.isAxiosError(error)) {
+    return fallback;
+  }
+
+  const detail = error.response?.data?.detail;
+
+  if (typeof detail === "string" && detail.trim().length > 0) {
+    return detail;
+  }
+
+  if (Array.isArray(detail)) {
+    const parsed = detail
+      .map((item) => {
+        if (typeof item === "string") {
+          return item;
+        }
+        if (item && typeof item === "object" && "msg" in item) {
+          const msg = (item as { msg?: unknown }).msg;
+          return typeof msg === "string" ? msg : "";
+        }
+        return "";
+      })
+      .filter(Boolean)
+      .join(", ");
+
+    if (parsed.length > 0) {
+      return parsed;
+    }
+  }
+
+  if (detail && typeof detail === "object") {
+    if ("msg" in detail) {
+      const msg = (detail as { msg?: unknown }).msg;
+      if (typeof msg === "string" && msg.trim().length > 0) {
+        return msg;
+      }
+    }
+
+    return fallback;
+  }
+
+  return error.message || fallback;
+};
 
 // XP → Title Logic
 function getXpTitle(xp: number) {
@@ -38,9 +114,17 @@ function getXpTitle(xp: number) {
   return "Diamond";
 }
 
+const PROFILE_PIC_MODAL_Z_INDEX_CLASS = "!z-[2147483646]";
+const PROFILE_PIC_UPLOAD_MODAL_CLASS =
+  `${PROFILE_PIC_MODAL_Z_INDEX_CLASS} profile-pic-modal`;
+const PROFILE_PIC_CROP_MODAL_CLASS = "!z-[2147483646] profile-pic-crop-modal";
+const PROFILE_PIC_MASK_Z_INDEX_CLASS = "!z-[2147483646]";
+
 export default function Profile() {
   const messageApi = useAntdMessage();
   const [showPassword, setShowPassword] = useState(false);
+  const [isProfilePicModalOpen, setIsProfilePicModalOpen] = useState(false);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const {
     isBankLinked,
     initialize: initializeBankOverlay,
@@ -55,6 +139,8 @@ export default function Profile() {
   const unlinkMutation = useUnlinkBankAccounts();
   const deleteDataMutation = useDeleteUserTransactionData();
   const logoutMutation = useLogout();
+  const changeProfilePictureMutation = useChangeProfilePicture();
+  const resetProfilePictureMutation = useResetProfilePicture();
 
   const {
     isUnlinkAccountConfirmationOpen,
@@ -80,6 +166,61 @@ export default function Profile() {
     });
   };
 
+  const handleProfilePicUpload = () => {
+    const selectedFile = resolveUploadFile(fileList[0]);
+
+    if (!selectedFile) {
+      messageApi.error("Please select an image first.");
+      return;
+    }
+
+    changeProfilePictureMutation.mutate(selectedFile, {
+      onSuccess: () => {
+        messageApi.success("Profile picture updated successfully.");
+        setIsProfilePicModalOpen(false);
+        setFileList([]);
+      },
+      onError: (error) => {
+        const errorMessage = toDisplayErrorMessage(
+          error,
+          "Failed to update profile picture. Try again.",
+        );
+        messageApi.error(errorMessage);
+      },
+    });
+  };
+
+  const handleProfilePicReset = () => {
+    resetProfilePictureMutation.mutate(undefined, {
+      onSuccess: () => {
+        messageApi.success("Profile picture reset successfully.");
+        setIsProfilePicModalOpen(false);
+        setFileList([]);
+      },
+      onError: (error) => {
+        const errorMessage = toDisplayErrorMessage(
+          error,
+          "Failed to reset profile picture. Try again.",
+        );
+        messageApi.error(errorMessage);
+      },
+    });
+  };
+
+  const uploadProps: UploadProps = {
+    accept: "image/*",
+    maxCount: 1,
+    fileList,
+    beforeUpload: () => false,
+    onChange: ({ fileList: nextFileList }) => {
+      setFileList(nextFileList.slice(-1));
+    },
+    onRemove: () => {
+      setFileList([]);
+      return true;
+    },
+  };
+
   return (
     <div className="p-6">
       {error && !showInitialSkeletons && (
@@ -90,7 +231,24 @@ export default function Profile() {
         {showInitialSkeletons ? (
           <SkeletonBlock className="size-48 rounded-full" />
         ) : (
-          <div className="size-48 overflow-hidden rounded-full bg-white" />
+          <div className="relative size-48">
+            <img
+              src={user?.profile_image_url || "https://xsgames.co/randomusers/avatar.php?g=pixel"}
+              alt="Profile picture"
+              className="size-48 overflow-hidden rounded-full object-cover bg-white border border-accentBG"
+              onError={(event) => {
+                event.currentTarget.src = "https://xsgames.co/randomusers/avatar.php?g=pixel";
+              }}
+            />
+            <button
+              type="button"
+              aria-label="Edit profile picture"
+              onClick={() => setIsProfilePicModalOpen(true)}
+              className="absolute bottom-1 right-1 rounded-full bg-accent p-3 text-white shadow-lg"
+            >
+              <MdEdit className="size-6" />
+            </button>
+          </div>
         )}
 
         <div className="flex flex-col justify-center gap-2">
@@ -226,14 +384,15 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Delete Data */}
-      <div className="mt-20">
+      {/* Account Actions */}
+      <div className="mt-20 flex flex-col items-start gap-2">
         <Button
           type="link"
           loading={logoutMutation.isPending}
           onClick={() => logoutMutation.mutate()}
-          className="!text-primary no-underline !text-2xl !flex !flex-row !items-center !justify-center"
+          className="!text-red-500 no-underline !text-2xl !flex !flex-row !items-center !justify-center !px-0"
         >
+          <IoLogOutOutline className="w-8" />
           Logout
         </Button>
 
@@ -241,7 +400,7 @@ export default function Profile() {
           type="link"
           loading={deleteDataMutation.isPending}
           onClick={() => deleteDataMutation.mutate()}
-          className="!text-red-500 no-underline !text-2xl !flex !flex-row !items-center !justify-center"
+          className="!text-red-500 no-underline !text-2xl !flex !flex-row !items-center !justify-center !px-0"
         >
           <PiWarningFill className="w-8" />
           Delete Data
@@ -256,6 +415,74 @@ export default function Profile() {
         onConfirm={handleUnlink}
         onCancel={closeUnlinkAccountConfirmation}
       />
+
+      <Modal
+        title="Update Profile Picture"
+        open={isProfilePicModalOpen}
+        rootClassName={PROFILE_PIC_UPLOAD_MODAL_CLASS}
+        classNames={{
+          mask: PROFILE_PIC_MASK_Z_INDEX_CLASS,
+          wrapper: PROFILE_PIC_MASK_Z_INDEX_CLASS,
+        }}
+        onCancel={() => {
+          setIsProfilePicModalOpen(false);
+          setFileList([]);
+        }}
+        footer={[
+          <Button
+            key="reset"
+            danger
+            onClick={handleProfilePicReset}
+            loading={resetProfilePictureMutation.isPending}
+            disabled={changeProfilePictureMutation.isPending}
+          >
+            Reset
+          </Button>,
+          <Button
+            key="cancel"
+            onClick={() => {
+              setIsProfilePicModalOpen(false);
+              setFileList([]);
+            }}
+            disabled={
+              changeProfilePictureMutation.isPending ||
+              resetProfilePictureMutation.isPending
+            }
+          >
+            Cancel
+          </Button>,
+          <Button
+            key="upload"
+            type="primary"
+            onClick={handleProfilePicUpload}
+            loading={changeProfilePictureMutation.isPending}
+            disabled={
+              resetProfilePictureMutation.isPending ||
+              fileList.length === 0
+            }
+          >
+            Upload
+          </Button>,
+        ]}
+      >
+        <p className="mb-3 text-sm text-textsecondary">
+          Select an image, crop it, and upload it as your profile picture.
+        </p>
+        <ImgCrop
+          quality={1}
+          modalProps={{
+            rootClassName: PROFILE_PIC_CROP_MODAL_CLASS,
+            classNames: {
+              mask: PROFILE_PIC_MASK_Z_INDEX_CLASS,
+              wrapper: PROFILE_PIC_MASK_Z_INDEX_CLASS,
+            },
+          }}
+        >
+          <Upload className="profile-pic-upload" listType="picture-card" {...uploadProps}>
+            {fileList.length >= 1 ? null : <div className="text-textmain">+ Upload</div>}
+          </Upload>
+        </ImgCrop>
+      </Modal>
 
       <LoadingOverlay show={showLoadingOverlay} />
     </div>
