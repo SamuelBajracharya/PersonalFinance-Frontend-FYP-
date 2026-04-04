@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Select } from "antd";
+import { useState, useEffect, useRef } from "react";
+import { Select, Tour } from "antd";
 import Link from "next/link";
 import { AiOutlineTransaction } from "react-icons/ai";
 import { FaChartPie } from "react-icons/fa";
@@ -19,6 +19,7 @@ import DashboardAIAssistant from "@/components/gloabalComponents/DashboardAIAssi
 import { useFetchDashboard } from "@/hooks/useDashboard";
 import { useBankOverlay } from "@/stores/useBankOverlay";
 import { useNabilAccountStore } from "@/stores/useNabilAccountStore";
+import { useTourStore } from "@/stores/useTour";
 
 type Period = "weekly" | "monthly" | "yearly";
 
@@ -98,7 +99,21 @@ interface DashboardResponse {
 export default function Dashboard() {
   const [lineChartPeriod, setLineChartPeriod] = useState<Period>("monthly");
   const { isBankLinked, initialize } = useBankOverlay();
+  const {
+    isDashboardTour,
+    initialize: initializeTour,
+    setDashboardTour,
+  } = useTourStore();
   const nabilAccountId = useNabilAccountStore((state) => state.nabilAccountId);
+
+  const statsRef = useRef<HTMLDivElement>(null);
+  const recentTransactionsRef = useRef<HTMLDivElement>(null);
+  const budgetGoalsRef = useRef<HTMLDivElement>(null);
+  const stockPredictionRef = useRef<HTMLDivElement>(null);
+  const aiAssistantRef = useRef<HTMLDivElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const cashflowRef = useRef<HTMLDivElement>(null);
+  const expenseCategoryRef = useRef<HTMLDivElement>(null);
 
   const { mutate: fetchDashboard, data, isPending } = useFetchDashboard();
 
@@ -107,6 +122,10 @@ export default function Dashboard() {
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  useEffect(() => {
+    initializeTour();
+  }, [initializeTour]);
 
   useEffect(() => {
     if (isBankLinked && nabilAccountId) {
@@ -163,12 +182,64 @@ export default function Dashboard() {
   const suggestionItems = dashboardData.aiSuggestions ?? [];
   const showLoadingOverlay = isPending;
   const showInitialSkeletons = isPending && !dashboardData.summary;
+  const shouldOpenTour = isDashboardTour && !showInitialSkeletons;
+
+  const tourSteps = [
+    {
+      title: "Dashboard Summary Stats",
+      description:
+        "These four cards show your current balance, expenses, income, and saving rate at a glance.",
+      target: statsRef.current ?? undefined,
+    },
+    {
+      title: "Recent Transactions",
+      description:
+        "Review your latest transaction activity here and use View All for full history.",
+      target: recentTransactionsRef.current ?? undefined,
+    },
+    {
+      title: "Budget Goals",
+      description:
+        "Track category-wise budget progress and see which goals are on track or at risk.",
+      target: budgetGoalsRef.current ?? undefined,
+    },
+    {
+      title: "Stock Prediction",
+      description:
+        "Get quick insights into tracked stocks, trend direction, and price movement.",
+      target: stockPredictionRef.current ?? undefined,
+    },
+    {
+      title: "AI Assistant",
+      description:
+        "Ask budgeting, saving, and spending questions here for contextual AI guidance.",
+      target: aiAssistantRef.current ?? undefined,
+    },
+    {
+      title: "AI Suggestions",
+      description:
+        "Personalized recommendation cards generated from your current financial data.",
+      target: suggestionsRef.current ?? undefined,
+    },
+    {
+      title: "Cashflow Statistics",
+      description:
+        "Visualize income vs expense trends over weekly, monthly, or yearly periods.",
+      target: cashflowRef.current ?? undefined,
+    },
+    {
+      title: "Expense Category Chart",
+      description:
+        "Understand how your spending is distributed across categories.",
+      target: expenseCategoryRef.current ?? undefined,
+    },
+  ];
 
   return (
     <div className="p-4 md:p-6 space-y-6 min-h-screen">
       {showInitialSkeletons ? (
         <>
-          <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <section ref={statsRef} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <SkeletonBlock key={index} className="h-[152px] rounded-2xl" />
             ))}
@@ -217,7 +288,7 @@ export default function Dashboard() {
           </section>
 
           <section className="grid grid-cols-1 xl:grid-cols-12 gap-4 xl:h-[560px] items-stretch overflow-hidden">
-            <div className="xl:col-span-4 bg-secondaryBG rounded-2xl p-4 h-full flex flex-col min-h-0 overflow-hidden">
+            <div ref={recentTransactionsRef} className="xl:col-span-4 bg-secondaryBG rounded-2xl p-4 h-full flex flex-col min-h-0 overflow-hidden">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-2xl font-medium">Recent Transactions</h3>
                 <Link href="/transactions" className="text-accent text-sm underline underline-offset-2">
@@ -230,7 +301,7 @@ export default function Dashboard() {
             </div>
 
             <div className="xl:col-span-4 grid grid-rows-2 gap-4 h-full min-h-0 overflow-hidden">
-              <div className="bg-secondaryBG rounded-2xl p-4 h-full min-h-0 overflow-hidden">
+              <div ref={budgetGoalsRef} className="bg-secondaryBG rounded-2xl p-4 h-full min-h-0 overflow-hidden">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-2xl font-medium">Budget Goals</h3>
                   <Link href="/budgetgoals" className="text-accent text-sm underline underline-offset-2">
@@ -240,7 +311,7 @@ export default function Dashboard() {
                 <DashboardBudgetGoals goals={dashboardData.topBudgetGoals ?? []} />
               </div>
 
-              <div className="bg-secondaryBG rounded-2xl p-4 h-full min-h-0 overflow-hidden">
+              <div ref={stockPredictionRef} className="bg-secondaryBG rounded-2xl p-4 h-full min-h-0 overflow-hidden">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-2xl font-medium">Stock Prediction</h3>
                   <Link href="/mystocks" className="text-accent text-sm underline underline-offset-2">
@@ -251,7 +322,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="xl:col-span-4 bg-secondaryBG rounded-2xl p-4 h-full flex flex-col min-h-0 overflow-hidden">
+            <div ref={aiAssistantRef} className="xl:col-span-4 bg-secondaryBG rounded-2xl p-4 h-full flex flex-col min-h-0 overflow-hidden">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-2xl font-medium">AI Assistant</h3>
                 <Link href="/ai-assistant" className="text-accent text-sm underline underline-offset-2">
@@ -264,7 +335,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          <section className="bg-secondaryBG rounded-2xl p-4">
+          <section ref={suggestionsRef} className="bg-secondaryBG rounded-2xl p-4">
             <h3 className="text-2xl font-medium mb-3">AI Suggestions</h3>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {suggestionItems.length === 0 ? (
@@ -285,7 +356,7 @@ export default function Dashboard() {
           </section>
 
           <section className="grid grid-cols-1 xl:grid-cols-12 gap-4">
-            <div className="xl:col-span-6 bg-secondaryBG rounded-2xl p-4">
+            <div ref={cashflowRef} className="xl:col-span-6 bg-secondaryBG rounded-2xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
                   <div className="size-10 rounded-xl bg-primary flex items-center justify-center">
@@ -321,7 +392,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="xl:col-span-6 bg-secondaryBG rounded-2xl p-4">
+            <div ref={expenseCategoryRef} className="xl:col-span-6 bg-secondaryBG rounded-2xl p-4">
               <div className="flex items-center gap-3 mb-2">
                 <div className="size-10 rounded-xl bg-primary flex items-center justify-center">
                   <FaChartPie className="text-white size-6" />
@@ -370,6 +441,14 @@ export default function Dashboard() {
       )}
 
       <LoadingOverlay show={showLoadingOverlay} />
+      <Tour
+        open={shouldOpenTour}
+        onClose={() => setDashboardTour(false)}
+        onFinish={() => setDashboardTour(false)}
+        steps={tourSteps}
+        zIndex={24354654}
+        rootClassName="!z-[24354654]"
+      />
     </div>
   );
 }

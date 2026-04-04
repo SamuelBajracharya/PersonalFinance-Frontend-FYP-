@@ -53,6 +53,7 @@ export default function VerificationPage({
   const [code, setCode] = useState<string[]>(new Array(6).fill(""));
   const [cooldown, setCooldown] = useState(0);
   const router = useRouter();
+  const [messageApi, contextHolder] = message.useMessage();
   const { mutate: verifyOtp, isPending: verifying } = useVerifyOtp();
   const { mutate: resendOtp, isPending: resending } = useRequestOtp();
 
@@ -109,7 +110,7 @@ export default function VerificationPage({
   const handleVerify = (): void => {
     const fullCode = code.join("");
     if (fullCode.length < 6) {
-      message.warning("Please enter the full 6-digit code");
+      messageApi.warning("Please enter the full 6-digit code");
       return;
     }
 
@@ -117,7 +118,7 @@ export default function VerificationPage({
 
     verifyOtp(otpData, {
       onSuccess: (res: TokenResponse | ResetTokenResponse) => {
-        message.success("Code verified successfully!");
+        messageApi.success("Code verified successfully!");
 
         if ("reset_token" in res) {
           Cookies.set("resetToken", res.reset_token, {
@@ -150,7 +151,7 @@ export default function VerificationPage({
         router.push(successRouteMap[purpose]);
       },
       onError: (err: any) =>
-        message.error(
+        messageApi.error(
           err?.response?.data?.message || "Invalid or expired code",
         ),
     });
@@ -161,16 +162,17 @@ export default function VerificationPage({
 
     resendOtp(purpose, {
       onSuccess: () => {
-        message.success("OTP code resent successfully!");
+        messageApi.success("OTP code resent successfully!");
         setCooldown(60);
       },
       onError: (err: any) =>
-        message.error(err?.response?.data?.message || "Failed to resend code"),
+        messageApi.error(err?.response?.data?.message || "Failed to resend code"),
     });
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center text-textmain px-6 w-full max-w-xl mx-auto theme-transition">
+      {contextHolder}
       <div className="mb-12">
         <Logo width={240} />
       </div>

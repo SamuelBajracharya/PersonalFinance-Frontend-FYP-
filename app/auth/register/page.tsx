@@ -33,7 +33,7 @@ const SignUp = () => {
         });
 
         messageApi.success("Registration successful! Please verify OTP.");
-        router.push("/auth/verify/email_verification");
+        router.push("/auth/verify/account_verification");
       },
       onError: (error: any) => {
         const errMsg =

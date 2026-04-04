@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Tour } from "antd";
 import { BsFileText, BsPlus } from "react-icons/bs";
 import BarChart from "@/components/gloabalComponents/BarChart";
 import {
@@ -21,6 +22,7 @@ import SimpleConfirmationOverlay from "@/components/gloabalComponents/SimpleConf
 import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
 import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
 import SkeletonBlock from "@/components/gloabalComponents/SkeletonBlock";
+import { useTourStore } from "@/stores/useTour";
 
 const currency = (value?: number) => `Rs ${Number(value ?? 0).toLocaleString()}`;
 const percent = (value?: number) => `${Number(value ?? 0).toFixed(1)}%`;
@@ -67,15 +69,32 @@ export default function BudgetGoals() {
     }>(null);
 
     const { isCreateBudgetOpen, openCreateBudget } = useCreateBudgetOverlay();
+    const {
+        isBudgetGoalsTour,
+        initialize: initializeTour,
+        setBudgetGoalsTour,
+    } = useTourStore();
     const { mutate: runSimulation, isPending: isSimulationRunning } =
         useSimulateBudgetGoal();
     const { mutate: deleteBudget, isPending: isDeletingBudget } = useDeleteBudget();
     const rightPanelRef = useRef<HTMLElement | null>(null);
     const leftHeaderRef = useRef<HTMLDivElement | null>(null);
+    const createBudgetButtonRef = useRef<HTMLButtonElement | null>(null);
+    const budgetListRef = useRef<HTMLDivElement | null>(null);
+    const smartSuggestionsRef = useRef<HTMLElement | null>(null);
+    const pacePredictionRef = useRef<HTMLElement | null>(null);
+    const adaptiveGoalRef = useRef<HTMLElement | null>(null);
+    const simulatorRef = useRef<HTMLElement | null>(null);
+    const spendingChartRef = useRef<HTMLElement | null>(null);
+    const periodReviewRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
         initialize();
     }, [initialize]);
+
+    useEffect(() => {
+        initializeTour();
+    }, [initializeTour]);
 
     useEffect(() => {
         const target = rightPanelRef.current;
@@ -183,6 +202,58 @@ export default function BudgetGoals() {
 
     const showLoadingOverlay = isStatusesLoading || isSimulationRunning;
     const showInitialSkeletons = isStatusesLoading && statuses.length === 0;
+    const shouldOpenBudgetGoalsTour = isBudgetGoalsTour && !showInitialSkeletons;
+
+    const budgetGoalsTourSteps = [
+        {
+            title: "Create New Budget Goal",
+            description:
+                "Start here to create a category budget goal and begin tracking spending progress.",
+            target: createBudgetButtonRef.current ?? undefined,
+        },
+        {
+            title: "Your Budget Goals",
+            description:
+                "This list shows all your goals. Select one to load its details, status, and AI insights.",
+            target: budgetListRef.current ?? undefined,
+        },
+        {
+            title: "Smart Suggestions",
+            description:
+                "AI-generated recommendations for your selected goal, including estimated savings opportunities.",
+            target: smartSuggestionsRef.current ?? undefined,
+        },
+        {
+            title: "Pace & Prediction",
+            description:
+                "Compare your current pace with projected spend to understand if you might exceed the budget.",
+            target: pacePredictionRef.current ?? undefined,
+        },
+        {
+            title: "Adaptive Goal",
+            description:
+                "See AI-recommended budget adjustments and the reason behind each suggestion.",
+            target: adaptiveGoalRef.current ?? undefined,
+        },
+        {
+            title: "What-if Simulator",
+            description:
+                "Test possible reductions and cuts before committing, then compare projected outcomes.",
+            target: simulatorRef.current ?? undefined,
+        },
+        {
+            title: "Spending Chart",
+            description:
+                "Track weekly spending behavior for the selected category to spot recurring patterns.",
+            target: spendingChartRef.current ?? undefined,
+        },
+        {
+            title: "Period Review",
+            description:
+                "Review final period performance, achievement status, and recommended next budget.",
+            target: periodReviewRef.current ?? undefined,
+        },
+    ];
 
     const onRunSimulation = () => {
         if (!effectiveBudgetId) return;
@@ -207,6 +278,7 @@ export default function BudgetGoals() {
         <div className="min-h-screen p-6 font-sans text-textmain">
             <div className="flex justify-end mb-6">
                 <button
+                    ref={createBudgetButtonRef}
                     onClick={openCreateBudget}
                     className="flex items-center gap-2 bg-primary px-6 py-3 rounded-full text-lg font-medium hover:bg-primary/80 transition cursor-pointer"
                 >
@@ -225,6 +297,7 @@ export default function BudgetGoals() {
                     </div>
 
                     <div
+                        ref={budgetListRef}
                         className="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1"
                         style={
                             leftListMaxHeight > 0
@@ -405,7 +478,7 @@ export default function BudgetGoals() {
                         </>
                     ) : (
                         <>
-                            <section className="rounded-2xl bg-secondaryBG p-4 space-y-3 mt-4">
+                            <section ref={smartSuggestionsRef} className="rounded-2xl bg-secondaryBG p-4 space-y-3 mt-4">
                                 <h3 className="text-2xl font-semibold text-textmain">Smart Suggestions</h3>
                                 {suggestions?.suggestions?.length ? (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -430,7 +503,7 @@ export default function BudgetGoals() {
                             </section>
 
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                                <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
+                                <section ref={pacePredictionRef} className="rounded-2xl bg-secondaryBG p-4 space-y-3">
                                     <h3 className="text-2xl font-semibold text-textmain">Pace & Prediction</h3>
                                     {selectedStatus ? (
                                         <>
@@ -479,7 +552,7 @@ export default function BudgetGoals() {
                                     )}
                                 </section>
 
-                                <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
+                                <section ref={adaptiveGoalRef} className="rounded-2xl bg-secondaryBG p-4 space-y-3">
                                     <h3 className="text-2xl font-semibold text-textmain">Adaptive Goal</h3>
                                     {adaptive ? (
                                         <div className="space-y-1">
@@ -506,7 +579,7 @@ export default function BudgetGoals() {
                                 </section>
                             </div>
 
-                            <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
+                            <section ref={simulatorRef} className="rounded-2xl bg-secondaryBG p-4 space-y-3">
                                 <h3 className="text-2xl font-semibold text-textmain">What-if Simulator</h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-2 items-end">
@@ -580,7 +653,7 @@ export default function BudgetGoals() {
                                 </div>
                             </section>
 
-                            <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
+                            <section ref={spendingChartRef} className="rounded-2xl bg-secondaryBG p-4 space-y-3">
                                 <h3 className="text-2xl font-semibold text-textmain">Spending Chart</h3>
                                 <div className="rounded-2xl p-3">
                                     <BarChart
@@ -591,7 +664,7 @@ export default function BudgetGoals() {
                                 </div>
                             </section>
 
-                            <section className="rounded-2xl bg-secondaryBG p-4 space-y-3">
+                            <section ref={periodReviewRef} className="rounded-2xl bg-secondaryBG p-4 space-y-3">
                                 <h3 className="text-2xl font-semibold text-textmain">Period Review</h3>
                                 {review ? (
                                     <div className="space-y-1">
@@ -646,6 +719,14 @@ export default function BudgetGoals() {
             </div>
 
             <LoadingOverlay show={showLoadingOverlay} />
+            <Tour
+                open={shouldOpenBudgetGoalsTour}
+                onClose={() => setBudgetGoalsTour(false)}
+                onFinish={() => setBudgetGoalsTour(false)}
+                steps={budgetGoalsTourSteps}
+                zIndex={24354654}
+                rootClassName="!z-[24354654]"
+            />
             {isCreateBudgetOpen && <CreateBudgetOverlay />}
             <SimpleConfirmationOverlay
                 title="Delete Budget Goal"

@@ -4,6 +4,7 @@ import { FaCheck } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import Logo from "@/components/gloabalComponents/Logo";
+import { useTourStore } from "@/stores/useTour";
 
 type SuccessPurpose =
   | "account_verification"
@@ -40,8 +41,15 @@ const successMap = {
 export default function VerificationSuccessPage({ params }: PageProps) {
   const { purpose } = use(params);
   const router = useRouter();
+  const setToursForNewUser = useTourStore((state) => state.setToursForNewUser);
 
   const content = successMap[purpose] ?? successMap.account_verification;
+
+  const handleContinue = () => {
+    // Enable product tour only for newly registered users.
+    setToursForNewUser(purpose === "account_verification");
+    router.push(content.redirect);
+  };
 
   return (
     <main className="min-h-screen flex flex-col items-center px-4 text-center relative pt-20 bg-mainBG text-textmain theme-transition">
@@ -70,7 +78,7 @@ export default function VerificationSuccessPage({ params }: PageProps) {
 
         {/* CTA */}
         <button
-          onClick={() => router.push(content.redirect)}
+          onClick={handleContinue}
           className="bg-primary hover:bg-primary/80 text-white font-medium text-xl px-30 py-3 rounded-full theme-transition shadow-md cursor-pointer"
         >
           Continue
