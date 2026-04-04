@@ -147,6 +147,5 @@ export const logoutAPI = (): void => {
   Cookies.remove("tempToken");
   Cookies.remove("resetToken");
   Cookies.remove("bank_token");
-  localStorage.removeItem("user");
   localStorage.removeItem("isBankLinked");
 };

@@ -13,8 +13,10 @@ if (typeof window !== "undefined") {
     if (storedTheme) {
         try {
             const parsed = JSON.parse(storedTheme);
-            if (parsed === "dark" || parsed === "light") {
-                document.documentElement.dataset.theme = parsed;
+            const resolvedTheme =
+                (parsed && parsed.state && parsed.state.theme) || parsed;
+            if (resolvedTheme === "dark" || resolvedTheme === "light") {
+                document.documentElement.dataset.theme = resolvedTheme;
             }
         } catch { }
     }

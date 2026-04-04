@@ -131,20 +131,14 @@ export const attachAuthInterceptor = (axiosInstance: AxiosInstance) => {
 attachAuthInterceptor(baseInstance);
 attachAuthInterceptor(bankInstance);
 
-// Sync API instance (uses bank_token for auth)
+// Sync API instance (sync-now takes bank_token in request body)
 export const syncInstance = axios.create({
   baseURL: "http://127.0.0.1:8000/api/v1",
   headers: { "Content-Type": "application/json" },
 });
 
-// Attach bank_token to Authorization header if present
 syncInstance.interceptors.request.use((config) => {
-  const bankToken = Cookies.get("bank_token");
-  if (bankToken) {
-    config.headers = config.headers || {};
-    config.headers["X-Bank-Token"] = bankToken;
-  }
-  const userToken = Cookies.get("accessToken"); 
+  const userToken = Cookies.get("accessToken");
   if (userToken) {
     config.headers = config.headers || {};
     config.headers["Authorization"] = `Bearer ${userToken}`;

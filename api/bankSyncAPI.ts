@@ -1,4 +1,5 @@
 import { syncInstance } from "./axiosInstance";
+import Cookies from "js-cookie";
 
 export interface SyncNowResponse {
     status: string;
@@ -8,6 +9,14 @@ export interface SyncNowResponse {
 }
 
 export const syncNowAPI = async (): Promise<SyncNowResponse> => {
-    const response = await syncInstance.post("/bank/sync-now");
+    const bankToken = Cookies.get("bank_token");
+
+    if (!bankToken) {
+        throw new Error("Missing bank token. Please link your bank account again.");
+    }
+
+    const response = await syncInstance.post("/bank/sync-now", {
+        bank_token: bankToken,
+    });
     return response.data;
 };

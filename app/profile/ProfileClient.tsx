@@ -21,6 +21,7 @@ import {
   useDeleteUserTransactionData,
   useUnlinkBankAccounts,
 } from "@/hooks/useBankTransaction";
+import { useBankOverlay } from "@/stores/useBankOverlay";
 
 import { useProfileOverlays } from "@/stores/useProfileOverlays";
 import TextConfirmationOverlay from "@/components/gloabalComponents/TextConfirmationOverlay";
@@ -39,8 +40,12 @@ function getXpTitle(xp: number) {
 
 export default function Profile() {
   const messageApi = useAntdMessage();
-  const [isLinked, setIsLinked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const {
+    isBankLinked,
+    initialize: initializeBankOverlay,
+    setBankLinked,
+  } = useBankOverlay();
 
   const { data: user, isLoading, error } = useCurrentUser();
   const { data: myRewards, isLoading: rewardsLoading } = useMyUnlockedRewards();
@@ -57,16 +62,14 @@ export default function Profile() {
     closeUnlinkAccountConfirmation,
   } = useProfileOverlays();
 
-  // Sync UI with localStorage
   useEffect(() => {
-    const linked = localStorage.getItem("isBankLinked") === "true";
-    setIsLinked(linked);
-  }, []);
+    initializeBankOverlay();
+  }, [initializeBankOverlay]);
 
   const handleUnlink = () => {
     unlinkMutation.mutate(undefined, {
       onSuccess: () => {
-        setIsLinked(false);
+        setBankLinked(false);
         closeUnlinkAccountConfirmation();
         messageApi.success("Account unlinked successfully!");
       },
@@ -148,17 +151,17 @@ export default function Profile() {
           ) : (
             <div>
               <p className="text-gray-400 tracking-widest">
-                {isLinked ? "XXXX XXXX 1234" : "Link Account"}
+                {isBankLinked ? "XXXX XXXX 1234" : "Link Account"}
               </p>
               <p className="text-yellow-400 font-medium mt-1">
-                {isLinked ? user?.name : "No username"}
+                {isBankLinked ? user?.name : "No username"}
               </p>
             </div>
           )}
 
           {showInitialSkeletons ? (
             <SkeletonBlock className="absolute bottom-6 right-6 h-10 w-36 rounded-full" />
-          ) : isLinked ? (
+          ) : isBankLinked ? (
             <button
               onClick={openUnlinkAccountConfirmation}
               disabled={unlinkMutation.isPending}

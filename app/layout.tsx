@@ -29,8 +29,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 var t = window.localStorage.getItem('theme-mode');
                 if (t) {
                   var parsed = JSON.parse(t);
-                  if (parsed === 'dark' || parsed === 'light') {
-                    document.documentElement.dataset.theme = parsed;
+                  var resolvedTheme =
+                    (parsed && parsed.state && parsed.state.theme) || parsed;
+                  if (resolvedTheme === 'dark' || resolvedTheme === 'light') {
+                    document.documentElement.dataset.theme = resolvedTheme;
                   }
                 }
               } catch(e) {}
