@@ -357,8 +357,8 @@ export default function MyStocksPage() {
                 onClose={() => setMyStocksTour(false)}
                 onFinish={() => setMyStocksTour(false)}
                 steps={myStocksTourSteps}
-                zIndex={24354654}
-                rootClassName="!z-[24354654]"
+                zIndex={2147483645}
+                rootClassName="!z-[2147483645]"
             />
         </div>
     );

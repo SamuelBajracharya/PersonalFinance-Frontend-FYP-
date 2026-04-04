@@ -446,8 +446,8 @@ export default function Dashboard() {
         onClose={() => setDashboardTour(false)}
         onFinish={() => setDashboardTour(false)}
         steps={tourSteps}
-        zIndex={24354654}
-        rootClassName="!z-[24354654]"
+        zIndex={2147483645}
+        rootClassName="!z-[2147483645]"
       />
     </div>
   );

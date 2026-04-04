@@ -7,6 +7,7 @@ interface TourState {
     isTransactionsFeatureTour: boolean;
     isAnalyticsTour: boolean;
     isMyStocksTour: boolean;
+    isRewardsTour: boolean;
     initialize: () => void;
     setDashboardTour: (value: boolean) => void;
     setBudgetGoalsTour: (value: boolean) => void;
@@ -14,6 +15,7 @@ interface TourState {
     setTransactionsFeatureTour: (value: boolean) => void;
     setAnalyticsTour: (value: boolean) => void;
     setMyStocksTour: (value: boolean) => void;
+    setRewardsTour: (value: boolean) => void;
     setToursForNewUser: (value: boolean) => void;
 }
 
@@ -26,6 +28,7 @@ interface TourStorageState {
     transactionsFeature: boolean;
     analytics: boolean;
     myStocks: boolean;
+    rewards: boolean;
 }
 
 const defaultTourState: TourStorageState = {
@@ -35,6 +38,7 @@ const defaultTourState: TourStorageState = {
     transactionsFeature: false,
     analytics: false,
     myStocks: false,
+    rewards: false,
 };
 
 const readStoredTourState = (): TourStorageState => {
@@ -52,6 +56,7 @@ const readStoredTourState = (): TourStorageState => {
             transactionsFeature: Boolean(parsed.transactionsFeature),
             analytics: Boolean(parsed.analytics),
             myStocks: Boolean(parsed.myStocks),
+            rewards: Boolean(parsed.rewards),
         };
     } catch {
         return defaultTourState;
@@ -70,6 +75,7 @@ export const useTourStore = create<TourState>((set) => ({
     isTransactionsFeatureTour: false,
     isAnalyticsTour: false,
     isMyStocksTour: false,
+    isRewardsTour: false,
 
     initialize: () => {
         const saved = readStoredTourState();
@@ -80,6 +86,7 @@ export const useTourStore = create<TourState>((set) => ({
             isTransactionsFeatureTour: saved.transactionsFeature,
             isAnalyticsTour: saved.analytics,
             isMyStocksTour: saved.myStocks,
+            isRewardsTour: saved.rewards,
         });
     },
 
@@ -92,6 +99,7 @@ export const useTourStore = create<TourState>((set) => ({
                 transactionsFeature: state.isTransactionsFeatureTour,
                 analytics: state.isAnalyticsTour,
                 myStocks: state.isMyStocksTour,
+                rewards: state.isRewardsTour,
             };
             persistTourState(next);
             return { isDashboardTour: value };
@@ -107,6 +115,7 @@ export const useTourStore = create<TourState>((set) => ({
                 transactionsFeature: state.isTransactionsFeatureTour,
                 analytics: state.isAnalyticsTour,
                 myStocks: state.isMyStocksTour,
+                rewards: state.isRewardsTour,
             };
             persistTourState(next);
             return { isBudgetGoalsTour: value };
@@ -122,6 +131,7 @@ export const useTourStore = create<TourState>((set) => ({
                 transactionsFeature: state.isTransactionsFeatureTour,
                 analytics: state.isAnalyticsTour,
                 myStocks: state.isMyStocksTour,
+                rewards: state.isRewardsTour,
             };
             persistTourState(next);
             return { isTransactionsLinkTour: value };
@@ -137,6 +147,7 @@ export const useTourStore = create<TourState>((set) => ({
                 transactionsFeature: value,
                 analytics: state.isAnalyticsTour,
                 myStocks: state.isMyStocksTour,
+                rewards: state.isRewardsTour,
             };
             persistTourState(next);
             return { isTransactionsFeatureTour: value };
@@ -152,6 +163,7 @@ export const useTourStore = create<TourState>((set) => ({
                 transactionsFeature: state.isTransactionsFeatureTour,
                 analytics: value,
                 myStocks: state.isMyStocksTour,
+                rewards: state.isRewardsTour,
             };
             persistTourState(next);
             return { isAnalyticsTour: value };
@@ -167,9 +179,26 @@ export const useTourStore = create<TourState>((set) => ({
                 transactionsFeature: state.isTransactionsFeatureTour,
                 analytics: state.isAnalyticsTour,
                 myStocks: value,
+                rewards: state.isRewardsTour,
             };
             persistTourState(next);
             return { isMyStocksTour: value };
+        });
+    },
+
+    setRewardsTour: (value: boolean) => {
+        set((state) => {
+            const next = {
+                dashboard: state.isDashboardTour,
+                budgetGoals: state.isBudgetGoalsTour,
+                transactionsLink: state.isTransactionsLinkTour,
+                transactionsFeature: state.isTransactionsFeatureTour,
+                analytics: state.isAnalyticsTour,
+                myStocks: state.isMyStocksTour,
+                rewards: value,
+            };
+            persistTourState(next);
+            return { isRewardsTour: value };
         });
     },
 
@@ -181,6 +210,7 @@ export const useTourStore = create<TourState>((set) => ({
             transactionsFeature: value,
             analytics: value,
             myStocks: value,
+            rewards: value,
         };
         persistTourState(next);
         set({
@@ -190,6 +220,7 @@ export const useTourStore = create<TourState>((set) => ({
             isTransactionsFeatureTour: value,
             isAnalyticsTour: value,
             isMyStocksTour: value,
+            isRewardsTour: value,
         });
     },
 }));

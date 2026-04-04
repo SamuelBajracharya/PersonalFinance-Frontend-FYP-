@@ -463,8 +463,8 @@ const Transactions: React.FC = () => {
           }}
           steps={mandatoryLinkStep}
           closable={false}
-          zIndex={24354654}
-          rootClassName="!z-[24354654]"
+          zIndex={2147483645}
+          rootClassName="!z-[2147483645]"
         />
 
         <Tour
@@ -472,8 +472,8 @@ const Transactions: React.FC = () => {
           onClose={() => setTransactionsFeatureTour(false)}
           onFinish={() => setTransactionsFeatureTour(false)}
           steps={transactionsFeatureSteps}
-          zIndex={24354654}
-          rootClassName="!z-[24354654]"
+          zIndex={2147483645}
+          rootClassName="!z-[2147483645]"
         />
 
         {isOpen && <LinkAccountOverlay />}

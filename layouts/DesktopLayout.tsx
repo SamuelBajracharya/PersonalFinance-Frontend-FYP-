@@ -25,7 +25,7 @@ const DesktopLayout = ({ children }: LayoutPropsType) => {
 
       {/* Navbar section */}
       <div
-        className="!bg-mainBG/60 backdrop-blur-sm fixed top-0 left-[300px] right-0 border-b border-b-textsecondary !z-[2147483645] theme-transition"
+        className="!bg-mainBG/60 backdrop-blur-sm fixed top-0 left-[300px] right-0 border-b border-b-textsecondary !z-[2147483644] theme-transition"
         style={{ height: NAVBAR_HEIGHT, lineHeight: `${NAVBAR_HEIGHT}px` }}
       >
         <DesktopNavbar />

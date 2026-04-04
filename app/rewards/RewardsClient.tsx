@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
+import { Tour } from "antd";
 import { BsTrophy } from "react-icons/bs";
 
 import { RecentActivityItem } from "@/components/gloabalComponents/RecentActivityCard";
@@ -25,6 +26,7 @@ import { useCallback } from "react";
 import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
 import dayjs from "dayjs";
 import Link from "next/link";
+import { useTourStore } from "@/stores/useTour";
 
 const SEEN_VOUCHERS_KEY = "seen_voucher_ids";
 
@@ -56,7 +58,16 @@ const formatRecentActivityTime = (rawDate?: string) => {
 export default function Rewards() {
   const messageApi = useAntdMessage();
   const { openVoucherOverlay } = useVouchersOverlay();
+  const {
+    isRewardsTour,
+    initialize: initializeTour,
+    setRewardsTour,
+  } = useTourStore();
   const router = useRouter();
+  const whatIfRef = useRef<HTMLDivElement | null>(null);
+  const activeCouponsRef = useRef<HTMLDivElement | null>(null);
+  const xpCardRef = useRef<HTMLDivElement | null>(null);
+  const recentActivitiesRef = useRef<HTMLDivElement | null>(null);
   // Get all Nabil Bank transactions
   const { data: transactions } = useNabilBankTransactions(true);
   const { mutateAsync: createBudget } = useCreateBudget();
@@ -88,6 +99,42 @@ export default function Rewards() {
     showCouponsSkeleton ||
     showXpSkeleton ||
     showRecentSkeleton;
+
+  const shouldOpenRewardsTour = isRewardsTour && !showLoadingOverlay;
+
+  const resolveTarget = (element: HTMLElement | null): HTMLElement =>
+    element ?? document.body;
+
+  const rewardsTourSteps = [
+    {
+      title: "What If Suggestions",
+      description:
+        "Explore AI what-if cards and quickly convert useful suggestions into budget goals.",
+      target: () => resolveTarget(whatIfRef.current),
+    },
+    {
+      title: "Active Coupons",
+      description:
+        "View your unlocked vouchers and available discount codes in this section.",
+      target: () => resolveTarget(activeCouponsRef.current),
+    },
+    {
+      title: "XP & Rank",
+      description:
+        "Track your current rank, total XP, and progress toward the next tier.",
+      target: () => resolveTarget(xpCardRef.current),
+    },
+    {
+      title: "Recent Activities",
+      description:
+        "See your latest reward-related actions and XP gains.",
+      target: () => resolveTarget(recentActivitiesRef.current),
+    },
+  ];
+
+  useEffect(() => {
+    initializeTour();
+  }, [initializeTour]);
 
   const rankThresholds: Record<
     string,
@@ -216,7 +263,7 @@ export default function Rewards() {
         {/* LEFT SIDE */}
         <div className="lg:col-span-8 flex flex-col gap-8">
           {/* WHAT IF */}
-          <div>
+          <div ref={whatIfRef}>
             <h2 className="text-textmain text-2xl font-semibold tracking-wide mb-4">
               What If?
             </h2>
@@ -260,7 +307,7 @@ export default function Rewards() {
           </div>
 
           {/* ACTIVE COUPONS */}
-          <div>
+          <div ref={activeCouponsRef}>
             <div className="flex justify-between items-center">
               <h2 className="text-textmain text-2xl font-semibold tracking-wide mb-4">
                 Active Coupons
@@ -313,7 +360,7 @@ export default function Rewards() {
         <div className="lg:col-span-4 flex flex-col gap-8">
           {/* XP CARD */}
           {showXpSkeleton ? (
-            <div className="bg-secondaryBG p-8 rounded-3xl flex flex-col items-center text-center">
+            <div ref={xpCardRef} className="bg-secondaryBG p-8 rounded-3xl flex flex-col items-center text-center">
               <SkeletonBlock className="h-12 w-52 rounded-full mb-6" />
               <SkeletonBlock className="h-14 w-28" />
               <SkeletonBlock className="h-5 w-40 mt-2 mb-8" />
@@ -323,7 +370,7 @@ export default function Rewards() {
               </div>
             </div>
           ) : (
-            <div className="bg-secondaryBG p-8 rounded-3xl flex flex-col items-center text-center">
+            <div ref={xpCardRef} className="bg-secondaryBG p-8 rounded-3xl flex flex-col items-center text-center">
               <div className="inline-flex items-center gap-2 border border-primary px-6 py-3 rounded-full text-primary text-[16px] font-medium mb-6">
                 <BsTrophy size={24} />
                 {rank}
@@ -358,7 +405,7 @@ export default function Rewards() {
           )}
 
           {/* RECENT ACTIVITIES */}
-          <div>
+          <div ref={recentActivitiesRef}>
             <h2 className="text-textmain text-2xl font-semibold tracking-wide mb-4">
               Recent Activities
             </h2>
@@ -401,6 +448,14 @@ export default function Rewards() {
       </div>
 
       <LoadingOverlay show={showLoadingOverlay} />
+      <Tour
+        open={shouldOpenRewardsTour}
+        onClose={() => setRewardsTour(false)}
+        onFinish={() => setRewardsTour(false)}
+        steps={rewardsTourSteps}
+        zIndex={2147483645}
+        rootClassName="!z-[2147483645]"
+      />
 
       <VoucherCongratsOverlay />
     </div>

@@ -1532,8 +1532,8 @@ export default function AnalyticsPage() {
                 onClose={() => setAnalyticsTour(false)}
                 onFinish={() => setAnalyticsTour(false)}
                 steps={analyticsTourSteps}
-                zIndex={24354654}
-                rootClassName="!z-[24354654]"
+                zIndex={2147483645}
+                rootClassName="!z-[2147483645]"
             />
             {isOpen && <LinkAccountOverlay />}
         </div>

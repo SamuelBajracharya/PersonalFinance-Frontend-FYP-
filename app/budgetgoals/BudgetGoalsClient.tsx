@@ -729,8 +729,8 @@ export default function BudgetGoals() {
                 onClose={() => setBudgetGoalsTour(false)}
                 onFinish={() => setBudgetGoalsTour(false)}
                 steps={budgetGoalsTourSteps}
-                zIndex={24354654}
-                rootClassName="!z-[24354654]"
+                zIndex={2147483645}
+                rootClassName="!z-[2147483645]"
             />
             {isCreateBudgetOpen && <CreateBudgetOverlay />}
             <SimpleConfirmationOverlay
