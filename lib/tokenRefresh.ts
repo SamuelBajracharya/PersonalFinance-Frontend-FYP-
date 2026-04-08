@@ -1,5 +1,6 @@
 import Cookies from "js-cookie";
 import { AxiosInstance } from "axios";
+import { clearLogoutStorage } from "@/lib/logoutStorage";
 
 export const performTokenRefresh = async (
     axiosAuthInstance: AxiosInstance
@@ -37,6 +38,10 @@ export const performTokenRefresh = async (
         console.error("Token refresh failed:", refreshError);
         Cookies.remove("accessToken");
         Cookies.remove("refreshToken");
+        Cookies.remove("bank_token");
+        Cookies.remove("bank_token", { path: "/" });
+        Cookies.remove("bank_token", { path: "/", secure: true, sameSite: "strict" });
+        clearLogoutStorage();
         throw refreshError;
     }
 };

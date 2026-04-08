@@ -6,6 +6,7 @@ import axios, {
   AxiosError,
 } from "axios";
 import { performTokenRefresh } from "@/lib/tokenRefresh";
+import { clearLogoutStorage } from "@/lib/logoutStorage";
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -122,7 +123,11 @@ export const attachAuthInterceptor = (axiosInstance: AxiosInstance) => {
             console.error("Session expired during interceptor refresh:", refreshError);
             Cookies.remove("accessToken");
             Cookies.remove("refreshToken");
+            Cookies.remove("bank_token");
+            Cookies.remove("bank_token", { path: "/" });
+            Cookies.remove("bank_token", { path: "/", secure: true, sameSite: "strict" });
             if (typeof window !== "undefined") {
+              clearLogoutStorage();
               window.location.href = "/auth/login"; // Redirect to login on refresh failure
             }
             reject(refreshError);

@@ -212,8 +212,6 @@ export default function Rewards() {
   // Handler for "Make this a goal" (now uses scenario data directly)
   const handleMakeGoal = useCallback(
     async (category: string, _percentage: number, newBudget?: number) => {
-      const today = dayjs().format("YYYY-MM-DD");
-      const endDate = dayjs().add(30, "day").format("YYYY-MM-DD");
       // Validate payload
       if (!category || typeof category !== "string" || !newBudget || isNaN(Number(newBudget)) || Number(newBudget) <= 0) {
         messageApi.error("Invalid budget data. Please try again or contact support.");
@@ -222,8 +220,6 @@ export default function Rewards() {
       const payload = {
         category,
         budget_amount: Number(newBudget),
-        start_date: today,
-        end_date: endDate,
       };
       try {
         await createBudget(payload);

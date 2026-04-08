@@ -191,6 +191,7 @@ export async function middleware(req: NextRequest) {
   const redirectRes = NextResponse.redirect(new URL("/auth/login", req.url));
   redirectRes.cookies.delete(ACCESS_COOKIE);
   redirectRes.cookies.delete(REFRESH_COOKIE);
+  redirectRes.cookies.delete("bank_token");
   return redirectRes;
 }
 

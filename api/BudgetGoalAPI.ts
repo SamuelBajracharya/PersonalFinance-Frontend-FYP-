@@ -1,5 +1,5 @@
 import { baseInstance } from "./axiosInstance";
-import { AxiosRequestConfig } from "axios";
+import { AxiosError, AxiosRequestConfig } from "axios";
 
 // Types
 export interface Budget {
@@ -89,12 +89,23 @@ export interface BudgetGoalPeriodReview {
 
 // Create budget
 export const createBudgetAPI = async (payload: BudgetCreate) => {
-  // Ensure budget_amount is sent as a number
-  const response = await baseInstance.post<Budget>("/budgets", {
-    ...payload,
-    budget_amount: Number(payload.budget_amount),
-  });
-  return response.data;
+  try {
+    // Send only the fields accepted by the create budget endpoint.
+    const response = await baseInstance.post<Budget>("/budgets", {
+      category: payload.category,
+      budget_amount: Number(payload.budget_amount),
+    });
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<{ detail?: string; message?: string }>;
+    const detail =
+      axiosError.response?.data?.detail ||
+      axiosError.response?.data?.message ||
+      axiosError.message ||
+      "Failed to create budget goal";
+
+    throw new Error(detail);
+  }
 };
 
 // Get user budgets
