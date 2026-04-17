@@ -14,7 +14,7 @@ import {
     useSimulateBudgetGoal,
     useSingleBudgetGoalStatus,
 } from "@/hooks/useBudgetGoals";
-import { useNabilBankTransactions } from "@/hooks/useBankTransaction";
+import { useBankTransactions } from "@/hooks/useBankTransaction";
 import { useBankOverlay } from "@/stores/useBankOverlay";
 import { useCreateBudgetOverlay } from "@/stores/useCreateBudgetOverlay";
 import CreateBudgetOverlay from "@/components/gloabalComponents/CreateBudgetOverlay";
@@ -49,10 +49,15 @@ const formatMonthDay = (timestamp: number) => {
 export default function BudgetGoals() {
     const messageApi = useAntdMessage();
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; budgetId: string | null; category: string | null }>({ open: false, budgetId: null, category: null });
+    const [completionDialog, setCompletionDialog] = useState<{
+        open: boolean;
+        title: string;
+        message: string;
+    }>({ open: false, title: "", message: "" });
     const { isBankLinked, initialize } = useBankOverlay();
     const { data: statuses = [], isLoading: isStatusesLoading } =
         useBudgetGoalStatuses();
-    const { data: transactions = [] } = useNabilBankTransactions(isBankLinked);
+    const { data: transactions = [] } = useBankTransactions(isBankLinked);
 
     const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
     const [reductionPercent, setReductionPercent] = useState<number>(10);
@@ -77,6 +82,7 @@ export default function BudgetGoals() {
     const { mutate: runSimulation, isPending: isSimulationRunning } =
         useSimulateBudgetGoal();
     const { mutate: deleteBudget, isPending: isDeletingBudget } = useDeleteBudget();
+    const processedCompletedGoalIdsRef = useRef<Set<string>>(new Set());
     const rightPanelRef = useRef<HTMLElement | null>(null);
     const leftHeaderRef = useRef<HTMLDivElement | null>(null);
     const createBudgetButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -137,9 +143,53 @@ export default function BudgetGoals() {
     useBudgetPredictionExplanation(effectiveBudgetId);
     const { data: suggestions } = useBudgetGoalSuggestions(effectiveBudgetId);
     const { data: adaptive } = useBudgetGoalAdaptiveAdjustment(effectiveBudgetId);
-    const { data: review } = useBudgetGoalPeriodReview(effectiveBudgetId);
+    const { data: review, isFetching: isReviewFetching } = useBudgetGoalPeriodReview(effectiveBudgetId);
 
     const selectedStatus = singleStatus || selectedStatusFromList;
+
+    useEffect(() => {
+        if (!effectiveBudgetId || !review?.is_period_closed) return;
+        if (isReviewFetching) return;
+        if (!selectedStatus) return;
+        if (Number(selectedStatus.days_left) > 0) return;
+        if (processedCompletedGoalIdsRef.current.has(effectiveBudgetId)) return;
+
+        processedCompletedGoalIdsRef.current.add(effectiveBudgetId);
+
+        const absoluteDelta = Math.abs(Number(review.savings_or_overrun || 0));
+        const resultTitle = review.achieved ? "Goal Succeeded" : "Goal Failed";
+        const amountLine = review.achieved
+            ? `You saved ${currency(absoluteDelta)}.`
+            : `You overspent ${currency(absoluteDelta)}.`;
+
+        setCompletionDialog({
+            open: true,
+            title: resultTitle,
+            message: `${review.summary} ${amountLine} This finished goal will now be removed from your active goals.`,
+        });
+
+        deleteBudget(effectiveBudgetId, {
+            onSuccess: () => {
+                setSelectedBudgetId((currentId) =>
+                    currentId === effectiveBudgetId ? null : currentId
+                );
+            },
+            onError: () => {
+                processedCompletedGoalIdsRef.current.delete(effectiveBudgetId);
+                messageApi.error("Goal finished, but auto-delete failed. Please delete it manually.");
+            },
+        });
+    }, [
+        deleteBudget,
+        effectiveBudgetId,
+        isReviewFetching,
+        messageApi,
+        selectedStatus,
+        review?.achieved,
+        review?.is_period_closed,
+        review?.savings_or_overrun,
+        review?.summary,
+    ]);
 
     useEffect(() => {
         if (!selectedBudgetId && statuses.length > 0) {
@@ -757,6 +807,15 @@ export default function BudgetGoals() {
                     }
                 }}
                 onCancel={() => setDeleteDialog({ open: false, budgetId: null, category: null })}
+            />
+            <SimpleConfirmationOverlay
+                title={completionDialog.title}
+                message={completionDialog.message}
+                isOpen={completionDialog.open}
+                confirmText="Okay"
+                cancelText="Close"
+                onConfirm={() => setCompletionDialog({ open: false, title: "", message: "" })}
+                onCancel={() => setCompletionDialog({ open: false, title: "", message: "" })}
             />
         </div>
     );

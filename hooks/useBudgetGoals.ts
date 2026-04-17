@@ -182,7 +182,6 @@ export const useBudgetGoalPeriodReview = (budgetId: string) => {
     queryKey: queryKeys.budgets.periodReview(budgetId),
     queryFn: () => fetchBudgetGoalPeriodReviewAPI(budgetId),
     enabled: !!budgetId,
-    placeholderData: (previousData) => previousData,
     staleTime: 1000 * 60 * 3,
   });
 };

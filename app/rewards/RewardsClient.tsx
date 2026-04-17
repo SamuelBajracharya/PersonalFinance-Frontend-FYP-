@@ -19,7 +19,7 @@ import { useRecentRewardActivity } from "@/hooks/useRewards";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useMyActiveVouchers } from "@/hooks/useCoupons";
 import { useVouchersOverlay } from "@/stores/useVouchersOverlay";
-import { useNabilBankTransactions } from "@/hooks/useBankTransaction";
+import { useBankTransactions } from "@/hooks/useBankTransaction";
 import { useCreateBudget } from "@/hooks/useBudgetGoals";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
@@ -68,8 +68,8 @@ export default function Rewards() {
   const activeCouponsRef = useRef<HTMLDivElement | null>(null);
   const xpCardRef = useRef<HTMLDivElement | null>(null);
   const recentActivitiesRef = useRef<HTMLDivElement | null>(null);
-  // Get all Nabil Bank transactions
-  const { data: transactions } = useNabilBankTransactions(true);
+  // Get all linked bank transactions (primary account)
+  const { data: transactions } = useBankTransactions(true);
   const { mutateAsync: createBudget } = useCreateBudget();
 
   const { data: whatIfScenarios, isLoading, isError } = useWhatIfSccenarios();

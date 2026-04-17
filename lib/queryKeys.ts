@@ -43,8 +43,12 @@ export const queryKeys = {
     whatIfScenarios: ["what-if-scenarios"] as const,
     bank: {
         accounts: ["bank-accounts"] as const,
-        nabilAccount: ["nabil-bank-account"] as const,
-        nabilTransactions: ["nabil-bank-transactions"] as const,
+        account: ["bank-account"] as const,
+        transactions: ["bank-transactions"] as const,
+        syncStatus: ["bank-sync-status"] as const,
+        // Backward-compatible aliases used across existing screens.
+        nabilAccount: ["bank-account"] as const,
+        nabilTransactions: ["bank-transactions"] as const,
     },
     dashboard: ["dashboard"] as const,
     currentUser: ["currentUser"] as const,

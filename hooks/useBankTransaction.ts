@@ -10,8 +10,8 @@ import {
   Transaction,
   unlinkBankAccounts,
   deleteUserTransactionData,
-  getNabilBankTransactions,
-  getNabilBankAccount,
+  getBankTransactions,
+  getPrimaryBankAccount,
 } from "@/api/transactionAPI";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -32,8 +32,9 @@ export const useLoginToBank = () => {
       }
 
       queryClient.invalidateQueries({ queryKey: queryKeys.bank.accounts });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilAccount });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilTransactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.account });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.transactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.syncStatus });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
       queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
@@ -51,8 +52,9 @@ export const useUnlinkBankAccounts = () => {
       localStorage.setItem("isBankLinked", "false");
 
       queryClient.invalidateQueries({ queryKey: queryKeys.bank.accounts });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilAccount });
-      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilTransactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.account });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.transactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.syncStatus });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
       queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
@@ -67,7 +69,7 @@ export const useDeleteUserTransactionData = () => {
   return useMutation({
     mutationFn: deleteUserTransactionData,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilTransactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.transactions });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
       queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
@@ -84,22 +86,22 @@ export const useBankAccounts = () => {
   });
 };
 
-// get Nabil Bank account (current user)
-export const useNabilBankAccount = (enabled: boolean) => {
+// get primary linked bank account (current user)
+export const usePrimaryBankAccount = (enabled: boolean) => {
   return useQuery<BankAccount>({
-    queryKey: queryKeys.bank.nabilAccount,
-    queryFn: getNabilBankAccount,
+    queryKey: queryKeys.bank.account,
+    queryFn: getPrimaryBankAccount,
     enabled,
     placeholderData: (previousData) => previousData,
     staleTime: 1000 * 60 * 3,
   });
 };
 
-// get Nabil Bank transactions (current user)
-export const useNabilBankTransactions = (enabled: boolean) => {
+// get transactions for primary linked bank account (current user)
+export const useBankTransactions = (enabled: boolean) => {
   return useQuery<Transaction[]>({
-    queryKey: queryKeys.bank.nabilTransactions,
-    queryFn: getNabilBankTransactions,
+    queryKey: queryKeys.bank.transactions,
+    queryFn: getBankTransactions,
     enabled,
     placeholderData: (previousData) => previousData,
     staleTime: 1000 * 60,
@@ -112,10 +114,14 @@ export const useCreateTransaction = () => {
   return useMutation({
     mutationFn: (data: Partial<Transaction>) => createTransaction(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.bank.nabilTransactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.bank.transactions });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
       queryClient.invalidateQueries({ queryKey: queryKeys.budgets.goalStatuses });
     },
   });
 };
+
+// Backward-compatible aliases for existing imports.
+export const useNabilBankAccount = usePrimaryBankAccount;
+export const useNabilBankTransactions = useBankTransactions;

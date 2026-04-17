@@ -16,8 +16,8 @@ import ManualTransactionCreateOverlay from "@/components/gloabalComponents/Manua
 import { useCreateManualTransactionsOverlay } from "@/stores/useCreateManualTransactionsOverlay";
 
 import {
-  useNabilBankAccount,
-  useNabilBankTransactions,
+  usePrimaryBankAccount,
+  useBankTransactions,
 } from "@/hooks/useBankTransaction";
 import { useBankSync } from "@/hooks/useBankSync";
 import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
@@ -68,13 +68,13 @@ const Transactions: React.FC = () => {
     isLoading: accountLoading,
     isFetching: accountFetching,
     isError,
-  } = useNabilBankAccount(isBankLinked);
+  } = usePrimaryBankAccount(isBankLinked);
 
   const {
     data: transactions,
     isLoading: transactionLoading,
     isFetching: transactionFetching,
-  } = useNabilBankTransactions(isBankLinked);
+  } = useBankTransactions(isBankLinked);
 
   // Extract unique years and categories from transactions
   const years = useMemo(() => {
