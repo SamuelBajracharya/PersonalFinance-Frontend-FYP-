@@ -27,8 +27,8 @@ const successMap = {
   password_reset: {
     title: "Password Reset Successful!",
     description:
-      "Your password has been updated successfully. You can now continue using your account securely.",
-    redirect: "/dashboard",
+      "Your password has been updated successfully. You can now log in with your new password.",
+    redirect: "/auth/login",
   },
   account_verification: {
     title: "Verification Successful!",
@@ -52,13 +52,13 @@ export default function VerificationSuccessPage({ params }: PageProps) {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-4 text-center relative pt-20 bg-mainBG text-textmain theme-transition">
+    <main className="min-h-screen flex flex-col items-center px-4 text-center relative pt-20 bg-mainBG text-textmain theme-transition overflow-y-auto">
       {/* Logo */}
       <div className="absolute top-6 left-6">
         <Logo width={240} />
       </div>
 
-      <div className="w-full max-w-2xl mt-14 rounded-3xl bg-secondaryBG border border-accentBG shadow-2xl px-6 py-12 md:px-10 theme-transition">
+      <div className="w-full max-w-2xl mt-14 rounded-3xl bg-secondaryBG border border-accentBG shadow-2xl px-6 py-12 md:px-10 theme-transition mb-8">
         {/* Success Icon */}
         <div className="mb-6 flex justify-center">
           <div className="size-28 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg theme-transition">
@@ -79,7 +79,7 @@ export default function VerificationSuccessPage({ params }: PageProps) {
         {/* CTA */}
         <button
           onClick={handleContinue}
-          className="bg-primary hover:bg-primary/80 text-white font-medium text-xl px-30 py-3 rounded-full theme-transition shadow-md cursor-pointer"
+          className="bg-primary hover:bg-primary/80 text-white font-medium text-xl w-full max-w-xs px-8 py-3 rounded-full theme-transition shadow-md cursor-pointer"
         >
           Continue
         </button>

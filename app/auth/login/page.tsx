@@ -51,15 +51,16 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center w-full text-textmain px-6 theme-transition">
+    <div className="flex flex-col items-center justify-center w-full text-textmain px-4 py-4 max-w-md mx-auto theme-transition">
       {/* This makes the fucking toasts show */}
       {contextHolder}
 
+      {/* Logo */}
       <div className="mb-4">
         <Logo width={220} />
       </div>
 
-      <h2 className="text-xl font-semibold mb-12 text-textmain theme-transition">Welcome Back!</h2>
+      <h2 className="text-xl font-semibold mb-6 md:mb-12 text-textmain theme-transition">Welcome Back!</h2>
 
       <Form
         name="login"

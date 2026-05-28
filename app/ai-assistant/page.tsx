@@ -264,7 +264,12 @@ export default function AIAssistant() {
 
       {/* Input area */}
       <div className="fixed bottom-0 w-full flex flex-col items-center z-10">
-        <div className="w-full max-w-4xl bg-mainBG pb-4">
+        <div className="w-full max-w-4xl bg-mainBG px-4 md:px-0 pb-[80px] md:pb-4 pt-4">
+          {/* Disclaimer on top for mobile, or below for desktop? Let's just keep it below but fix the gap */}
+          <p className="w-full text-center pb-2 text-textsecondary text-sm">
+            This assistant may make mistakes and is not a substitute for
+            professional advice.
+          </p>
           <div className="flex items-end bg-secondaryBG rounded-4xl px-4 py-2">
             <textarea
               ref={textareaRef}
@@ -285,11 +290,6 @@ export default function AIAssistant() {
               <BsArrowUp size={20} />
             </button>
           </div>
-
-          <p className="w-full text-center pt-2 text-textsecondary text-sm">
-            This assistant may make mistakes and is not a substitute for
-            professional advice.
-          </p>
         </div>
       </div>
     </div>

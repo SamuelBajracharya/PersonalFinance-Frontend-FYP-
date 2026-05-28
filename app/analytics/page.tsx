@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Button, Select, Tour, message } from "antd";
-import { FaExchangeAlt, FaBalanceScale } from "react-icons/fa";
+import { Button, Select, Tour, Tooltip, message } from "antd";
+import { FaExchangeAlt, FaBalanceScale, FaFileCsv, FaFilePdf, FaSyncAlt, FaUndoAlt } from "react-icons/fa";
 import { AiOutlineTransaction } from "react-icons/ai";
 import Image from "next/image";
 import dayjs from "dayjs";
@@ -1081,51 +1081,90 @@ export default function AnalyticsPage() {
     return (
         <div className="min-h-screen space-y-6 p-4 md:p-6">
             {contextHolder}
-            <div className="rounded-2xl bg-secondaryBG border border-white/10 p-4 md:p-5">
-                <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+            <div className="rounded-2xl bg-secondaryBG border border-white/10 p-4 md:p-5 space-y-3">
+                {/* Row 1 — Filters */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
                     <div ref={timeHorizonRef} className="flex flex-wrap items-center gap-2">
                         <div className="inline-flex items-center gap-1 rounded-xl bg-tableBG p-1 border border-accentBG w-fit">
                             {timeHorizonOptions.map((option) => (
                                 <button
                                     key={option.key}
                                     onClick={() => setSelectedPreset(option.key)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-semibold tracking-wide transition cursor-pointer ${selectedPreset === option.key
-                                        ? "bg-[#F5AD30] text-[#151515]"
-                                        : "text-textsecondary hover:text-textmain"
-                                        }`}
+                                    className={`px-3 sm:px-4 py-1.5 rounded-lg text-sm font-semibold tracking-wide transition cursor-pointer ${
+                                        selectedPreset === option.key
+                                            ? "bg-[#F5AD30] text-[#151515]"
+                                            : "text-textsecondary hover:text-textmain"
+                                    }`}
                                     type="button"
                                 >
                                     {option.label}
                                 </button>
                             ))}
                         </div>
-
                         <Select
                             value={selectedYear}
                             onChange={(value) => setSelectedYear(value as YearFilter)}
                             options={yearOptions}
-                            className="custom-select min-w-[120px]"
+                            className="custom-select min-w-[110px]"
                         />
                     </div>
 
-                    <div ref={downloadActionsRef} className="flex flex-wrap items-center gap-2">
-                        <button onClick={handleDownloadCsv} className={csvButtonClass + " cursor-pointer"} type="button">
-                            Download CSV
-                        </button>
-                        <button onClick={() => void handleDownloadPdf()} className={pdfButtonClass + " cursor-pointer"} type="button">
-                            Download PDF
-                        </button>
-                        <button onClick={() => void analyticsQuery.refetch()} className={"" + actionButtonBaseClass + " !text-primary border border-primary hover:bg-primary/10 cursor-pointer"} type="button">
-                            Refresh
-                        </button>
-                        <button onClick={handleResetFilters} className={resetButtonClass + " cursor-pointer"} type="button">
-                            Reset
-                        </button>
-                    </div>
+                    {/* Row 1 Right — context label */}
+                    <p className="text-xs text-textsecondary hidden sm:block">
+                        Viewing <span className="text-textmain font-medium">{presetLabels[selectedPreset]}</span> for{" "}
+                        <span className="text-textmain font-medium">{selectedYear === "all" ? "all years" : selectedYear}</span>
+                    </p>
                 </div>
-                <p className="text-xs text-textsecondary mt-3">
-                    Viewing {presetLabels[selectedPreset]} window for {selectedYear === "all" ? "all years" : selectedYear}.
-                </p>
+
+                {/* Row 2 — Actions */}
+                <div ref={downloadActionsRef} className="flex items-center gap-2 flex-wrap">
+                    <Tooltip title="Download CSV">
+                        <button
+                            onClick={handleDownloadCsv}
+                            type="button"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 bg-white/5 hover:bg-white/10 text-textsecondary hover:text-textmain transition cursor-pointer"
+                        >
+                            <FaFileCsv size={13} className="text-emerald-400" />
+                            <span className="hidden sm:inline">CSV</span>
+                        </button>
+                    </Tooltip>
+                    <Tooltip title="Download PDF">
+                        <button
+                            onClick={() => void handleDownloadPdf()}
+                            type="button"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 bg-white/5 hover:bg-white/10 text-textsecondary hover:text-textmain transition cursor-pointer"
+                        >
+                            <FaFilePdf size={13} className="text-red-400" />
+                            <span className="hidden sm:inline">PDF</span>
+                        </button>
+                    </Tooltip>
+                    <div className="w-px h-4 bg-white/10 mx-1" />
+                    <Tooltip title="Refresh data">
+                        <button
+                            onClick={() => void analyticsQuery.refetch()}
+                            type="button"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border border-primary/40 bg-primary/5 hover:bg-primary/15 text-primary transition cursor-pointer"
+                        >
+                            <FaSyncAlt size={12} />
+                            <span className="hidden sm:inline">Refresh</span>
+                        </button>
+                    </Tooltip>
+                    <Tooltip title="Reset filters">
+                        <button
+                            onClick={handleResetFilters}
+                            type="button"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 bg-white/5 hover:bg-red-500/10 hover:border-red-400/30 text-textsecondary hover:text-red-400 transition cursor-pointer"
+                        >
+                            <FaUndoAlt size={12} />
+                            <span className="hidden sm:inline">Reset</span>
+                        </button>
+                    </Tooltip>
+
+                    {/* Mobile-only label */}
+                    <p className="text-xs text-textsecondary sm:hidden ml-auto">
+                        {presetLabels[selectedPreset]} · {selectedYear === "all" ? "All years" : selectedYear}
+                    </p>
+                </div>
             </div>
 
             <div ref={chartsExportRef} className="space-y-6">
@@ -1439,40 +1478,42 @@ export default function AnalyticsPage() {
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
                             <div ref={advisorGaugeRef} className="bg-secondaryBG rounded-2xl p-5 md:p-6 border border-white/10 space-y-4 min-w-0 overflow-hidden">
                                 <h4 className="text-lg font-medium">2. Expense-to-Income Ratio</h4>
-                                <div data-export-chart="advisor-gauge" className="flex flex-col sm:flex-row sm:items-center gap-5">
-                                    <svg width="250" height="250" viewBox="0 0 140 140" aria-label="Expense to income ratio gauge">
-                                        <circle cx="70" cy="70" r="52" stroke="rgba(255,255,255,0.12)" strokeWidth="12" fill="none" />
-                                        <circle
-                                            cx="70"
-                                            cy="70"
-                                            r="52"
-                                            stroke={gaugeStrokeColor}
-                                            strokeWidth="12"
-                                            fill="none"
-                                            strokeLinecap="round"
-                                            strokeDasharray={`${2 * Math.PI * 52}`}
-                                            strokeDashoffset={`${2 * Math.PI * 52 * (1 - gaugeRatioPct / 100)}`}
-                                            transform="rotate(-90 70 70)"
-                                        />
-                                        <text
-                                            x="70"
-                                            y="68"
-                                            textAnchor="middle"
-                                            className="text-lg font-semibold"
-                                            style={{ fill: "var(--color-textmain)" }}
-                                        >
-                                            {gaugeRatioPct.toFixed(1)}%
-                                        </text>
-                                        <text
-                                            x="70"
-                                            y="86"
-                                            textAnchor="middle"
-                                            className="text-xs"
-                                            style={{ fill: "var(--color-textsecondary)" }}
-                                        >
-                                            {gaugeData?.zone ?? "unknown"}
-                                        </text>
-                                    </svg>
+                                <div data-export-chart="advisor-gauge" className="flex flex-col sm:flex-row sm:items-center gap-5 justify-center sm:justify-start">
+                                    <div className="flex justify-center shrink-0 w-full sm:w-auto">
+                                        <svg width="250" height="250" viewBox="0 0 140 140" aria-label="Expense to income ratio gauge">
+                                            <circle cx="70" cy="70" r="52" stroke="rgba(255,255,255,0.12)" strokeWidth="12" fill="none" />
+                                            <circle
+                                                cx="70"
+                                                cy="70"
+                                                r="52"
+                                                stroke={gaugeStrokeColor}
+                                                strokeWidth="12"
+                                                fill="none"
+                                                strokeLinecap="round"
+                                                strokeDasharray={`${2 * Math.PI * 52}`}
+                                                strokeDashoffset={`${2 * Math.PI * 52 * (1 - gaugeRatioPct / 100)}`}
+                                                transform="rotate(-90 70 70)"
+                                            />
+                                            <text
+                                                x="70"
+                                                y="68"
+                                                textAnchor="middle"
+                                                className="text-lg font-semibold"
+                                                style={{ fill: "var(--color-textmain)" }}
+                                            >
+                                                {gaugeRatioPct.toFixed(1)}%
+                                            </text>
+                                            <text
+                                                x="70"
+                                                y="86"
+                                                textAnchor="middle"
+                                                className="text-xs"
+                                                style={{ fill: "var(--color-textsecondary)" }}
+                                            >
+                                                {gaugeData?.zone ?? "unknown"}
+                                            </text>
+                                        </svg>
+                                    </div>
 
                                     <div className="space-y-1 text-md min-w-0">
                                         <p>Income: <span className="text-textmain">{formatRupees(parseAmount(gaugeData?.totalIncome))}</span></p>
@@ -1499,13 +1540,26 @@ export default function AnalyticsPage() {
                                                 height={220}
                                             />
                                         </div>
-                                        <div className="space-y-2 min-w-0">
-                                            {discretionaryData.slice(0, 5).map((segment) => (
-                                                <div key={segment.id} className="flex items-center gap-8 text-lg min-w-0">
-                                                    <span className="text-textsecondary truncate" title={segment.label}>{segment.label}</span>
-                                                    <span className="shrink-0">{formatRupees(segment.value, 0)}</span>
-                                                </div>
-                                            ))}
+                                        <div className="space-y-2.5 min-w-0 w-full">
+                                            {discretionaryData.slice(0, 5).map((segment, index) => {
+                                                const colors = ["#f97316", "#38bdf8", "#84cc16", "#e879f9", "#facc15"];
+                                                return (
+                                                    <div key={segment.id} className="flex items-center justify-between text-[15px] min-w-0 w-full">
+                                                        <div className="flex items-center gap-2.5 min-w-0">
+                                                            <div
+                                                                className="size-3 rounded-full shrink-0"
+                                                                style={{ backgroundColor: colors[index % colors.length] }}
+                                                            />
+                                                            <span className="text-textsecondary truncate" title={segment.label}>
+                                                                {segment.label}
+                                                            </span>
+                                                        </div>
+                                                        <span className="shrink-0 font-semibold text-textmain">
+                                                            {formatRupees(segment.value, 0)}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 ) : (

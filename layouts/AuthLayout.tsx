@@ -4,7 +4,7 @@ import React from "react";
 
 const AuthLayout = ({ children }: LayoutPropsType) => {
   return (
-    <div className="flex w-screen h-screen overflow-hidden bg-mainBG text-textmain theme-transition">
+    <div className="flex w-screen h-screen md:overflow-hidden overflow-y-auto bg-mainBG text-textmain theme-transition">
       {/* Left side - image */}
       <div className="relative w-1/2 h-full items-center justify-center p-2 box-border hidden md:flex">
         <div className="relative w-full h-full">
@@ -22,7 +22,7 @@ const AuthLayout = ({ children }: LayoutPropsType) => {
       </div>
 
       {/* Right side - auth content */}
-      <main className="w-full md:w-1/2 h-full flex items-center justify-center bg-mainBG px-4 theme-transition">
+      <main className="w-full md:w-1/2 h-full flex items-center justify-center bg-mainBG px-4 py-8 md:py-0 theme-transition">
         {children}
       </main>
     </div>

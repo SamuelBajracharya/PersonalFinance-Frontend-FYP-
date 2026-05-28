@@ -9,6 +9,7 @@ import React, {
   useEffect,
   use,
 } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { OtpData, TokenResponse, ResetTokenResponse } from "@/types/authAPI";
@@ -126,7 +127,7 @@ export default function VerificationPage({
             secure: secureCookie,
             sameSite: "strict",
           });
-          router.push("/success/password_reset");
+          router.push("/auth/reset-password");
           return;
         }
 
@@ -171,56 +172,72 @@ export default function VerificationPage({
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-textmain px-6 w-full max-w-xl mx-auto theme-transition">
+    <div className="flex flex-col items-center h-full text-textmain px-4 w-full max-w-xl mx-auto theme-transition py-4 md:justify-center md:h-auto">
       {contextHolder}
-      <div className="mb-12">
+
+      {/* Desktop Logo */}
+      <div className="hidden md:block mb-10">
         <Logo width={240} />
       </div>
 
-      <h1 className="text-4xl font-semibold text-primary mb-4 text-center">
-        {title}
-      </h1>
-      <p className="text-lg text-textsecondary text-center mb-8 theme-transition">{subtitle}</p>
-
-      <div className="flex space-x-3 mb-6">
-        {code.map((num, i) => (
-          <input
-            key={i}
-            id={`code-${i}`}
-            type="text"
-            maxLength={1}
-            value={num}
-            inputMode="numeric"
-            onChange={(e) => handleChange(e.target.value, i)}
-            onPaste={handlePaste}
-            onKeyDown={(e) => handleKeyDown(e, i)}
-            className="size-16 text-center text-lg rounded-lg bg-accentBG border border-accentBG text-textmain focus:border-primary focus:outline-none theme-transition"
-          />
-        ))}
+      {/* Mobile Illustration Banner */}
+      <div className="w-full flex-grow flex-1 relative rounded-3xl overflow-hidden shadow-2xl mb-6 md:hidden min-h-[150px]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/auth_image.png"
+          alt="auth-image"
+          className="absolute inset-0 w-full h-full object-cover scale-[1.15]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/40" />
       </div>
 
-      <p className="text-md text-textsecondary mb-8 theme-transition">
-        Didn’t receive any code?{" "}
-        <button
-          onClick={handleResend}
-          disabled={resending || cooldown > 0}
-          className="text-accent hover:underline disabled:opacity-50 theme-transition"
-        >
-          {cooldown > 0
-            ? `Resend in ${cooldown}s`
-            : resending
-              ? "Resending..."
-              : "Resend code"}
-        </button>
-      </p>
+      {/* Verification Form and Titles */}
+      <div className="w-full flex flex-col items-center shrink-0">
+        <h1 className="text-3xl md:text-4xl font-semibold text-primary mb-3 text-center">
+          {title}
+        </h1>
+        <p className="text-base md:text-lg text-textsecondary text-center mb-8 theme-transition max-w-md">{subtitle}</p>
 
-      <button
-        onClick={handleVerify}
-        disabled={verifying}
-        className="bg-primary hover:bg-primary/80 text-white w-[80%] font-semibold py-3 px-20 rounded-full theme-transition disabled:opacity-50"
-      >
-        {verifying ? "Verifying..." : "Verify"}
-      </button>
+        <div className="flex space-x-2 md:space-x-3 mb-6 justify-center w-full">
+          {code.map((num, i) => (
+            <input
+              key={i}
+              id={`code-${i}`}
+              type="text"
+              maxLength={1}
+              value={num}
+              inputMode="numeric"
+              onChange={(e) => handleChange(e.target.value, i)}
+              onPaste={handlePaste}
+              onKeyDown={(e) => handleKeyDown(e, i)}
+              className="size-12 md:size-16 text-center text-xl rounded-lg bg-accentBG border border-accentBG text-textmain focus:border-primary focus:outline-none theme-transition"
+            />
+          ))}
+        </div>
+
+        <p className="text-md text-textsecondary mb-8 theme-transition whitespace-nowrap">
+          Didn’t receive any code?{" "}
+          <button
+            onClick={handleResend}
+            disabled={resending || cooldown > 0}
+            className="text-accent hover:underline disabled:opacity-50 theme-transition font-medium cursor-pointer"
+          >
+            {cooldown > 0
+              ? `Resend in ${cooldown}s`
+              : resending
+                ? "Resending..."
+                : "Resend code"}
+          </button>
+        </p>
+
+        <button
+          onClick={handleVerify}
+          disabled={verifying}
+          className="bg-primary hover:bg-primary/80 text-white w-full max-w-xs font-semibold py-3 px-8 rounded-full theme-transition disabled:opacity-50 cursor-pointer shadow-lg"
+        >
+          {verifying ? "Verifying..." : "Continue"}
+        </button>
+      </div>
     </div>
   );
 }

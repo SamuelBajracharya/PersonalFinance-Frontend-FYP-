@@ -14,11 +14,13 @@ const MobileNavbar = () => {
     const pageTitle = pathname
         .split("/")
         .filter(Boolean)
-        .map(part =>
-            (part === "mystocks" ? "my stocks" : part)
+        .map(part => {
+            if (part === "mystocks") return "My Stocks";
+            if (part === "help") return "Help & Support";
+            return part
                 .replace(/-/g, " ")
-                .replace(/\b\w/g, c => c.toUpperCase())
-        )
+                .replace(/\b\w/g, c => c.toUpperCase());
+        })
         .join(" / ");
     return (
         // main background
@@ -35,12 +37,16 @@ const MobileNavbar = () => {
                 {/* title */}
                 <h2 className='font-medium text-20'>{pageTitle || 'Dashboard'}</h2>
             </div>
-            {/* right handside */}
             <div className='flex items-center gap-4'>
                 {/* ChatBot */}
-                <PiChatCircleTextDuotone className='text-3xl text-accent cursor-pointer' />
+                <PiChatCircleTextDuotone 
+                    className='text-3xl text-accent cursor-pointer' 
+                    onClick={() => router.push('/ai-assistant')} 
+                />
                 {/* profile avatar */}
-                <Avatar size={32} src={user?.profile_image_url || "https://xsgames.co/randomusers/avatar.php?g=pixel"} />
+                <div className='cursor-pointer' onClick={() => router.push('/profile')}>
+                    <Avatar size={32} src={user?.profile_image_url || "https://xsgames.co/randomusers/avatar.php?g=pixel"} />
+                </div>
             </div>
         </div>
     )

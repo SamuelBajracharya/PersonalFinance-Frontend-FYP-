@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Tour } from "antd";
 import { BsFileText, BsPlus } from "react-icons/bs";
+import { useResponsive } from "@/hooks/useResponsive";
 import BarChart from "@/components/gloabalComponents/BarChart";
 import {
     useBudgetGoalAdaptiveAdjustment,
@@ -48,6 +49,10 @@ const formatMonthDay = (timestamp: number) => {
 
 export default function BudgetGoals() {
     const messageApi = useAntdMessage();
+    const { isMobile } = useResponsive();
+    const carouselRef = useRef<HTMLDivElement | null>(null);
+    const [activeCardIndex, setActiveCardIndex] = useState(0);
+
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; budgetId: string | null; category: string | null }>({ open: false, budgetId: null, category: null });
     const [completionDialog, setCompletionDialog] = useState<{
         open: boolean;
@@ -197,6 +202,34 @@ export default function BudgetGoals() {
         }
     }, [selectedBudgetId, statuses]);
 
+    // Track which carousel card is centred (mobile only)
+    const observerRef = useRef<IntersectionObserver | null>(null);
+    const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+    const setupCarouselObserver = useCallback(() => {
+        observerRef.current?.disconnect();
+        if (!isMobile) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    if (entry.isIntersecting) {
+                        const idx = cardRefs.current.findIndex((el) => el === entry.target);
+                        if (idx !== -1) setActiveCardIndex(idx);
+                    }
+                }
+            },
+            { root: carouselRef.current, threshold: 0.6 },
+        );
+        cardRefs.current.forEach((el) => el && observer.observe(el));
+        observerRef.current = observer;
+        return () => observer.disconnect();
+    }, [isMobile]);
+
+    useEffect(() => {
+        setupCarouselObserver();
+        return () => observerRef.current?.disconnect();
+    }, [setupCarouselObserver, statuses]);
+
     useEffect(() => {
         setLastSimulation(null);
     }, [selectedBudgetId]);
@@ -341,146 +374,289 @@ export default function BudgetGoals() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <aside className="lg:col-span-4 self-start flex flex-col h-full min-h-0">
-                    <div ref={leftHeaderRef} className="flex items-center justify-between mb-3">
-                        <h2 className="text-3xl font-semibold text-textmain">Your Budgets</h2>
-                        <span className="h-8 min-w-8 px-2 rounded-full bg-tableBG text-primary text-md flex items-center justify-center">
-                            {statuses.length}
-                        </span>
-                    </div>
+            <div className={isMobile ? "flex flex-col gap-4" : "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"}>
+                {/* ── Mobile: horizontal snap-scroll carousel ── */}
+                {isMobile ? (
+                    <div className="mb-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <h2 className="text-2xl font-semibold text-textmain">Your Budgets</h2>
+                            <span className="h-7 min-w-7 px-2 rounded-full bg-tableBG text-primary text-sm flex items-center justify-center">
+                                {statuses.length}
+                            </span>
+                        </div>
 
-                    <div
-                        ref={budgetListRef}
-                        className="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1"
-                        style={
-                            leftListMaxHeight > 0
-                                ? {
-                                    maxHeight: `${Math.max(
-                                        leftListMaxHeight - leftHeaderHeight,
-                                        180,
-                                    )}px`,
-                                }
-                                : undefined
-                        }
-                    >
-                        {showInitialSkeletons &&
-                            Array.from({ length: 4 }).map((_, index) => (
-                                <SkeletonBlock
-                                    key={index}
-                                    className="h-[220px] rounded-2xl"
-                                />
-                            ))}
-
-                        {!showInitialSkeletons && statuses.length === 0 && (
+                        {showInitialSkeletons ? (
+                            <SkeletonBlock className="h-[260px] rounded-2xl" />
+                        ) : statuses.length === 0 ? (
                             <p className="rounded-2xl border border-primary bg-secondaryBG p-5 text-center text-textsecondary">
                                 No budget statuses found.
                             </p>
-                        )}
+                        ) : (
+                            <>
+                                {/* Carousel track */}
+                                <div
+                                    ref={carouselRef}
+                                    className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-1 scroll-smooth"
+                                    style={{ scrollbarWidth: "none" }}
+                                >
+                                    {statuses.map((status, index) => {
+                                        const progress = clamp(Number(status.progress_percent || 0), 0, 100);
+                                        const isActive = status.budget_id === selectedBudgetId;
 
-                        {!showInitialSkeletons &&
-                            statuses.map((status, index) => {
-                                const progress = clamp(Number(status.progress_percent || 0), 0, 100);
-                                const isActive = status.budget_id === selectedBudgetId;
-
-                                return (
-                                    <div
-                                        key={status.budget_id}
-                                        ref={index === 0 ? firstBudgetCardRef : null}
-                                        onClick={() => setSelectedBudgetId(status.budget_id)}
-                                        role="button"
-                                        tabIndex={0}
-                                        onKeyDown={(event) => {
-                                            if (event.key === "Enter" || event.key === " ") {
-                                                event.preventDefault();
-                                                setSelectedBudgetId(status.budget_id);
-                                            }
-                                        }}
-                                        className={`w-full rounded-2xl p-4 text-left transition duration-75 cursor-pointer bg-secondaryBG ${isActive
-                                            ? "border-primary border "
-                                            : "  hover:border-accent hover:border"
-                                            }`}
-                                    >
-                                        <div className="mb-3 flex items-center justify-between gap-3">
-                                            <h3 className="text-2xl font-semibold text-textmain">
-                                                {status.category}
-                                            </h3>
-                                            <button
-                                                type="button"
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    setDeleteDialog({ open: true, budgetId: status.budget_id, category: status.category });
+                                        return (
+                                            <div
+                                                key={status.budget_id}
+                                                ref={(el) => { cardRefs.current[index] = el; }}
+                                                onClick={() => setSelectedBudgetId(status.budget_id)}
+                                                role="button"
+                                                tabIndex={0}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter" || e.key === " ") {
+                                                        e.preventDefault();
+                                                        setSelectedBudgetId(status.budget_id);
+                                                    }
                                                 }}
-                                                disabled={isDeletingBudget}
-                                                className="rounded-lg border border-red-500 px-3 py-1 text-sm font-medium text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+                                                className={`flex-shrink-0 w-full snap-center rounded-2xl p-4 text-left transition cursor-pointer bg-secondaryBG ${
+                                                    isActive ? "border border-primary" : "border border-transparent hover:border-accent"
+                                                }`}
                                             >
-                                                Delete
-                                            </button>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textsecondary">Current Spend</p>
-                                                <p className="font-semibold">{currency(status.current_spend)}</p>
-                                            </div>
-                                            <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textsecondary">Budget</p>
-                                                <p className="font-semibold">{currency(status.budget_amount)}</p>
-                                            </div>
-                                            <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textsecondary">Remaining</p>
-                                                <p className="font-semibold">{currency(status.remaining_budget)}</p>
-                                            </div>
-                                            <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textsecondary">Projected Spend</p>
-                                                <p className="font-semibold">{currency(status.projected_period_spend)}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-3">
-                                            <p className="text-textsecondary">Progress {percent(progress)}</p>
-                                            <div className="h-3 rounded-full bg-tableBG mt-1 overflow-hidden">
-                                                <div
-                                                    className="h-full rounded-full bg-primary"
-                                                    style={{ width: `${progress}%` }}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-2 mt-3">
-                                            <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textsecondary">Burn Rate / Day</p>
-                                                <p className="font-semibold">{currency(status.burn_rate_per_day)}</p>
-                                            </div>
-                                            <div className="rounded-xl bg-tableBG p-2">
-                                                <p className="text-xs uppercase text-textsecondary">Days Left</p>
-                                                <p className="font-semibold">{status.days_left}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            {(status.alerts || []).length > 0 ? (
-                                                status.alerts.map((alert, idx) => (
-                                                    <span
-                                                        key={`${status.budget_id}-${idx}`}
-                                                        className="rounded-full border border-primary bg-primary/10 px-2 py-1 text-xs text-primary"
+                                                <div className="mb-3 flex items-center justify-between gap-3">
+                                                    <h3 className="text-2xl font-semibold text-textmain">{status.category}</h3>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setDeleteDialog({ open: true, budgetId: status.budget_id, category: status.category });
+                                                        }}
+                                                        disabled={isDeletingBudget}
+                                                        className="rounded-lg border border-red-500 px-3 py-1 text-sm font-medium text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
                                                     >
-                                                        {alert.title}
-                                                    </span>
-                                                ))
-                                            ) : (
-                                                <span className="rounded-full border border-primary bg-primary/10 px-2 py-1 text-xs text-primary">
-                                                    No alerts
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                    </div>
-                </aside>
+                                                        Delete
+                                                    </button>
+                                                </div>
 
-                <main ref={rightPanelRef} className="lg:col-span-8 self-start space-y-4">
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <div className="rounded-xl bg-tableBG p-2">
+                                                        <p className="text-xs uppercase text-textsecondary">Current Spend</p>
+                                                        <p className="font-semibold">{currency(status.current_spend)}</p>
+                                                    </div>
+                                                    <div className="rounded-xl bg-tableBG p-2">
+                                                        <p className="text-xs uppercase text-textsecondary">Budget</p>
+                                                        <p className="font-semibold">{currency(status.budget_amount)}</p>
+                                                    </div>
+                                                    <div className="rounded-xl bg-tableBG p-2">
+                                                        <p className="text-xs uppercase text-textsecondary">Remaining</p>
+                                                        <p className="font-semibold">{currency(status.remaining_budget)}</p>
+                                                    </div>
+                                                    <div className="rounded-xl bg-tableBG p-2">
+                                                        <p className="text-xs uppercase text-textsecondary">Projected Spend</p>
+                                                        <p className="font-semibold">{currency(status.projected_period_spend)}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-3">
+                                                    <p className="text-textsecondary">Progress {percent(progress)}</p>
+                                                    <div className="h-3 rounded-full bg-tableBG mt-1 overflow-hidden">
+                                                        <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-2 mt-3">
+                                                    <div className="rounded-xl bg-tableBG p-2">
+                                                        <p className="text-xs uppercase text-textsecondary">Burn Rate / Day</p>
+                                                        <p className="font-semibold">{currency(status.burn_rate_per_day)}</p>
+                                                    </div>
+                                                    <div className="rounded-xl bg-tableBG p-2">
+                                                        <p className="text-xs uppercase text-textsecondary">Days Left</p>
+                                                        <p className="font-semibold">{status.days_left}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                    {(status.alerts || []).length > 0 ? (
+                                                        status.alerts.map((alert, idx) => (
+                                                            <span
+                                                                key={`${status.budget_id}-${idx}`}
+                                                                className="rounded-full border border-primary bg-primary/10 px-2 py-1 text-xs text-primary"
+                                                            >
+                                                                {alert.title}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="rounded-full border border-primary bg-primary/10 px-2 py-1 text-xs text-primary">No alerts</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Dot indicators */}
+                                {statuses.length > 1 && (
+                                    <div className="flex justify-center gap-2 mt-3">
+                                        {statuses.map((_, i) => (
+                                            <button
+                                                key={i}
+                                                type="button"
+                                                onClick={() => {
+                                                    carouselRef.current?.children[i]?.scrollIntoView({
+                                                        behavior: "smooth",
+                                                        block: "nearest",
+                                                        inline: "center",
+                                                    });
+                                                }}
+                                                className={`rounded-full transition-all ${
+                                                    i === activeCardIndex
+                                                        ? "w-5 h-2 bg-primary"
+                                                        : "w-2 h-2 bg-white/20 hover:bg-white/40"
+                                                }`}
+                                                aria-label={`Go to budget ${i + 1}`}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                ) : (
+                    /* ── Desktop: original vertical aside ── */
+                    <aside className="lg:col-span-4 self-start flex flex-col h-full min-h-0">
+                        <div ref={leftHeaderRef} className="flex items-center justify-between mb-3">
+                            <h2 className="text-3xl font-semibold text-textmain">Your Budgets</h2>
+                            <span className="h-8 min-w-8 px-2 rounded-full bg-tableBG text-primary text-md flex items-center justify-center">
+                                {statuses.length}
+                            </span>
+                        </div>
+
+                        <div
+                            ref={budgetListRef}
+                            className="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1"
+                            style={
+                                leftListMaxHeight > 0
+                                    ? {
+                                        maxHeight: `${Math.max(
+                                            leftListMaxHeight - leftHeaderHeight,
+                                            180,
+                                        )}px`,
+                                    }
+                                    : undefined
+                            }
+                        >
+                            {showInitialSkeletons &&
+                                Array.from({ length: 4 }).map((_, index) => (
+                                    <SkeletonBlock key={index} className="h-[220px] rounded-2xl" />
+                                ))}
+
+                            {!showInitialSkeletons && statuses.length === 0 && (
+                                <p className="rounded-2xl border border-primary bg-secondaryBG p-5 text-center text-textsecondary">
+                                    No budget statuses found.
+                                </p>
+                            )}
+
+                            {!showInitialSkeletons &&
+                                statuses.map((status, index) => {
+                                    const progress = clamp(Number(status.progress_percent || 0), 0, 100);
+                                    const isActive = status.budget_id === selectedBudgetId;
+
+                                    return (
+                                        <div
+                                            key={status.budget_id}
+                                            ref={index === 0 ? firstBudgetCardRef : null}
+                                            onClick={() => setSelectedBudgetId(status.budget_id)}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(event) => {
+                                                if (event.key === "Enter" || event.key === " ") {
+                                                    event.preventDefault();
+                                                    setSelectedBudgetId(status.budget_id);
+                                                }
+                                            }}
+                                            className={`w-full rounded-2xl p-4 text-left transition duration-75 cursor-pointer bg-secondaryBG ${isActive
+                                                ? "border-primary border "
+                                                : "  hover:border-accent hover:border"
+                                                }`}
+                                        >
+                                            <div className="mb-3 flex items-center justify-between gap-3">
+                                                <h3 className="text-2xl font-semibold text-textmain">
+                                                    {status.category}
+                                                </h3>
+                                                <button
+                                                    type="button"
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setDeleteDialog({ open: true, budgetId: status.budget_id, category: status.category });
+                                                    }}
+                                                    disabled={isDeletingBudget}
+                                                    className="rounded-lg border border-red-500 px-3 py-1 text-sm font-medium text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div className="rounded-xl bg-tableBG p-2">
+                                                    <p className="text-xs uppercase text-textsecondary">Current Spend</p>
+                                                    <p className="font-semibold">{currency(status.current_spend)}</p>
+                                                </div>
+                                                <div className="rounded-xl bg-tableBG p-2">
+                                                    <p className="text-xs uppercase text-textsecondary">Budget</p>
+                                                    <p className="font-semibold">{currency(status.budget_amount)}</p>
+                                                </div>
+                                                <div className="rounded-xl bg-tableBG p-2">
+                                                    <p className="text-xs uppercase text-textsecondary">Remaining</p>
+                                                    <p className="font-semibold">{currency(status.remaining_budget)}</p>
+                                                </div>
+                                                <div className="rounded-xl bg-tableBG p-2">
+                                                    <p className="text-xs uppercase text-textsecondary">Projected Spend</p>
+                                                    <p className="font-semibold">{currency(status.projected_period_spend)}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-3">
+                                                <p className="text-textsecondary">Progress {percent(progress)}</p>
+                                                <div className="h-3 rounded-full bg-tableBG mt-1 overflow-hidden">
+                                                    <div
+                                                        className="h-full rounded-full bg-primary"
+                                                        style={{ width: `${progress}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2 mt-3">
+                                                <div className="rounded-xl bg-tableBG p-2">
+                                                    <p className="text-xs uppercase text-textsecondary">Burn Rate / Day</p>
+                                                    <p className="font-semibold">{currency(status.burn_rate_per_day)}</p>
+                                                </div>
+                                                <div className="rounded-xl bg-tableBG p-2">
+                                                    <p className="text-xs uppercase text-textsecondary">Days Left</p>
+                                                    <p className="font-semibold">{status.days_left}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                {(status.alerts || []).length > 0 ? (
+                                                    status.alerts.map((alert, idx) => (
+                                                        <span
+                                                            key={`${status.budget_id}-${idx}`}
+                                                            className="rounded-full border border-primary bg-primary/10 px-2 py-1 text-xs text-primary"
+                                                        >
+                                                            {alert.title}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="rounded-full border border-primary bg-primary/10 px-2 py-1 text-xs text-primary">
+                                                        No alerts
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                        </div>
+                    </aside>
+                )}
+
+                <main ref={rightPanelRef} className={isMobile ? "space-y-4" : "lg:col-span-8 self-start space-y-4"}>
                     <div className="flex items-center gap-3 mb-1">
                         <div className="p-2 bg-accent rounded-xl text-white">
                             <BsFileText size={22} />

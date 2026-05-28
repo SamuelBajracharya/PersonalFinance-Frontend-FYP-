@@ -221,6 +221,7 @@ const OnboardingPage = () => {
   const [selected, setSelected] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [otherValue, setOtherValue] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedOption = selected !== null ? options[selected] : null;
   const isOtherSelected = selectedOption?.label === "Others";
@@ -247,12 +248,13 @@ const OnboardingPage = () => {
     setOtherValue("");
   }, [step]);
 
-  const isActionDisabled = inputConfig
+  const isActionDisabled = isSubmitting || (inputConfig
     ? !inputValue.trim() || Number(inputValue) <= 0
-    : selected === null || (isOtherSelected && !otherValue.trim());
+    : selected === null || (isOtherSelected && !otherValue.trim()));
 
   const handleNext = async () => {
     if (isActionDisabled) return;
+    setIsSubmitting(true);
 
     if (inputConfig) {
       localStorage.setItem("onboarding_budgetAmount", inputValue);
@@ -312,6 +314,8 @@ const OnboardingPage = () => {
 
       router.push("/transactions");
     }
+    // Only unset isSubmitting if we didn't navigate away, or as a precaution
+    // setIsSubmitting(false) might cause a warning if unmounted, but typically safe
   };
 
   return (
@@ -388,7 +392,7 @@ const OnboardingPage = () => {
 
       {/* Continue/Finish button */}
       <button
-        className={`mt-18 w-full max-w-md text-textmain font-semibold py-3 px-10 rounded-full text-lg transition-colors
+        className={`mt-18 w-full max-w-md text-textmain font-semibold py-3 px-10 rounded-full text-lg transition-colors flex items-center justify-center gap-2
           ${isActionDisabled
             ? "bg-primary/40 cursor-not-allowed"
             : "bg-primary hover:bg-primary/80 cursor-pointer"
@@ -396,7 +400,13 @@ const OnboardingPage = () => {
         onClick={handleNext}
         disabled={isActionDisabled}
       >
-        {buttonText}
+        {isSubmitting ? (
+          <>
+            <FaBolt className="animate-pulse" /> Processing...
+          </>
+        ) : (
+          buttonText
+        )}
       </button>
     </div>
   );

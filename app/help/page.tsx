@@ -33,34 +33,38 @@ export default function FAQSection() {
   ];
 
   return (
-    <div className="w-full flex flex-col items-center gap-10 py-6">
-      <h1 className="text-3xl font-semibold tracking-wide">Got a Question?</h1>
+    <div className="w-full flex flex-col md:items-center gap-6 md:gap-10 py-6 px-4 md:px-0">
+      <div className="w-full md:w-1/2 flex flex-col items-start gap-4">
+        <h1 className="text-xl md:text-3xl font-medium md:font-semibold tracking-wide text-textmain">Got a Question?</h1>
 
-      {/* Big Text Field */}
-      <textarea
-        placeholder="Type your question here..."
-        className="w-1/2 h-48 p-6 rounded-3xl border-2 border-primary outline-none text-lg"
-      />
+        {/* Big Text Field */}
+        <textarea
+          placeholder="Your question here..."
+          className="w-full h-40 md:h-48 p-4 md:p-6 bg-transparent rounded-2xl md:rounded-3xl border border-primary outline-none text-base md:text-lg text-textmain placeholder-textsecondary"
+        />
 
-      {/* Button */}
-      <button className="w-1/2  bg-primary font-semibold px-10 py-3 rounded-full text-lg shadow-md hover:bg-primary/80 transition">
-        Submit
-      </button>
+        {/* Button */}
+        <button className="w-full bg-primary font-semibold px-10 py-3 rounded-full text-base md:text-lg shadow-md hover:bg-primary/80 transition text-textmain">
+          Submit
+        </button>
+      </div>
 
-      {/* Heading */}
-      <h2 className="text-textmain text-3xl font-semibold mt-6 tracking-wides">
-        Frequently Asked Questions
-      </h2>
+      <div className="w-full md:w-1/2 flex flex-col items-start gap-4 mt-4 md:mt-0">
+        {/* Heading */}
+        <h2 className="text-textmain text-lg md:text-3xl font-medium md:font-semibold tracking-wide">
+          Frequently Asked Questions
+        </h2>
 
-      {/* Accordions */}
-      <div className="flex flex-col w-1/2 gap-6 mt-4">
-        {faqData.map((item, index) => (
-          <Accordion
-            key={index}
-            question={item.question}
-            answer={item.answer}
-          />
-        ))}
+        {/* Accordions */}
+        <div className="flex flex-col w-full gap-4 md:gap-6 mt-2">
+          {faqData.map((item, index) => (
+            <Accordion
+              key={index}
+              question={item.question}
+              answer={item.answer}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

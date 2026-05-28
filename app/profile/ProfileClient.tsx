@@ -8,7 +8,7 @@ import axios from "axios";
 import { MdEmail, MdLock, MdEdit } from "react-icons/md";
 import { VscEyeClosed } from "react-icons/vsc";
 import { PiWarningFill } from "react-icons/pi";
-import { IoLogOutOutline } from "react-icons/io5";
+import { IoLogOutOutline, IoHelpCircleOutline } from "react-icons/io5";
 import ImgCrop from "antd-img-crop";
 import type { UploadFile, UploadProps } from "antd/es/upload/interface";
 
@@ -146,6 +146,9 @@ export default function Profile() {
     isUnlinkAccountConfirmationOpen,
     openUnlinkAccountConfirmation,
     closeUnlinkAccountConfirmation,
+    isDeleteDataConfirmationOpen,
+    openDeleteDataConfirmation,
+    closeDeleteDataConfirmation,
   } = useProfileOverlays();
 
   useEffect(() => {
@@ -162,6 +165,19 @@ export default function Profile() {
       onError: () => {
         closeUnlinkAccountConfirmation();
         messageApi.error("Failed to unlink account. Try again.");
+      }
+    });
+  };
+
+  const handleDeleteData = () => {
+    deleteDataMutation.mutate(undefined, {
+      onSuccess: () => {
+        closeDeleteDataConfirmation();
+        messageApi.success("User transaction data deleted successfully!");
+      },
+      onError: () => {
+        closeDeleteDataConfirmation();
+        messageApi.error("Failed to delete user transaction data. Try again.");
       }
     });
   };
@@ -227,15 +243,15 @@ export default function Profile() {
         <p className="mb-6 text-red-500">Failed to load user</p>
       )}
       {/* Top Section */}
-      <div className="flex gap-8 items-center">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start text-center md:text-left">
         {showInitialSkeletons ? (
-          <SkeletonBlock className="size-48 rounded-full" />
+          <SkeletonBlock className="size-32 md:size-48 rounded-full" />
         ) : (
-          <div className="relative size-48">
+          <div className="relative size-32 md:size-48">
             <img
               src={user?.profile_image_url || "https://xsgames.co/randomusers/avatar.php?g=pixel"}
               alt="Profile picture"
-              className="size-48 overflow-hidden rounded-full object-cover bg-white border border-accentBG"
+              className="size-32 md:size-48 overflow-hidden rounded-full object-cover bg-white border border-accentBG"
               onError={(event) => {
                 event.currentTarget.src = "https://xsgames.co/randomusers/avatar.php?g=pixel";
               }}
@@ -244,23 +260,23 @@ export default function Profile() {
               type="button"
               aria-label="Edit profile picture"
               onClick={() => setIsProfilePicModalOpen(true)}
-              className="absolute bottom-1 right-1 rounded-full bg-accent p-3 text-white shadow-lg"
+              className="absolute bottom-1 right-1 rounded-full bg-accent p-2 md:p-3 text-white shadow-lg"
             >
-              <MdEdit className="size-6" />
+              <MdEdit className="size-5 md:size-6" />
             </button>
           </div>
         )}
 
-        <div className="flex flex-col justify-center gap-2">
+        <div className="flex flex-col justify-center gap-1 md:gap-2 mt-2 md:mt-0">
           {showInitialSkeletons ? (
             <>
-              <SkeletonBlock className="h-12 w-64" />
-              <SkeletonBlock className="h-8 w-36" />
+              <SkeletonBlock className="h-10 md:h-12 w-48 md:w-64" />
+              <SkeletonBlock className="h-6 md:h-8 w-24 md:w-36" />
             </>
           ) : (
             <>
-              <h1 className="text-5xl font-medium tracking-wide">{user?.name}</h1>
-              <p className="text-gray-200 text-2xl tracking-wide">
+              <h1 className="text-2xl md:text-5xl font-medium tracking-wide text-primary">{user?.name}</h1>
+              <p className="text-textsecondary text-sm md:text-2xl tracking-wide">
                 {getXpTitle(user?.total_xp ?? 0)}
               </p>
             </>
@@ -269,38 +285,38 @@ export default function Profile() {
       </div>
 
       {/* Email + Password */}
-      <div className="grid grid-cols-5 gap-6 mt-10">
-        <div className="bg-accentBG flex items-center gap-3 px-6 py-4 rounded-full col-span-2">
-          <MdEmail className="size-8" />
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6 mt-8 md:mt-10">
+        <div className="bg-accentBG flex items-center gap-3 px-6 py-4 md:py-4 rounded-full md:col-span-2">
+          <MdEmail className="size-6 md:size-8 text-textsecondary" />
           <input
             type="text"
             value={showInitialSkeletons ? "" : user?.email ?? ""}
             readOnly
-            className="bg-transparent outline-none text-xl w-full"
+            className="bg-transparent outline-none text-base md:text-xl w-full text-textmain"
           />
         </div>
 
-        <div className="bg-accentBG flex items-center gap-3 px-6 pr-3 py-2 rounded-full col-span-2">
-          <MdLock className="size-8" />
+        <div className="bg-accentBG flex items-center gap-3 px-6 pr-3 py-2 md:py-2 rounded-full md:col-span-2">
+          <MdLock className="size-6 md:size-8 text-textsecondary" />
           <input
             type={showPassword ? "text" : "password"}
             value={showPassword ? "••••••••••••" : "************"}
             readOnly
-            className="bg-transparent outline-none w-full text-xl"
+            className="bg-transparent outline-none w-full text-base md:text-xl text-textsecondary"
           />
           <VscEyeClosed
-            className="size-8 text-textmain cursor-pointer"
+            className="size-6 md:size-8 text-textsecondary cursor-pointer"
             onClick={() => setShowPassword(!showPassword)}
           />
-          <div className="rounded-full bg-accent flex items-center justify-center w-12 h-12 px-3 cursor-pointer">
-            <MdEdit className="text-white size-7" />
+          <div className="rounded-full bg-accent flex items-center justify-center w-10 h-10 md:w-12 md:h-12 px-2 md:px-3 cursor-pointer shrink-0">
+            <MdEdit className="text-white size-5 md:size-7" />
           </div>
         </div>
       </div>
 
       {/* Linked Account + Stats */}
-      <div className="grid grid-cols-7 gap-6 mt-10">
-        <div className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] p-6 rounded-2xl col-span-3 relative">
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 md:gap-6 mt-8 md:mt-10">
+        <div className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] p-6 rounded-2xl md:col-span-3 relative h-[160px] md:h-auto">
           {showInitialSkeletons ? (
             <>
               <SkeletonBlock className="h-6 w-36" />
@@ -308,10 +324,10 @@ export default function Profile() {
             </>
           ) : (
             <div>
-              <p className="text-gray-400 tracking-widest">
+              <p className="text-gray-300 tracking-widest text-lg">
                 {isBankLinked ? "XXXX XXXX 1234" : "Link Account"}
               </p>
-              <p className="text-yellow-400 font-medium mt-1">
+              <p className="text-primary font-medium mt-1 text-lg">
                 {isBankLinked ? user?.name : "No username"}
               </p>
             </div>
@@ -323,18 +339,18 @@ export default function Profile() {
             <button
               onClick={openUnlinkAccountConfirmation}
               disabled={unlinkMutation.isPending}
-              className="absolute bottom-6 right-6 px-4 py-2 rounded-full transition border border-red-500 text-red-500 hover:bg-red-500 hover:text-white disabled:opacity-50 cursor-pointer"
+              className="absolute bottom-5 right-5 text-sm md:text-base px-4 py-2 rounded-full transition border border-red-500 text-red-500 hover:bg-red-500 hover:text-white disabled:opacity-50 cursor-pointer"
             >
               Unlink Account
             </button>
           ) : (
-            <button className="absolute bottom-6 right-6 px-4 py-2 rounded-full transition border border-accent text-accent hover:bg-accent hover:text-white disabled:opacity-50 cursor-pointer">
+            <button className="absolute bottom-5 right-5 text-sm md:text-base px-4 py-2 rounded-full transition border border-accent text-accent hover:bg-accent hover:text-white disabled:opacity-50 cursor-pointer">
               Link Account
             </button>
           )}
         </div>
 
-        <div className="col-span-2">
+        <div className="hidden md:block col-span-2">
           {showInitialSkeletons ? (
             <SkeletonBlock className="h-[152px] rounded-2xl" />
           ) : (
@@ -342,7 +358,7 @@ export default function Profile() {
           )}
         </div>
 
-        <div className="col-span-2">
+        <div className="hidden md:block col-span-2">
           {showInitialSkeletons ? (
             <SkeletonBlock className="h-[152px] rounded-2xl" />
           ) : (
@@ -362,10 +378,10 @@ export default function Profile() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-6 gap-6 mt-4 overflow-x-auto">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-6 mt-4">
         {rewardsLoading && !myRewards &&
           Array.from({ length: 6 }).map((_, index) => (
-            <SkeletonBlock key={index} className="h-[200px] rounded-4xl" />
+            <SkeletonBlock key={index} className="h-[180px] md:h-[200px] rounded-4xl" />
           ))}
 
         {!rewardsLoading && myRewards?.map((ur) => (
@@ -378,32 +394,41 @@ export default function Profile() {
         ))}
 
         {!rewardsLoading && myRewards?.length === 0 && (
-          <p className="text-gray-400 col-span-6">
+          <p className="text-gray-400 col-span-2 md:col-span-6">
             No achievements unlocked yet.
           </p>
         )}
       </div>
 
       {/* Account Actions */}
-      <div className="mt-20 flex flex-col items-start gap-2">
+      <div className="mt-12 flex flex-col items-start gap-4 pb-8">
+        <Button
+          type="link"
+          href="/help"
+          className="!text-[#1890ff] no-underline !text-lg md:!text-xl !flex !flex-row !items-center !justify-start !px-0"
+        >
+          <IoHelpCircleOutline className="w-6 h-6 md:w-8 md:h-8 mr-2" />
+          Help & Support
+        </Button>
+
         <Button
           type="link"
           loading={logoutMutation.isPending}
           onClick={() => logoutMutation.mutate()}
-          className="!text-red-500 no-underline !text-2xl !flex !flex-row !items-center !justify-center !px-0"
+          className="!text-red-500 no-underline !text-lg md:!text-xl !flex !flex-row !items-center !justify-start !px-0"
         >
-          <IoLogOutOutline className="w-8" />
+          <IoLogOutOutline className="w-6 h-6 md:w-8 md:h-8 mr-2" />
           Logout
         </Button>
 
         <Button
           type="link"
           loading={deleteDataMutation.isPending}
-          onClick={() => deleteDataMutation.mutate()}
-          className="!text-red-500 no-underline !text-2xl !flex !flex-row !items-center !justify-center !px-0"
+          onClick={openDeleteDataConfirmation}
+          className="!text-red-500 no-underline !text-lg md:!text-xl !flex !flex-row !items-center !justify-start !px-0"
         >
-          <PiWarningFill className="w-8" />
-          Delete Data
+          <PiWarningFill className="w-6 h-6 md:w-8 md:h-8 mr-2" />
+          Delete data
         </Button>
       </div>
 
@@ -414,6 +439,15 @@ export default function Profile() {
         isOpen={isUnlinkAccountConfirmationOpen}
         onConfirm={handleUnlink}
         onCancel={closeUnlinkAccountConfirmation}
+      />
+
+      {/* Text Confirmation Overlay for Delete Data */}
+      <TextConfirmationOverlay
+        title="Delete Data?"
+        confirmationText="delete data"
+        isOpen={isDeleteDataConfirmationOpen}
+        onConfirm={handleDeleteData}
+        onCancel={closeDeleteDataConfirmation}
       />
 
       <Modal

@@ -176,8 +176,9 @@ export default function MyStocksPage() {
     ];
 
     return (
-        <div className="min-h-screen p-6 grid grid-cols-12 gap-6 relative">
-            <section className="col-span-9 space-y-6">
+        <div className="min-h-screen p-4 md:p-6 flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-6 relative">
+
+            <section className="col-span-9 space-y-4 md:space-y-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-medium">My Instruments</h1>
 
@@ -235,7 +236,7 @@ export default function MyStocksPage() {
                     </div>
                 )}
 
-                <div className="rounded-2xl bg-secondaryBG p-6 h-[600px] flex flex-col">
+                <div className="rounded-2xl bg-secondaryBG p-4 md:p-6 h-[520px] md:h-[600px] flex flex-col">
                     {showInitialSkeletons ? (
                         <>
                             <div className="flex items-center justify-between">
@@ -301,7 +302,56 @@ export default function MyStocksPage() {
                 </div>
             </section>
 
-            <aside className="col-span-3 space-y-4">
+            {/* ── Mobile: summary cards shown below chart ── */}
+            <aside className="md:hidden grid grid-cols-2 gap-3 min-w-0 overflow-hidden">
+                {showInitialSkeletons ? (
+                    Array.from({ length: 4 }).map((_, index) => (
+                        <SkeletonBlock key={index} className="h-[100px] rounded-3xl" />
+                    ))
+                ) : (
+                    <>
+                        <div className="min-w-0 overflow-hidden [&_.stock-value]:!text-2xl [&_.stock-title]:!text-base [&_.stock-card]:!px-3 [&_.stock-card]:!py-4">
+                            <StockSummaryCard
+                                title="Portfolio Value"
+                                value={summary.portfolioValue}
+                                currencySymbol={portfolioCurrencySymbol}
+                                tone="primary"
+                                icon={<FaCoins className="size-5 text-primary" />}
+                            />
+                        </div>
+                        <div className="min-w-0 overflow-hidden">
+                            <StockSummaryCard
+                                title="Active Stocks"
+                                value={summary.activeStocks}
+                                format="count"
+                                tone="accent"
+                                icon={<HiChartBar className="size-5 text-accent" />}
+                            />
+                        </div>
+                        <div className="min-w-0 overflow-hidden">
+                            <StockSummaryCard
+                                title="Gainers"
+                                value={summary.gainers}
+                                format="count"
+                                tone="income"
+                                icon={<HiTrendingUp className="size-5 text-income" />}
+                            />
+                        </div>
+                        <div className="min-w-0 overflow-hidden">
+                            <StockSummaryCard
+                                title="Losers"
+                                value={summary.losers}
+                                format="count"
+                                tone="expense"
+                                icon={<HiTrendingDown className="size-5 text-expense" />}
+                            />
+                        </div>
+                    </>
+                )}
+            </aside>
+
+            {/* ── Desktop: aside in grid column ── */}
+            <aside className="hidden md:block col-span-3 space-y-4">
                 {showInitialSkeletons ? (
                     Array.from({ length: 4 }).map((_, index) => (
                         <SkeletonBlock key={index} className="h-[156px] rounded-3xl" />

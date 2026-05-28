@@ -5,7 +5,13 @@ import { queryKeys } from "@/lib/queryKeys";
 export const useWhatIfSccenarios = () => {
   return useQuery<WhatIfScenario[], unknown>({
     queryKey: queryKeys.whatIfScenarios,
-    queryFn: () => fetchWhatIfScenariosAPI(),
+    queryFn: () => {
+      const onboardingSpending = localStorage.getItem("onboarding_spending");
+      const preferences = onboardingSpending
+        ? { protected_categories: [onboardingSpending] }
+        : undefined;
+      return fetchWhatIfScenariosAPI(preferences);
+    },
     staleTime: 1000 * 60 * 5,
   });
 };

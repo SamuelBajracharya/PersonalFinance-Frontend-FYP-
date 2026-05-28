@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Select, Table, Tour } from "antd";
+import { Select, Table, Tour, Pagination } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { FaEyeSlash, FaRedoAlt } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaRedoAlt } from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai";
 import StatCard from "@/components/gloabalComponents/StatCards";
 import LoadingOverlay from "@/components/gloabalComponents/LoadingOverlay";
@@ -22,8 +22,14 @@ import {
 import { useBankSync } from "@/hooks/useBankSync";
 import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
 import { useTourStore } from "@/stores/useTour";
+import { useResponsive } from "@/hooks/useResponsive";
+import { useCurrentUser } from "@/hooks/useAuth";
 
 const Transactions: React.FC = () => {
+  const { isMobile } = useResponsive();
+  const { data: user } = useCurrentUser();
+  const [showBalance, setShowBalance] = useState(false);
+
   const { isOpen, isBankLinked, isInitialized, open, initialize } = useBankOverlay();
   const {
     isTransactionsLinkTour,
@@ -42,6 +48,8 @@ const Transactions: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   // Initialize persisted state once
   useEffect(() => {
@@ -62,6 +70,11 @@ const Transactions: React.FC = () => {
     isTransactionsLinkTour,
     setTransactionsLinkTour,
   ]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedYear, selectedCategory, searchTerm]);
 
   const {
     data: account,
@@ -103,6 +116,12 @@ const Transactions: React.FC = () => {
       return matchYear && matchCategory && matchSearch;
     });
   }, [transactions, selectedYear, selectedCategory, searchTerm]);
+
+  // Paginate transactions for mobile view
+  const paginatedTransactions = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredTransactions.slice(startIndex, startIndex + pageSize);
+  }, [filteredTransactions, currentPage, pageSize]);
 
   const showLoadingOverlay =
     !isInitialized ||
@@ -239,6 +258,229 @@ const Transactions: React.FC = () => {
   const bankSync = useBankSync();
   const { openCreateManualTransactions, createManualTransactions } = useCreateManualTransactionsOverlay();
 
+  // MOBILE RENDER PATH
+  if (isMobile) {
+    if (showInitialSkeletons) {
+      return (
+        <div suppressHydrationWarning className="px-4 py-4 font-sans flex flex-col gap-5 animate-pulse">
+          {/* Card Skeleton */}
+          <div className="bg-gradient-to-br from-[#2a2a2a] to-[#141414] rounded-3xl p-6 h-48 flex flex-col justify-between">
+            <div>
+              <SkeletonBlock className="h-7 w-48 mb-3" />
+              <SkeletonBlock className="h-6 w-32" />
+            </div>
+            <div className="flex justify-between items-center mt-4">
+              <SkeletonBlock className="h-6 w-36" />
+              <SkeletonBlock className="size-10 rounded-full" />
+            </div>
+          </div>
+
+          {/* Stats Skeleton */}
+          <div className="flex gap-4">
+            <SkeletonBlock className="h-20 rounded-2xl flex-1" />
+            <SkeletonBlock className="h-20 rounded-2xl flex-1" />
+          </div>
+
+          {/* Button Skeleton */}
+          <SkeletonBlock className="h-14 rounded-full w-full" />
+
+          {/* List Skeleton */}
+          <div className="flex justify-between items-center mt-4">
+            <SkeletonBlock className="h-7 w-32" />
+            <SkeletonBlock className="h-5 w-24" />
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-[#1d1d1d] rounded-2xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-4 w-2/3">
+                  <SkeletonBlock className="size-12 rounded-2xl" />
+                  <div className="flex flex-col gap-2 w-full">
+                    <SkeletonBlock className="h-4 w-1/2" />
+                    <SkeletonBlock className="h-3 w-1/3" />
+                  </div>
+                </div>
+                <SkeletonBlock className="h-6 w-20" />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div suppressHydrationWarning className="px-4 py-4 font-sans flex flex-col gap-5 pb-10">
+        {/* Mobile Bank Card */}
+        {!isInitialized ? (
+          <div className="bg-[#1d1d1d] border border-white/5 rounded-3xl p-6 flex flex-col justify-between h-48">
+            <p className="text-primary text-xl font-semibold">Account Status</p>
+            <p className="text-gray-400 text-sm">Checking linked account information...</p>
+          </div>
+        ) : !isBankLinked ? (
+          <div className="bg-[#1d1d1d] border border-white/5 rounded-3xl p-6 flex flex-col justify-between h-48">
+            <div>
+              <p className="text-primary text-xl font-semibold mb-1">Link Account</p>
+              <p className="text-gray-400 text-sm">Link your bank account to start tracking your finances.</p>
+            </div>
+            <button
+              onClick={open}
+              className="border border-accent text-accent px-6 py-2.5 rounded-full text-base font-semibold hover:bg-accent hover:text-white transition w-full"
+            >
+              Link Account
+            </button>
+          </div>
+        ) : (
+          <div className="bg-gradient-to-br from-[#2a2a2a] to-[#141414] border border-white/5 rounded-3xl p-6 flex flex-col justify-between h-48 relative overflow-hidden shadow-2xl">
+            <div>
+              <div className="text-textmain text-2xl tracking-widest font-mono mb-1">
+                {account?.account_number_masked || "XXXX XXXX 1234"}
+              </div>
+              <div className="text-[#ffaa2d] font-semibold text-lg">
+                {user?.name || "Samuel Bajracharya"}
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex gap-2 items-center">
+                <span className="text-textsecondary text-lg">Balance:</span>
+                <span
+                  onClick={() => setShowBalance(!showBalance)}
+                  className="text-textmain text-lg font-medium flex items-center gap-2 cursor-pointer"
+                >
+                  {showBalance
+                    ? `Rs. ${Number(account?.balance ?? 0).toFixed(2)}`
+                    : "XX.XX"}
+                  {showBalance ? <FaEye className="text-textsecondary" /> : <FaEyeSlash className="text-textsecondary" />}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  bankSync.mutate(undefined, {
+                    onSuccess: (data) => {
+                      messageApi.success(data.message || "Bank synced successfully");
+                    },
+                    onError: () => {
+                      messageApi.error("Failed to sync bank account");
+                    },
+                  });
+                }}
+                disabled={bankSync.isPending}
+                className="bg-[#ffaa2d] text-black size-10 rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition"
+              >
+                <FaRedoAlt className={`text-white text-lg ${bankSync.isPending ? "animate-spin" : ""}`} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Compact Stats */}
+        <div className="flex gap-4">
+          <div className="flex-1 bg-[#1d1d1d] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+            <div className="bg-[#df4c4d] p-2.5 rounded-xl flex items-center justify-center">
+              <img src="/expense.svg" alt="Expenses" className="size-5 invert" onError={e => { e.currentTarget.src = "/notfound.png"; }} />
+            </div>
+            <div>
+              <p className="text-textmain font-semibold text-base">Expenses</p>
+              <p className="text-[#df4c4d] font-semibold text-sm mt-0.5">Rs.{Number(expenseTotal).toFixed(2)}</p>
+            </div>
+          </div>
+
+          <div className="flex-1 bg-[#1d1d1d] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+            <div className="bg-[#00c782] p-2.5 rounded-xl flex items-center justify-center">
+              <img src="/income.svg" alt="Incomes" className="size-5 invert" onError={e => { e.currentTarget.src = "/notfound.png"; }} />
+            </div>
+            <div>
+              <p className="text-textmain font-semibold text-base">Incomes</p>
+              <p className="text-[#00c782] font-semibold text-sm mt-0.5">Rs.{Number(incomeTotal).toFixed(2)}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Create New Transaction Button */}
+        <button
+          onClick={openCreateManualTransactions}
+          className="bg-[#ffaa2d] hover:bg-[#ffb74d] text-white font-bold text-lg py-3.5 rounded-full flex items-center justify-center gap-2 transition duration-200 shadow-md cursor-pointer w-full mt-2"
+        >
+          <AiOutlinePlus className="text-xl stroke-[3]" /> Create New Transaction
+        </button>
+
+        {/* Header & List of Transactions */}
+        <div className="flex justify-between items-center mt-4 mb-2">
+          <h2 className="text-2xl font-bold text-textmain">Transactions</h2>
+          <a href="/analytics" className="text-[#ffaa2d] hover:text-[#ffb74d] transition text-sm font-medium underline">
+            view analytics
+          </a>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {isBankLinked && paginatedTransactions.length > 0 ? (
+            paginatedTransactions.map((t) => {
+              const category = t.category || "default";
+              const categoryFile = `/${category ? category.toLowerCase() + 'Category' : 'defaultCategory'}.png`;
+              const isDebit = t.type === "DEBIT";
+              return (
+                <div
+                  key={t.id}
+                  className="bg-[#1d1d1d] border border-white/5 rounded-2xl p-4 flex items-center justify-between transition hover:bg-[#242424]"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="size-12 rounded-2xl bg-accent/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                      <img
+                        src={categoryFile}
+                        alt={category}
+                        className="size-8 object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = "/notfound.png";
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-textmain font-semibold text-base line-clamp-1">
+                        {t.description || "Transaction"}
+                      </p>
+                      <p className="text-textsecondary text-sm mt-0.5 line-clamp-1">
+                        {t.merchant || "Receiver or sender"}
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className={`font-semibold text-lg flex-shrink-0 ${
+                      isDebit ? "text-[#df4c4d]" : "text-[#00c782]"
+                    }`}
+                  >
+                    {isDebit ? "-" : "+"} Rs.{Number(t.amount).toFixed(2)}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-center py-8 text-textsecondary text-base">
+              No transactions found.
+            </div>
+          )}
+        </div>
+
+        {/* Ant Pagination for Mobile */}
+        {isBankLinked && filteredTransactions.length > pageSize && (
+          <div className="custom-table flex justify-center mt-3">
+            <Pagination
+              current={currentPage}
+              onChange={(page) => setCurrentPage(page)}
+              total={filteredTransactions.length}
+              pageSize={pageSize}
+              showSizeChanger={false}
+              size="small"
+            />
+          </div>
+        )}
+
+        {isOpen && <LinkAccountOverlay />}
+        {createManualTransactions && <ManualTransactionCreateOverlay />}
+      </div>
+    );
+  }
+
+  // DESKTOP RENDER PATH
   return (
     <div suppressHydrationWarning className="min-h-screen px-6 py-6 font-sans relative">
 
@@ -310,10 +552,10 @@ const Transactions: React.FC = () => {
             <div className="flex justify-between items-center mt-5">
               <div className="flex gap-2">
                 <p className="text-textsecondary text-xl">Balance:</p>
-                <p className="text-primary text-xl flex items-center gap-2">
-                  Rs. {Number(account?.balance).toFixed(2)}
-                  <FaEyeSlash />
-                </p>
+                <div className="text-primary text-xl flex items-center gap-2 cursor-pointer" onClick={() => setShowBalance(!showBalance)}>
+                  Rs. {showBalance ? Number(account?.balance).toFixed(2) : "XX.XX"}
+                  {showBalance ? <FaEye /> : <FaEyeSlash />}
+                </div>
               </div>
               <button
                 className="bg-primary p-3 rounded-full cursor-pointer flex items-center justify-center"
@@ -322,7 +564,7 @@ const Transactions: React.FC = () => {
                     onSuccess: (data) => {
                       messageApi.success(data.message || "Bank synced successfully");
                     },
-                    onError: (error) => {
+                    onError: () => {
                       messageApi.error("Failed to sync bank account");
                     },
                   });
@@ -484,3 +726,4 @@ const Transactions: React.FC = () => {
 };
 
 export default Transactions;
+

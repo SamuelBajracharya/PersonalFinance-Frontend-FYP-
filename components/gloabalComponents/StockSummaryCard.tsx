@@ -33,13 +33,13 @@ export default function StockSummaryCard({
             : Math.round(value).toString();
 
     return (
-        <div className="rounded-3xl bg-secondaryBG px-6 py-7">
-            <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-highlight p-3">{icon}</div>
-                <p className="text-2xl font-medium">{title}</p>
+        <div className="rounded-3xl bg-secondaryBG px-3 py-4 md:px-6 md:py-7 w-full min-w-0">
+            <div className="flex items-center gap-2 md:gap-3">
+                <div className="rounded-xl bg-highlight p-2 md:p-3 shrink-0">{icon}</div>
+                <p className="text-sm md:text-2xl font-medium truncate">{title}</p>
             </div>
 
-            <p className={`mt-6 text-4xl font-medium ${toneClass[tone]}`}>
+            <p className={`mt-3 md:mt-6 text-2xl md:text-4xl font-medium truncate ${toneClass[tone]}`}>
                 {displayValue}
             </p>
         </div>
