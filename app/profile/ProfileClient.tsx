@@ -5,7 +5,7 @@ import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContex
 import axios from "axios";
 
 // react-icons
-import { MdEmail, MdLock, MdEdit } from "react-icons/md";
+import { MdEmail, MdLock, MdEdit, MdDarkMode, MdLightMode } from "react-icons/md";
 import { VscEyeClosed } from "react-icons/vsc";
 import { PiWarningFill } from "react-icons/pi";
 import { IoLogOutOutline, IoHelpCircleOutline } from "react-icons/io5";
@@ -33,6 +33,7 @@ import { useBankOverlay } from "@/stores/useBankOverlay";
 
 import { useProfileOverlays } from "@/stores/useProfileOverlays";
 import TextConfirmationOverlay from "@/components/gloabalComponents/TextConfirmationOverlay";
+import { useThemeStore } from "@/stores/useThemeStore";
 
 const resolveUploadFile = (uploadFile?: UploadFile): File | null => {
   if (!uploadFile) {
@@ -121,6 +122,8 @@ const PROFILE_PIC_CROP_MODAL_CLASS = "!z-[2147483646] profile-pic-crop-modal";
 const PROFILE_PIC_MASK_Z_INDEX_CLASS = "!z-[2147483646]";
 
 export default function Profile() {
+  const theme = useThemeStore((state) => state.theme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const messageApi = useAntdMessage();
   const [showPassword, setShowPassword] = useState(false);
   const [isProfilePicModalOpen, setIsProfilePicModalOpen] = useState(false);
@@ -285,8 +288,8 @@ export default function Profile() {
       </div>
 
       {/* Email + Password */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6 mt-8 md:mt-10">
-        <div className="bg-accentBG flex items-center gap-3 px-6 py-4 md:py-4 rounded-full md:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mt-8 md:mt-10">
+        <div className="bg-accentBG flex items-center gap-3 px-6 py-4 md:py-4 rounded-full">
           <MdEmail className="size-6 md:size-8 text-textsecondary" />
           <input
             type="text"
@@ -296,7 +299,7 @@ export default function Profile() {
           />
         </div>
 
-        <div className="bg-accentBG flex items-center gap-3 px-6 pr-3 py-2 md:py-2 rounded-full md:col-span-2">
+        <div className="bg-accentBG flex items-center gap-3 px-6 pr-3 py-2 md:py-2 rounded-full">
           <MdLock className="size-6 md:size-8 text-textsecondary" />
           <input
             type={showPassword ? "text" : "password"}
@@ -315,8 +318,8 @@ export default function Profile() {
       </div>
 
       {/* Linked Account + Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 md:gap-6 mt-8 md:mt-10">
-        <div className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] p-6 rounded-2xl md:col-span-3 relative h-[160px] md:h-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-7 gap-4 md:gap-6 mt-8 md:mt-10">
+        <div className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] p-6 rounded-2xl sm:col-span-2 xl:col-span-3 relative h-[160px] md:h-auto">
           {showInitialSkeletons ? (
             <>
               <SkeletonBlock className="h-6 w-36" />
@@ -350,7 +353,7 @@ export default function Profile() {
           )}
         </div>
 
-        <div className="hidden md:block col-span-2">
+        <div className="hidden sm:block col-span-1 xl:col-span-2">
           {showInitialSkeletons ? (
             <SkeletonBlock className="h-[152px] rounded-2xl" />
           ) : (
@@ -358,7 +361,7 @@ export default function Profile() {
           )}
         </div>
 
-        <div className="hidden md:block col-span-2">
+        <div className="hidden sm:block col-span-1 xl:col-span-2">
           {showInitialSkeletons ? (
             <SkeletonBlock className="h-[152px] rounded-2xl" />
           ) : (
@@ -378,7 +381,7 @@ export default function Profile() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-6 mt-4">
+      <div className="grid grid-cols-2 xl:grid-cols-6 gap-4 md:gap-6 mt-4">
         {rewardsLoading && !myRewards &&
           Array.from({ length: 6 }).map((_, index) => (
             <SkeletonBlock key={index} className="h-[180px] md:h-[200px] rounded-4xl" />
@@ -402,6 +405,19 @@ export default function Profile() {
 
       {/* Account Actions */}
       <div className="mt-12 flex flex-col items-start gap-4 pb-8">
+        <Button
+          type="link"
+          onClick={toggleTheme}
+          className="md:hidden !text-[#ffaa2d] no-underline !text-lg !flex !flex-row !items-center !justify-start !px-0"
+        >
+          {theme === "dark" ? (
+            <MdLightMode className="w-6 h-6 mr-2 text-primary" />
+          ) : (
+            <MdDarkMode className="w-6 h-6 mr-2 text-primary" />
+          )}
+          Toggle Theme
+        </Button>
+
         <Button
           type="link"
           href="/help"

@@ -176,9 +176,9 @@ export default function MyStocksPage() {
     ];
 
     return (
-        <div className="min-h-screen p-4 md:p-6 flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-6 relative">
+        <div className="min-h-screen p-4 xl:p-6 flex flex-col xl:grid xl:grid-cols-12 gap-4 xl:gap-6 relative">
 
-            <section className="col-span-9 space-y-4 md:space-y-6">
+            <section className="col-span-9 space-y-4 xl:space-y-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-medium">My Instruments</h1>
 
@@ -236,7 +236,7 @@ export default function MyStocksPage() {
                     </div>
                 )}
 
-                <div className="rounded-2xl bg-secondaryBG p-4 md:p-6 h-[520px] md:h-[600px] flex flex-col">
+                <div className="rounded-2xl bg-secondaryBG p-4 xl:p-6 h-[520px] xl:h-[600px] flex flex-col">
                     {showInitialSkeletons ? (
                         <>
                             <div className="flex items-center justify-between">
@@ -301,9 +301,8 @@ export default function MyStocksPage() {
                     </div>
                 </div>
             </section>
-
-            {/* ── Mobile: summary cards shown below chart ── */}
-            <aside className="md:hidden grid grid-cols-2 gap-3 min-w-0 overflow-hidden">
+            {/* ── Mobile: summary cards shown below chart ── */}
+            <aside className="xl:hidden grid grid-cols-2 gap-3 min-w-0 overflow-hidden">
                 {showInitialSkeletons ? (
                     Array.from({ length: 4 }).map((_, index) => (
                         <SkeletonBlock key={index} className="h-[100px] rounded-3xl" />
@@ -349,9 +348,9 @@ export default function MyStocksPage() {
                     </>
                 )}
             </aside>
-
+ 
             {/* ── Desktop: aside in grid column ── */}
-            <aside className="hidden md:block col-span-3 space-y-4">
+            <aside className="hidden xl:block col-span-3 space-y-4">
                 {showInitialSkeletons ? (
                     Array.from({ length: 4 }).map((_, index) => (
                         <SkeletonBlock key={index} className="h-[156px] rounded-3xl" />

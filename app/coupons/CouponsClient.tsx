@@ -44,7 +44,7 @@ export default function CouponsPage() {
         <h2 className="text-2xl font-semibold mb-6">Available Coupons</h2>
 
         {showAvailableSkeleton && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
             {Array.from({ length: 6 }).map((_, index) => (
               <SkeletonBlock key={index} className="h-[220px] rounded-3xl" />
             ))}
@@ -52,7 +52,7 @@ export default function CouponsPage() {
         )}
 
         {!showAvailableSkeleton && available && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
             {available.map((voucher: VoucherTemplate) => (
               <CouponTicket
                 key={voucher.id}
@@ -74,7 +74,7 @@ export default function CouponsPage() {
         <h2 className="text-2xl font-semibold mb-6">Active Coupons</h2>
 
         {showActiveSkeleton && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
             {Array.from({ length: 6 }).map((_, index) => (
               <SkeletonBlock key={index} className="h-[220px] rounded-3xl bg-secondaryBG" />
             ))}
@@ -82,7 +82,7 @@ export default function CouponsPage() {
         )}
 
         {!showActiveSkeleton && active && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
             {active.map((voucher: UserVoucher) => (
               <CouponTicket
                 key={voucher.id}
@@ -105,7 +105,7 @@ export default function CouponsPage() {
         <h2 className="text-2xl font-semibold mb-6">Expired Coupons</h2>
 
         {showHistorySkeleton && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 opacity-60">
+          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8 opacity-60">
             {Array.from({ length: 6 }).map((_, index) => (
               <SkeletonBlock key={index} className="h-[220px] rounded-3xl bg-secondaryBG" />
             ))}
@@ -113,7 +113,7 @@ export default function CouponsPage() {
         )}
 
         {!showHistorySkeleton && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 opacity-60">
+          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8 opacity-60">
             {expiredVouchers.map((voucher: UserVoucher) => (
               <CouponTicket
                 key={voucher.id}

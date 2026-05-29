@@ -34,11 +34,11 @@ const DesktopNavbar = () => {
   const avatarSrc = user?.profile_image_url || "https://xsgames.co/randomusers/avatar.php?g=pixel";
 
   return (
-    <div className="flex justify-between items-center h-full px-8 ">
+    <div className="flex justify-between items-center h-full px-8 min-w-0">
       {/* Dynamic title */}
-      <h1 className="text-2xl font-medium tracking-wide">{title}</h1>
+      <h1 className="text-2xl font-medium tracking-wide truncate mr-4 min-w-0">{title}</h1>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 flex-shrink-0">
         <button
           type="button"
           onClick={toggleTheme}
@@ -54,14 +54,15 @@ const DesktopNavbar = () => {
         </button>
 
         <div
-          className={`flex items-center space-x-4 border-accent border px-4 py-2 rounded-xl cursor-pointer transition-colors duration-200 hover:bg-accent/20
+          className={`flex items-center space-x-4 border-accent border px-4 py-2 rounded-xl cursor-pointer transition-colors duration-200 hover:bg-accent/20 min-w-0
           ${isProfile ? "bg-accent" : ""}`}
           onClick={() => router.push("/profile")}
         >
-          <h2 className="text-lg font-normal">{displayName}</h2>
+          <h2 className="text-lg font-normal truncate max-w-[120px]">{displayName}</h2>
           <Avatar
             size={32}
             src={avatarSrc}
+            className="flex-shrink-0"
           />
         </div>
       </div>

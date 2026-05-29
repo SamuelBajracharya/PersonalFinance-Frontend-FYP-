@@ -263,7 +263,7 @@ export default function AIAssistant() {
       </div>
 
       {/* Input area */}
-      <div className="fixed bottom-0 w-full flex flex-col items-center z-10">
+      <div className="fixed bottom-0 left-0 w-full md:left-[300px] md:w-[calc(100%-300px)] flex flex-col items-center z-10">
         <div className="w-full max-w-4xl bg-mainBG px-4 md:px-0 pb-[80px] md:pb-4 pt-4">
           {/* Disclaimer on top for mobile, or below for desktop? Let's just keep it below but fix the gap */}
           <p className="w-full text-center pb-2 text-textsecondary text-sm">

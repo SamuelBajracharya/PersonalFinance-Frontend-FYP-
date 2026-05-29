@@ -22,7 +22,7 @@ export default function AchievementsPage() {
       )}
 
       {/* Achievements Grid */}
-      <div className="grid grid-cols-6 gap-6">
+      <div className="grid grid-cols-2 xl:grid-cols-6 gap-6">
         {showInitialSkeletons
           ? Array.from({ length: 12 }).map((_, index) => (
             <SkeletonBlock
@@ -45,7 +45,7 @@ export default function AchievementsPage() {
           ))}
 
         {!showInitialSkeletons && sortedRewards.length === 0 && (
-          <p className="text-gray-400 col-span-6">No achievements available.</p>
+          <p className="text-gray-400 col-span-2 xl:col-span-6">No achievements available.</p>
         )}
       </div>
 

@@ -416,9 +416,8 @@ export default function BudgetGoals() {
                                                         setSelectedBudgetId(status.budget_id);
                                                     }
                                                 }}
-                                                className={`flex-shrink-0 w-full snap-center rounded-2xl p-4 text-left transition cursor-pointer bg-secondaryBG ${
-                                                    isActive ? "border border-primary" : "border border-transparent hover:border-accent"
-                                                }`}
+                                                className={`flex-shrink-0 w-full snap-center rounded-2xl p-4 text-left transition cursor-pointer bg-secondaryBG ${isActive ? "border border-primary" : "border border-transparent hover:border-accent"
+                                                    }`}
                                             >
                                                 <div className="mb-3 flex items-center justify-between gap-3">
                                                     <h3 className="text-2xl font-semibold text-textmain">{status.category}</h3>
@@ -505,11 +504,10 @@ export default function BudgetGoals() {
                                                         inline: "center",
                                                     });
                                                 }}
-                                                className={`rounded-full transition-all ${
-                                                    i === activeCardIndex
+                                                className={`rounded-full transition-all ${i === activeCardIndex
                                                         ? "w-5 h-2 bg-primary"
                                                         : "w-2 h-2 bg-white/20 hover:bg-white/40"
-                                                }`}
+                                                    }`}
                                                 aria-label={`Go to budget ${i + 1}`}
                                             />
                                         ))}

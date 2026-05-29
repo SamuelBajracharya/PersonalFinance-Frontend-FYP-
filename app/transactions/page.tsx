@@ -312,12 +312,12 @@ const Transactions: React.FC = () => {
       <div suppressHydrationWarning className="px-4 py-4 font-sans flex flex-col gap-5 pb-10">
         {/* Mobile Bank Card */}
         {!isInitialized ? (
-          <div className="bg-[#1d1d1d] border border-white/5 rounded-3xl p-6 flex flex-col justify-between h-48">
+          <div className="bg-[#1d1d1d] rounded-3xl p-6 flex flex-col justify-between h-48">
             <p className="text-primary text-xl font-semibold">Account Status</p>
             <p className="text-gray-400 text-sm">Checking linked account information...</p>
           </div>
         ) : !isBankLinked ? (
-          <div className="bg-[#1d1d1d] border border-white/5 rounded-3xl p-6 flex flex-col justify-between h-48">
+          <div className="bg-[#1d1d1d] rounded-3xl p-6 flex flex-col justify-between h-48">
             <div>
               <p className="text-primary text-xl font-semibold mb-1">Link Account</p>
               <p className="text-gray-400 text-sm">Link your bank account to start tracking your finances.</p>
@@ -330,7 +330,7 @@ const Transactions: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="bg-gradient-to-br from-[#2a2a2a] to-[#141414] border border-white/5 rounded-3xl p-6 flex flex-col justify-between h-48 relative overflow-hidden shadow-2xl">
+          <div className="bg-gradient-to-br from-[#2a2a2a] to-[#141414] rounded-3xl p-6 flex flex-col justify-between h-48 relative overflow-hidden shadow-2xl">
             <div>
               <div className="text-textmain text-2xl tracking-widest font-mono mb-1">
                 {account?.account_number_masked || "XXXX XXXX 1234"}
@@ -375,22 +375,22 @@ const Transactions: React.FC = () => {
 
         {/* Compact Stats */}
         <div className="flex gap-4">
-          <div className="flex-1 bg-[#1d1d1d] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+          <div className="flex-1 bg-[#1d1d1d] rounded-2xl p-4 flex items-center gap-3">
             <div className="bg-[#df4c4d] p-2.5 rounded-xl flex items-center justify-center">
               <img src="/expense.svg" alt="Expenses" className="size-5 invert" onError={e => { e.currentTarget.src = "/notfound.png"; }} />
             </div>
             <div>
-              <p className="text-textmain font-semibold text-base">Expenses</p>
+              <p className="text-textmain text-base">Expenses</p>
               <p className="text-[#df4c4d] font-semibold text-sm mt-0.5">Rs.{Number(expenseTotal).toFixed(2)}</p>
             </div>
           </div>
 
-          <div className="flex-1 bg-[#1d1d1d] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+          <div className="flex-1 bg-[#1d1d1d] rounded-2xl p-4 flex items-center gap-3">
             <div className="bg-[#00c782] p-2.5 rounded-xl flex items-center justify-center">
               <img src="/income.svg" alt="Incomes" className="size-5 invert" onError={e => { e.currentTarget.src = "/notfound.png"; }} />
             </div>
             <div>
-              <p className="text-textmain font-semibold text-base">Incomes</p>
+              <p className="text-textmain text-base">Incomes</p>
               <p className="text-[#00c782] font-semibold text-sm mt-0.5">Rs.{Number(incomeTotal).toFixed(2)}</p>
             </div>
           </div>
@@ -399,7 +399,7 @@ const Transactions: React.FC = () => {
         {/* Create New Transaction Button */}
         <button
           onClick={openCreateManualTransactions}
-          className="bg-[#ffaa2d] hover:bg-[#ffb74d] text-white font-bold text-lg py-3.5 rounded-full flex items-center justify-center gap-2 transition duration-200 shadow-md cursor-pointer w-full mt-2"
+          className="bg-[#ffaa2d] hover:bg-[#ffb74d] text-white font-medium text-lg py-3.5 rounded-full flex items-center justify-center gap-2 transition duration-200 shadow-md cursor-pointer w-full mt-2"
         >
           <AiOutlinePlus className="text-xl stroke-[3]" /> Create New Transaction
         </button>
@@ -484,7 +484,7 @@ const Transactions: React.FC = () => {
   return (
     <div suppressHydrationWarning className="min-h-screen px-6 py-6 font-sans relative">
 
-      <div className="flex w-full gap-6 mb-6">
+      <div className="flex flex-col xl:flex-row w-full gap-6 mb-6">
         {showInitialSkeletons ? (
           <div ref={bankCardRef} className="bg-gradient-to-br from-[var(--color-bankCardFrom)] to-[var(--color-bankCardTo)] rounded-2xl p-6 flex flex-col flex-grow justify-between animate-pulse">
             <div>
@@ -579,7 +579,7 @@ const Transactions: React.FC = () => {
           </div>
         )}
 
-        <div className="flex flex-col flex-grow gap-6">
+        <div className="flex flex-col xl:flex-grow gap-6">
           {showInitialSkeletons ? (
             <>
               <div className="flex gap-6 animate-pulse">
@@ -618,8 +618,8 @@ const Transactions: React.FC = () => {
       <div className="bg-secondaryBG rounded-2xl p-6">
         {/* Filters above the table */}
         <div ref={filtersRef} className="flex flex-col gap-8 bg-transparent rounded-xl px-4 pt-3 justify-between">
-          <div className="flex flex-row justify-between items-center">
-            <div className="flex items-center gap-8">
+          <div className="flex flex-col items-end xl:flex-row gap-4 justify-between xl:items-center">
+            <div className="flex flex-wrap items-center justify-end xl:justify-start gap-4 sm:gap-8">
               <div className="flex items-center gap-4">
                 <span className="font-medium text-xl !text-primary">Year:</span>
                 <Select
@@ -651,12 +651,11 @@ const Transactions: React.FC = () => {
                 </Select>
               </div>
             </div>
-            <div className="flex items-center ml-auto">
+            <div className="flex items-center justify-end xl:justify-start xl:ml-auto w-full xl:w-auto">
               <input
                 type="text"
                 placeholder="Search..."
-                className="rounded-full w-[400px] text-lg px-6 py-2 bg-tableBG text-textmain focus:outline-none focus:ring-2 focus:ring-primary"
-                style={{ minWidth: 180 }}
+                className="rounded-full w-full xl:w-[400px] text-lg px-6 py-2 bg-tableBG text-textmain focus:outline-none focus:ring-2 focus:ring-primary"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />

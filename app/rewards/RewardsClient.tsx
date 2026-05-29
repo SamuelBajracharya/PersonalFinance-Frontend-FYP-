@@ -265,7 +265,7 @@ export default function Rewards() {
             </h2>
 
             {showWhatIfSkeleton && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
                 {Array.from({ length: 4 }).map((_, index) => (
                   <div key={index} className="bg-secondaryBG p-5 rounded-2xl">
                     <SkeletonBlock className="h-7 w-full" />
@@ -282,7 +282,7 @@ export default function Rewards() {
             )}
 
             {!showWhatIfSkeleton && whatIfScenarios && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
                 {whatIfScenarios.map((scenario, index) => (
                   <WhatIfCard
                     key={`${scenario.category}-${index}`}
@@ -317,7 +317,7 @@ export default function Rewards() {
             </div>
 
             {showCouponsSkeleton && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
                 {Array.from({ length: 4 }).map((_, index) => (
                   <SkeletonBlock
                     key={index}
@@ -332,7 +332,7 @@ export default function Rewards() {
             )}
 
             {!showCouponsSkeleton && myVouchers && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
                 {myVouchers.slice(0, 6).map((voucher) => (
                   <CouponTicket
                     key={voucher.id}

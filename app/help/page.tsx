@@ -33,8 +33,8 @@ export default function FAQSection() {
   ];
 
   return (
-    <div className="w-full flex flex-col md:items-center gap-6 md:gap-10 py-6 px-4 md:px-0">
-      <div className="w-full md:w-1/2 flex flex-col items-start gap-4">
+    <div className="w-full max-w-3xl mx-auto flex flex-col items-center gap-6 md:gap-10 py-6 px-4 md:px-0">
+      <div className="w-full flex flex-col items-start gap-4">
         <h1 className="text-xl md:text-3xl font-medium md:font-semibold tracking-wide text-textmain">Got a Question?</h1>
 
         {/* Big Text Field */}
@@ -49,7 +49,7 @@ export default function FAQSection() {
         </button>
       </div>
 
-      <div className="w-full md:w-1/2 flex flex-col items-start gap-4 mt-4 md:mt-0">
+      <div className="w-full flex flex-col items-start gap-4 mt-4 md:mt-0">
         {/* Heading */}
         <h2 className="text-textmain text-lg md:text-3xl font-medium md:font-semibold tracking-wide">
           Frequently Asked Questions

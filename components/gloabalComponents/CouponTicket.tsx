@@ -78,12 +78,12 @@ export default function CouponTicket({
           <div className="text-4xl font-semibold tracking-wider">
             {discount}
           </div>
-          <div className="flex justify-between mt-6">
-            <div className="flex justify-between text-sm opacity-90 mt-1 gap-2">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-6 gap-2">
+            <div className="flex text-sm opacity-90 gap-2">
               <span>Valid until</span>
               <span className="font-semibold">{expiry}</span>
             </div>
-            <div className="text-center flex gap-2 items-center">
+            <div className="flex gap-2 items-center">
               <span className="font-semibold">Code:</span>
               <div className="bg-white/20 flex items-center justify-center rounded-lg text-lg px-2">
                 <p>{code}</p>
