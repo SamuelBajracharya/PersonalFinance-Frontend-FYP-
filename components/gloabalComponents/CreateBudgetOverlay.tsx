@@ -6,6 +6,7 @@ import { useCreateBudget } from "@/hooks/useBudgetGoals";
 import { useCreateBudgetOverlay } from "@/stores/useCreateBudgetOverlay";
 import { Select } from "antd";
 import { useAntdMessage } from "@/components/gloabalComponents/AntdMessageContext";
+import { fetchPastSpendingOptionsAPI, PastSpendingOption } from "@/api/BudgetGoalAPI";
 import { TRANSACTION_CATEGORIES } from "@/types/transactionCategories";
 
 const CreateBudgetOverlay: React.FC = () => {
@@ -14,23 +15,52 @@ const CreateBudgetOverlay: React.FC = () => {
   const messageApi = useAntdMessage();
 
   const [category, setCategory] = useState("");
-  const [amount, setAmount] = useState<number | "">("");
+  const [options, setOptions] = useState<PastSpendingOption[]>([]);
+  const [pastSpending, setPastSpending] = useState<number | null>(null);
+  const [selectedOption, setSelectedOption] = useState<PastSpendingOption | null>(null);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+
+  React.useEffect(() => {
+    if (!category) {
+      setOptions([]);
+      setPastSpending(null);
+      setSelectedOption(null);
+      return;
+    }
+    const loadOptions = async () => {
+      setIsLoadingOptions(true);
+      try {
+        const data = await fetchPastSpendingOptionsAPI(category);
+        setOptions(data.options);
+        setPastSpending(data.past_spending);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoadingOptions(false);
+      }
+    };
+    loadOptions();
+  }, [category]);
 
   if (!isCreateBudgetOpen) return null;
 
   const handleClose = () => {
     if (isPending) return;
     setCategory("");
-    setAmount("");
+    setSelectedOption(null);
+    setOptions([]);
+    setPastSpending(null);
     closeCreateBudget();
   };
 
   const handleCreate = () => {
-    if (!category || !amount) return;
+    if (!category || !selectedOption || pastSpending === null) return;
     mutate(
       {
         category,
-        budget_amount: Number(amount),
+        budget_amount: Number(selectedOption.new_budget_amount),
+        past_spending: Number(pastSpending),
+        reduction_percent: Number(selectedOption.reduction_percent),
       },
       {
         onSuccess: () => {
@@ -86,24 +116,44 @@ const CreateBudgetOverlay: React.FC = () => {
             getPopupContainer={trigger => trigger.parentNode}
           />
 
-          {/* Budget Amount */}
-          <input
-            type="number"
-            placeholder="Budget amount"
-            value={amount}
-            onChange={(e) =>
-              setAmount(e.target.value === "" ? "" : Number(e.target.value))
-            }
-            className="w-full rounded-full bg-transparent border-1 border-primary px-6 py-3 text-lg text-textmain focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-textsecondary"
-          />
+          {/* Budget Options */}
+          {category && (
+            <div className="flex flex-col gap-2">
+              <label className="text-textsecondary text-sm font-medium">
+                Choose a reduction option based on past month's spending (saves amount):
+              </label>
+              {isLoadingOptions ? (
+                <div className="text-textsecondary text-sm animate-pulse">
+                  Analyzing transactions and generating options...
+                </div>
+              ) : (
+                <Select
+                  value={selectedOption ? JSON.stringify(selectedOption) : undefined}
+                  onChange={(valStr: string) => setSelectedOption(JSON.parse(valStr))}
+                  placeholder="Select savings level"
+                  className="custom-select !w-full cursor-pointer !h-[3.5rem]"
+                  classNames={{ popup: { root: "custom-select" } }}
+                  size="large"
+                  options={options.map((opt) => ({
+                    label: opt.label,
+                    value: JSON.stringify(opt),
+                  }))}
+                  showSearch={false}
+                  allowClear={false}
+                  popupMatchSelectWidth={true}
+                  getPopupContainer={(trigger) => trigger.parentNode}
+                />
+              )}
+            </div>
+          )}
         </div>
 
         {/* Actions (flex column) */}
         <div className="mt-12 flex flex-col gap-4">
           <button
             onClick={handleCreate}
-            disabled={!category || !amount || isPending}
-            className={`rounded-full bg-primary py-4 text-lg font-medium text-textmain hover:bg-primary/80 transition disabled:opacity-70 ${(!category || !amount || isPending) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            disabled={!category || !selectedOption || isPending}
+            className={`rounded-full bg-primary py-4 text-lg font-medium text-textmain hover:bg-primary/80 transition disabled:opacity-70 ${(!category || !selectedOption || isPending) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             type="button"
           >
             {isPending ? "Creating..." : "Create Budget"}

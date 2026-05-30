@@ -1,10 +1,10 @@
 "use client";
 
 import { Bar, BarDatum } from "@nivo/bar";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 // Minimum px per bar so labels never overlap; chart scrolls when exceeded
-const MIN_BAR_WIDTH = 40;
+const MIN_BAR_WIDTH = 60;
 const MIN_CHART_WIDTH = 500;
 const CHART_HEIGHT = 300;
 const LEFT_MARGIN = 50; // reserved for Y-axis
@@ -26,7 +26,42 @@ export default function BarChart<T extends object>({
   valueKey,
   onBarClick,
 }: BarChartProps<T>) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
   const keys = [valueKey as string];
+
+  const getMonthYearLines = (raw: unknown) => {
+    if (typeof raw !== "string") return null;
+    const trimmed = raw.trim();
+
+    // Match formats like "Dec 2025", "Dec-2025", "Dec/2025", "December 2025"
+    const monthYearMatch = trimmed.match(
+      /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s/-]+(\d{4})$/i
+    );
+
+    if (monthYearMatch) {
+      return {
+        line1: monthYearMatch[1],
+        line2: monthYearMatch[2],
+      };
+    }
+
+    return null;
+  };
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      setContainerWidth(Math.floor(entry.contentRect.width));
+    });
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Compute a width that gives each bar at least MIN_BAR_WIDTH px
   const contentWidth = Math.max(
@@ -34,8 +69,7 @@ export default function BarChart<T extends object>({
     data.length * MIN_BAR_WIDTH + LEFT_MARGIN + 20
   );
 
-  // Only render every Nth label so they never overlap (target ≤12 visible)
-  const skipFactor = Math.max(1, Math.ceil(data.length / 12));
+  const chartWidth = Math.max(contentWidth, containerWidth || 0);
 
   return (
     // Scrollable wrapper — only scrolls when contentWidth > container width
@@ -43,14 +77,17 @@ export default function BarChart<T extends object>({
       style={{ overflowX: "auto", overflowY: "hidden" }}
       className="scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
     >
-      <div style={{ width: contentWidth, height: CHART_HEIGHT, minWidth: "100%" }}>
+      <div
+        ref={containerRef}
+        style={{ width: chartWidth, height: CHART_HEIGHT, minWidth: "100%" }}
+      >
         <Bar
-          width={contentWidth}
+          width={chartWidth}
           height={CHART_HEIGHT}
           data={data as BarDatum[]}
           keys={keys}
           indexBy={indexBy as string}
-          margin={{ top: 10, right: 20, bottom: 50, left: LEFT_MARGIN }}
+          margin={{ top: 10, right: 20, bottom: 60, left: LEFT_MARGIN }}
           borderRadius={15}
           padding={0.4}
           valueScale={{ type: "linear" }}
@@ -64,27 +101,18 @@ export default function BarChart<T extends object>({
             tickPadding: 10,
             tickRotation: 0,
             tickComponent: ({ x, y, value }) => {
-              // Find this bar's index to apply the skip rule
-              const idx = data.findIndex(
-                (d) => String(d[indexBy as keyof T]) === String(value)
-              );
-              // Return empty element for skipped ticks
-              if (idx % skipFactor !== 0) return <g />;
-
-              const parts = typeof value === "string" ? value.split(" ") : [];
-              const isMonthYear =
-                parts.length === 2 && /^[A-Za-z]{3}$/.test(parts[0]);
+              const monthYearLines = getMonthYearLines(value);
 
               return (
                 <g transform={`translate(${x},${y + 10})`}>
-                  {isMonthYear ? (
+                  {monthYearLines ? (
                     <>
                       <text
                         textAnchor="middle"
                         dominantBaseline="hanging"
                         style={{ fontSize: 11, fill: "#888" }}
                       >
-                        {parts[0]}
+                        {monthYearLines.line1}
                       </text>
                       <text
                         y={13}
@@ -92,7 +120,7 @@ export default function BarChart<T extends object>({
                         dominantBaseline="hanging"
                         style={{ fontSize: 11, fill: "#888" }}
                       >
-                        {parts[1]}
+                        {monthYearLines.line2}
                       </text>
                     </>
                   ) : (

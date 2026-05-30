@@ -23,8 +23,9 @@ const SignUp = () => {
 
   const [messageApi, contextHolder] = message.useMessage();
 
-  const onFinish = (values: SignUpRequest) => {
-    register(values, {
+  const onFinish = (values: SignUpRequest & { termsAccepted?: boolean }) => {
+    const { email, name, password } = values;
+    register({ email, name, password }, {
       onSuccess: (data) => {
         Cookies.set("tempToken", data.temp_token, {
           expires: 1 / 24,
@@ -110,16 +111,34 @@ const SignUp = () => {
           </div>
         </Form.Item>
 
-        {/* Remember Me */}
-        <Form.Item name="remember" valuePropName="checked" noStyle>
-          <div className="flex items-center space-x-2 ">
+        {/* Terms & Privacy */}
+        <Form.Item
+          name="termsAccepted"
+          valuePropName="checked"
+          rules={[
+            {
+              validator: (_, value) =>
+                value
+                  ? Promise.resolve()
+                  : Promise.reject(
+                    new Error("You must accept the Terms and Privacy Policy."),
+                  ),
+            },
+          ]}
+        >
+          <div className="flex items-start space-x-2">
             <Checkbox className="!accent-primary bg-accentBG !text-textsecondary" />
-            <label
-              htmlFor="remember"
-              className="text-textsecondary ml-2 !text-[1.1rem] theme-transition"
-            >
-              Remember Me
-            </label>
+            <span className="text-textsecondary ml-2 !text-[1.1rem] theme-transition">
+              By checking this box, I agree to the{" "}
+              <Link href="/legal/terms" className="text-blue-400 font-semibold hover:underline">
+                Terms
+              </Link>
+              {" "}and{" "}
+              <Link href="/legal/privacy" className="text-blue-400 font-semibold hover:underline">
+                Privacy Policy
+              </Link>
+              .
+            </span>
           </div>
         </Form.Item>
 

@@ -9,11 +9,28 @@ export interface Budget {
   budget_amount: string;
   start_date: string;
   end_date: string;
+  past_spending?: number;
+  reduction_percent?: number;
 }
 
 export interface BudgetCreate {
   category: string;
   budget_amount: number;
+  past_spending?: number;
+  reduction_percent?: number;
+}
+
+export interface PastSpendingOption {
+  reduction_percent: number;
+  estimated_savings: number;
+  new_budget_amount: number;
+  label: string;
+}
+
+export interface PastSpendingOptionsResponse {
+  category: string;
+  past_spending: number;
+  options: PastSpendingOption[];
 }
 
 export interface BudgetUpdate {
@@ -206,6 +223,15 @@ export const fetchBudgetGoalPeriodReviewAPI = async (
   const response = await baseInstance.get<BudgetGoalPeriodReview>(
     `/budgets/${budgetId}/review`,
     config
+  );
+  return response.data;
+};
+
+// Get past spending options
+export const fetchPastSpendingOptionsAPI = async (category: string) => {
+  const response = await baseInstance.get<PastSpendingOptionsResponse>(
+    "/budgets/past-spending",
+    { params: { category } }
   );
   return response.data;
 };

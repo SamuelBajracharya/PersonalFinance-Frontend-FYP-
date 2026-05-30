@@ -4,7 +4,7 @@ import React from "react";
 import { FaBalanceScale } from "react-icons/fa";
 import Image from "next/image";
 
-type StatType = "expense" | "income" | "balance";
+type StatType = "expense" | "income" | "balance" | "savings" | "goals_completed";
 
 interface StatCardProps {
   type: StatType;
@@ -55,6 +55,36 @@ export default function StatCard({
       icon: <FaBalanceScale className="size-8" />,
       prefix: "Rs.",
     },
+    savings: {
+      label: "Savings",
+      color: "text-emerald-500",
+      bg: "bg-emerald-500",
+      icon: (
+        <Image
+          src="/income.svg"
+          alt="Savings Icon"
+          width={24}
+          height={24}
+          className="size-8 invert"
+        />
+      ),
+      prefix: "Rs.",
+    },
+    goals_completed: {
+      label: "Goals Completed",
+      color: "text-purple-500",
+      bg: "bg-purple-600",
+      icon: (
+        <Image
+          src="/expense.svg"
+          alt="Goals Icon"
+          width={24}
+          height={24}
+          className="size-8 invert"
+        />
+      ),
+      prefix: "",
+    },
   }[type];
 
   return (
@@ -75,7 +105,7 @@ export default function StatCard({
           ) : (
             <>
               {config.prefix}
-              {Number(value).toFixed(2)}
+              {type === "goals_completed" ? Math.round(value) : Number(value).toFixed(2)}
             </>
           )}
         </p>

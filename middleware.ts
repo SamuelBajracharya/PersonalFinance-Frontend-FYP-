@@ -16,7 +16,7 @@ const PUBLIC_EXACT_PATHS = new Set([
   "/auth/register",
 ]);
 
-const PUBLIC_PREFIXES = ["/auth", "/onboarding", "/success"];
+const PUBLIC_PREFIXES = ["/auth", "/onboarding", "/success", "/legal"];
 const PROTECTED_PREFIXES = [
   "/dashboard",
   "/analytics",
@@ -109,9 +109,10 @@ export async function middleware(req: NextRequest) {
 
   const isAuthPage = pathname === "/auth/login" || pathname === "/auth/register";
   const isPublicPage = pathname === "/" || pathname === "/404";
+  const isLegalPage = pathname.startsWith("/legal");
 
   // Keep public non-auth pages accessible.
-  if (isPublicPage) {
+  if (isPublicPage || isLegalPage) {
     return NextResponse.next();
   }
 

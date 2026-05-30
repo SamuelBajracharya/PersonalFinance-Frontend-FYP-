@@ -357,7 +357,7 @@ export default function Profile() {
           {showInitialSkeletons ? (
             <SkeletonBlock className="h-[152px] rounded-2xl" />
           ) : (
-            <StatCard type="expense" value={86.85} />
+            <StatCard type="savings" value={user?.savings ?? 0} />
           )}
         </div>
 
@@ -365,7 +365,7 @@ export default function Profile() {
           {showInitialSkeletons ? (
             <SkeletonBlock className="h-[152px] rounded-2xl" />
           ) : (
-            <StatCard type="income" value={86.85} />
+            <StatCard type="goals_completed" value={user?.goals_completed ?? 0} />
           )}
         </div>
       </div>

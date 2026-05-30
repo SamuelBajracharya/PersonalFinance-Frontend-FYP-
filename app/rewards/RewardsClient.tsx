@@ -56,6 +56,12 @@ const formatRecentActivityTime = (rawDate?: string) => {
 };
 
 export default function Rewards() {
+  const [mounted, setMounted] = React.useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const messageApi = useAntdMessage();
   const { openVoucherOverlay } = useVouchersOverlay();
   const {
@@ -90,11 +96,12 @@ export default function Rewards() {
   const totalXp = currentUser?.total_xp ?? 0;
   const rank = currentUser?.rank ?? "Novice";
 
-  const showWhatIfSkeleton = isLoading && !whatIfScenarios;
-  const showCouponsSkeleton = vouchersLoading && !myVouchers;
-  const showXpSkeleton = currentUserLoading && !currentUser;
-  const showRecentSkeleton = recentLoading && !recentActivities;
+  const showWhatIfSkeleton = !mounted || (isLoading && !whatIfScenarios);
+  const showCouponsSkeleton = !mounted || (vouchersLoading && !myVouchers);
+  const showXpSkeleton = !mounted || (currentUserLoading && !currentUser);
+  const showRecentSkeleton = !mounted || (recentLoading && !recentActivities);
   const showLoadingOverlay =
+    !mounted ||
     showWhatIfSkeleton ||
     showCouponsSkeleton ||
     showXpSkeleton ||
@@ -355,7 +362,7 @@ export default function Rewards() {
         {/* RIGHT SIDE */}
         <div className="lg:col-span-4 flex flex-col gap-8">
           {/* XP CARD */}
-          {showXpSkeleton ? (
+          {showXpSkeleton || !currentUser ? (
             <div ref={xpCardRef} className="bg-secondaryBG p-8 rounded-3xl flex flex-col items-center text-center">
               <SkeletonBlock className="h-12 w-52 rounded-full mb-6" />
               <SkeletonBlock className="h-14 w-28" />
